@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package product;
+option go_package="./product";
+
+message ProductListRequest {
+  optional int64 StarId = 1;
+  optional string Keyword = 2;
+  int64 Page = 3;
+  int64 PageSize = 4;
+}
+
+message ProductImage {
+  int64 id = 1;
+  string url = 2;
+  int64 disPlayRank = 3;
+}
+
+message ProductListItem {
+  int64 Id = 1;
+  string Description = 2;
+  double Price = 3;
+  string Color = 4;
+  ProductImage Coverurl = 5;
+  string Unit = 6;
+}
+
+message ProductCoverUrlRequest {
+  int64 ProductId = 1;
+}
+
+message ProductCoverUrlResponse {
+  int64 id = 1;
+  string Url = 2;  
+}
+
+message ProductListResponse {
+  int64 Total = 1;
+  repeated ProductListItem Products = 2;
+}
+
+message ProductDetailReqeust {
+  int64 Id = 1;
+  int64 StarId = 2;
+}
+
+message ProductDetailResponse {
+  int64 Id = 1;
+  string Description = 2;
+  double Rate = 3;
+  int64 ReteCount = 4;
+  double Price = 5;
+  string Unit = 6;
+  string Color = 7;
+  int64 SoldNum = 8;
+  string Detail = 9;
+  int64 StarId = 10;
+  repeated string Size = 11;
+  repeated ProductImage Images = 12;
+  repeated ProductImage DetailImages = 13;
+}
+
+service Product {
+  rpc ProductList(ProductListRequest) returns (ProductListResponse);
+  rpc ProductDetail(ProductDetailReqeust) returns (ProductDetailResponse);
+}

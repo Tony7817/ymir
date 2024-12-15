@@ -1,0 +1,35 @@
+Name: bff
+Host: 0.0.0.0
+Port: 8888
+
+StarRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: ymir.star.rpc
+ProductRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: ymir.product.rpc
+RrecommendRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: ymir.recommend.rpc
+UserRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: ymir.user.rpc
+
+Auth:
+  AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
+  AccessExpire: 604800
+
+Signature:
+  Strict: true
+  Expircy: 24h
+  PrivateKeys:
+    - Fingerprint: "aaaasdf"
+      KeyFile: etc/private_key.pem

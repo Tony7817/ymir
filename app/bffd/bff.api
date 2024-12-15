@@ -1,0 +1,220 @@
+syntax = "v1"
+
+type (
+	// star apis
+	StarListRequest {
+		Keyword  *string `json:"keyword,optional"`
+		Page     int64   `json:"page"`
+		PageSize int64   `json:"page_size"`
+	}
+	StarListResponse {
+		ToTal int64          `json:"total"`
+		Stars []StarListItem `json:"stars"`
+	}
+	StarListItem {
+		Id       string `json:"id"`
+		Name     string `json:"name"`
+		CoverUrl string `json:"cover_url"`
+	}
+	StarDetailRequest {
+		Id string `path:"id"`
+	}
+	StarDetailResponse {
+		Id          string              `json:"id"`
+		Name        string              `json:"name"`
+		Description string              `json:"description"`
+		CoverUrl    string              `json:"cover_url"`
+		AvatarUrl   string              `json:"avatar_url"`
+		PosterUrl   string              `json:"poster_url"`
+		Products    ProductListResponse `json:"products"`
+	}
+	// product apis
+	ProductListRequest {
+		StarId   *string `json:"star_id,optional"`
+		Keyword  *string `json:"keyword,optional"`
+		Page     int64   `json:"page"`
+		PageSize int64   `json:"page_size"`
+	}
+	ProductListItem {
+		Id          string  `json:"id"`
+		CoverUrl    string  `json:"cover_url"`
+		Description string  `json:"description"`
+		Price       float64 `json:"price"`
+		Unit        string  `json:"unit"`
+	}
+	ProductListResponse {
+		Total    int64             `json:"total"`
+		Products []ProductListItem `json:"products"`
+	}
+	ProductDetailRequest {
+		Id string `path:"productId"`
+	}
+	ProductImage {
+		Id  string `json:"id"`
+		Url string `json:"url"`
+	}
+	ProductDetailResponse {
+		Id           string         `json:"id"`
+		Description  string         `json:"description"`
+		Rate         float64        `json:"rate"`
+		RateCount    int64          `json:"rate_count"`
+		Price        float64        `json:"price"`
+		Unit         string         `json:"unit"`
+		Size         []string       `json:"size"`
+		Color        string         `json:"color"`
+		Images       []ProductImage `json:"images"`
+		DetailImages []ProductImage `json:"detail_images"`
+		SoldNum      int64          `json:"sold_num"`
+		Detail       *string        `json:"detail"`
+		StarAvatar   string         `json:"star_avatar"`
+		StarName     string         `json:"star_name"`
+		StarId       string         `json:"star_id"`
+	}
+	// recommend apis
+	RecommendStarListRequest  {}
+	RecommendStarListResponse {
+		Recommends []RecommendStarListItem `json:"recommends"`
+	}
+	RecommendStarListItem {
+		StarId     string `json:"star_id"`
+		StarAvatar string `json:"star_avatar"`
+		StarName   string `json:"star_name"`
+	}
+	// -------
+	// user api
+	// -------
+	SigninRequest {
+		Email       *string `json:"email,optional"`
+		Phonenumber *string `json:"phone_number,optional"`
+		Password    string  `json:"password"`
+	}
+	SigninResponse {
+		UserId      string `json:"user_id"`
+		Username    string `json:"name"`
+		AccessToken string `json:"access_token"`
+		Role        int64  `json:"role"`
+		AvatarUrl   string `json:"avatar_url"`
+	}
+	SignupRequest {
+		Email       *string `json:"email,optional"`
+		Phonenumber *string `json:"phone_number,optional"`
+		Password    string  `json:"password"`
+	}
+	SignupResponse {
+		UserId string `json:"user_id"`
+	}
+	GetSignupCaptchaRequest {
+		Phonenumber *string `json:"phone_number,optional"`
+		Email       *string `json:"email,optional"`
+	}
+	GetSignupCaptchaResponse {
+		CreatedAt int64 `json:"created_at"`
+		OK        bool  `json:"ok"`
+	}
+	GetForgetPasswordCaptchaRequest {
+		Phonenumber *string `json:"phone_number,optional"`
+		Email       *string `json:"email,optional"`
+	}
+	GetForgetPasswordCaptchaResponse {
+		CreatedAt int64 `json:"created_at"`
+		OK        bool  `json:"ok"`
+	}
+	GetIpAddressRequest  {}
+	GetIpAddressResponse {
+		Ip string `json:"ip"`
+	}
+	ForgetPasswordRequest {
+		Phonenumber *string `json:"phone_number,optional"`
+		Email       *string `json:"email,optional"`
+		Password    string  `json:"password"`
+	}
+	ForgetpasswordResponse {
+		OK bool `json:"ok"`
+	}
+	UserDetailRequest  {}
+	UserDetailResponse {
+		Id          string  `json:"id"`
+		Phonenumber *string `json:"phone_number"`
+		Email       *string `json:"email"`
+		Username    string  `json:"username"`
+	}
+	VerifyCaptchaRequest {
+		Phonenumber *string `json:"phone_number,optional"`
+		Email       *string `json:"email,optional"`
+		Captcha     string  `json:"captcha"`
+	}
+	VerifyCaptchaResponse {
+		OK bool `json:"ok"`
+	}
+)
+
+@server (
+	group:  star
+	prefix: /api
+)
+service bff {
+	@handler StarList
+	post /star/list (StarListRequest) returns (StarListResponse)
+
+	@handler StarDetail
+	post /star/:id (StarDetailRequest) returns (StarDetailResponse)
+}
+
+@server (
+	group:  product
+	prefix: /api
+)
+service bff {
+	@handler ProductList
+	post /product/list (ProductListRequest) returns (ProductListResponse)
+
+	@handler ProductDetail
+	post /product/:productId (ProductDetailRequest) returns (ProductDetailResponse)
+}
+
+@server (
+	group:  recommend
+	prefix: /api
+)
+service bff {
+	@handler RecommendStarList
+	post /recommend/star/list (RecommendStarListRequest) returns (RecommendStarListResponse)
+}
+
+@server (
+	group:  user
+	prefix: /api
+)
+service bff {
+	@handler Signin
+	post /user/signin (SigninRequest) returns (SigninResponse)
+
+	@handler Signup
+	post /user/signup (SignupRequest) returns (SignupResponse)
+
+	@handler GetIpAddress
+	get /user/ip (GetIpAddressRequest) returns (GetIpAddressResponse)
+
+	@handler VerifyCaptcha
+	post /user/verify/captcha (VerifyCaptchaRequest) returns (VerifyCaptchaResponse)
+
+	@handler VerifyCaptchaWithAccount
+	post /user/verifyaccount/captcha (VerifyCaptchaRequest) returns (VerifyCaptchaResponse)
+
+	@handler ForgetPasswordReset
+	post /user/forgetpass/reset (ForgetPasswordRequest) returns (ForgetpasswordResponse)
+}
+
+@server (
+	group:     user
+	signature: true
+	prefix:    /api
+)
+service bff {
+	@handler GetSignupCaptcha
+	post /user/signup/captcha (GetSignupCaptchaRequest) returns (GetSignupCaptchaResponse)
+
+	@handler GetForgetPasswordCaptcha
+	post /user/forgetpassword/captcha (GetForgetPasswordCaptchaRequest) returns (GetForgetPasswordCaptchaResponse)
+}
+

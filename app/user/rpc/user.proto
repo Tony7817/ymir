@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package user;
+option go_package="./user";
+
+message GetUserRequest {
+    optional string Email = 1;
+    optional string Phonenumber = 3;
+    optional int64 UserId = 4;
+}
+
+message UserInfo {
+  int64 Id = 1;
+  string Username = 2;
+  string AvatarUrl = 3;
+  string PasswordHash = 4;
+  int64 IsActivated = 5;
+}
+
+message GetUserResponse {
+  optional UserInfo user = 1;
+}
+
+message SendCaptchaToEmailRequest {
+  string Email = 1;
+}
+
+message SendCaptchaToEmailResponse {
+  string Captcha = 1;
+}
+
+message SendCaptchaToPhonenumberRequest {
+  string Phonenumber = 1;
+}
+
+message SendPhonenumberResponse {
+  string Captcha = 1;
+}
+
+message WriteUserInDBWithEmailRequest {
+  string Email = 1;
+  string PasswordHash = 2;
+  string UserName = 3;
+
+  // avatar is not avaliable for now
+  // string AvatarUrl = 3; 
+}
+
+message WriteUserInDBWithEmailResponse {
+  int64 UserId = 1;
+}
+
+message WriteUserInDBWithPhonenumberRequest {
+  string Phonenumber = 1;
+  string PasswordHash = 2;
+  string UserName = 3;
+}
+
+message WriteUserInDBWithPhonenumberResponse {
+  int64 UserId = 1;
+}
+
+service user {
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc SendCaptchaToEmail(SendCaptchaToEmailRequest) returns (SendCaptchaToEmailResponse);
+  rpc SendCaptchaToPhonenumber(SendCaptchaToPhonenumberRequest) returns (SendPhonenumberResponse);
+  rpc WriteUserInDBWithEmail(WriteUserInDBWithEmailRequest) returns (WriteUserInDBWithEmailResponse);
+  rpc WriteUserInDBWithPhonenumber(WriteUserInDBWithPhonenumberRequest) returns (WriteUserInDBWithPhonenumberResponse);
+}
