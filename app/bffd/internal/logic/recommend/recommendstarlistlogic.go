@@ -42,7 +42,7 @@ func (l *RecommendStarListLogic) RecommendStarList(req *types.RecommendStarListR
 		}
 		stars = append(stars, types.RecommendStarListItem{
 			StarId:     idEncoded,
-			StarAvatar: starspb.Stars[i].CoverUrl,
+			StarAvatar: starspb.Stars[i].AvatarUrl,
 			StarName:   starspb.Stars[i].Name,
 		})
 	}

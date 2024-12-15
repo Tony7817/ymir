@@ -75,7 +75,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (res
 		Images:       images,
 		DetailImages: detailImages,
 		SoldNum:      p.SoldNum,
-		Detail:       &p.Description,
+		Detail:       &p.Detail,
 		StarAvatar:   s.AvatarUrl,
 		StarName:     s.Name,
 		StarId:       sIdEncoded,

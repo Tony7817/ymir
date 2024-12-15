@@ -57,9 +57,10 @@ func (l *StarListLogic) StarList(in *star.StarListRequest) (*star.StarListRespon
 	var starItems []*star.StarListResponseItem
 	for i := 0; i < len(stars); i++ {
 		starItems = append(starItems, &star.StarListResponseItem{
-			Id:       stars[i].Id,
-			Name:     stars[i].Name,
-			CoverUrl: stars[i].CoverUrl,
+			Id:        stars[i].Id,
+			Name:      stars[i].Name,
+			CoverUrl:  stars[i].CoverUrl,
+			AvatarUrl: stars[i].AvatarUrl,
 		})
 	}
 	var res = &star.StarListResponse{
