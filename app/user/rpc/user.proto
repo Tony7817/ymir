@@ -60,10 +60,20 @@ message WriteUserInDBWithPhonenumberResponse {
   int64 UserId = 1;
 }
 
+message GetCaptchaRequest {
+  optional string Email = 1;
+  optional string Phonenumber = 2;
+}
+
+message GetCaptchaResponse {
+  string Captcha = 1;
+}
+
 service user {
   rpc GetUser(GetUserRequest) returns (GetUserResponse);
   rpc SendCaptchaToEmail(SendCaptchaToEmailRequest) returns (SendCaptchaToEmailResponse);
   rpc SendCaptchaToPhonenumber(SendCaptchaToPhonenumberRequest) returns (SendPhonenumberResponse);
+  rpc GetCaptcha(GetCaptchaRequest) returns (GetCaptchaResponse);
   rpc WriteUserInDBWithEmail(WriteUserInDBWithEmailRequest) returns (WriteUserInDBWithEmailResponse);
   rpc WriteUserInDBWithPhonenumber(WriteUserInDBWithPhonenumberRequest) returns (WriteUserInDBWithPhonenumberResponse);
 }

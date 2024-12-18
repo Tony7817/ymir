@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net/http"
 
 	"ymir.com/app/bffd/internal/config"
 	"ymir.com/app/bffd/internal/handler"
@@ -21,12 +20,7 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
-	server := rest.MustNewServer(c.RestConf, rest.WithCustomCors(func(header http.Header) {
-		header.Set("Access-Control-Allow-Headers", "*")
-		header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-		header.Set("Access-Control-Expose-Headers", "Content-Length, Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Headers")
-		header.Set("Access-Control-Allow-Credentials", "true")
-	}, nil, "*"))
+	server := rest.MustNewServer(c.RestConf, rest.WithCors("*"))
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)

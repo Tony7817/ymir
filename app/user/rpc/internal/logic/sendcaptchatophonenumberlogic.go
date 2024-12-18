@@ -2,9 +2,12 @@ package logic
 
 import (
 	"context"
+	"database/sql"
 
 	"ymir.com/app/user/rpc/internal/svc"
+	"ymir.com/app/user/rpc/model"
 	"ymir.com/app/user/rpc/user"
+	"ymir.com/pkg/vars"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +27,27 @@ func NewSendCaptchaToPhonenumberLogic(ctx context.Context, svcCtx *svc.ServiceCo
 }
 
 func (l *SendCaptchaToPhonenumberLogic) SendCaptchaToPhonenumber(in *user.SendCaptchaToPhonenumberRequest) (*user.SendPhonenumberResponse, error) {
-	// todo: add your logic here and delete this line
+	var cacheKey = vars.GetPhonenumberCapchaCacheKey(in.Phonenumber)
 
-	return &user.SendPhonenumberResponse{}, nil
+	err := l.svcCtx.Redis.SetexCtx(l.ctx, cacheKey, "123456", vars.CacheExpireIn300s)
+	if err != nil {
+		logx.Errorf("set phonenumber captcha to redis failed, err: %+v", err)
+		err = nil
+	}
+
+	var capcha = model.Captcha{
+		VerifyCode: "123456",
+		PhoneNumber: sql.NullString{
+			String: in.Phonenumber,
+			Valid:  true,
+		},
+	}
+	_, err = l.svcCtx.CaptchaModel.Insert(l.ctx, &capcha)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user.SendPhonenumberResponse{
+		Captcha: "123456",
+	}, nil
 }

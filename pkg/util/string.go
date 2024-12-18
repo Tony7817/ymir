@@ -1,6 +1,9 @@
 package util
 
 import (
+	"crypto/rand"
+	"fmt"
+	"math/big"
 	"regexp"
 	"strings"
 
@@ -25,4 +28,19 @@ func Mask(s string) (string, error) {
 	}
 
 	return string(s[0]) + "*****" + s[len(s)-1:], nil
+}
+
+func GenerateCpatcha() (string, error) {
+	const codeLength = 6
+	const maxDigit = 10 // Digits are 0-9
+
+	code := ""
+	for i := 0; i < codeLength; i++ {
+		num, err := rand.Int(rand.Reader, big.NewInt(maxDigit))
+		if err != nil {
+			return "", fmt.Errorf("failed to generate secure code: %w", err)
+		}
+		code += num.String()
+	}
+	return code, nil
 }

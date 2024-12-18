@@ -146,6 +146,26 @@ type (
 	VerifyCaptchaResponse {
 		OK bool `json:"ok"`
 	}
+	// order
+	ProductCartListRequest {}
+	ProductCartListItem {
+		Id string `json:"id"`
+		Description string `json:"description"`
+		Price float64 `json:"price"`
+		Unit string `json:"unit"`
+		CoverUrl string `json:"cover_url"`
+		Quantity int64 `json:"quantity"`
+		Sizes []string `json:"sizes"`
+	}
+	ProductCartListResponse {
+		Products []ProductCartListItem `json:"product"`
+	}
+	AddProductAmountInCartRequest {
+		ProductId string `json:"product_id"`
+	} 
+	AddProductAmountInCartResponse {
+		OK bool `json:"ok"`
+	}
 )
 
 @server (
@@ -170,6 +190,16 @@ service bff {
 
 	@handler ProductDetail
 	post /product/:productId (ProductDetailRequest) returns (ProductDetailResponse)
+}
+
+@server (
+	group: order
+	prefix: /api
+	jwt: Auth
+)
+
+service bff {
+	@handler
 }
 
 @server (

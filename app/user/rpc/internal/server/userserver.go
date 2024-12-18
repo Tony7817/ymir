@@ -38,6 +38,11 @@ func (s *UserServer) SendCaptchaToPhonenumber(ctx context.Context, in *user.Send
 	return l.SendCaptchaToPhonenumber(in)
 }
 
+func (s *UserServer) GetCaptcha(ctx context.Context, in *user.GetCaptchaRequest) (*user.GetCaptchaResponse, error) {
+	l := logic.NewGetCaptchaLogic(ctx, s.svcCtx)
+	return l.GetCaptcha(in)
+}
+
 func (s *UserServer) WriteUserInDBWithEmail(ctx context.Context, in *user.WriteUserInDBWithEmailRequest) (*user.WriteUserInDBWithEmailResponse, error) {
 	l := logic.NewWriteUserInDBWithEmailLogic(ctx, s.svcCtx)
 	return l.WriteUserInDBWithEmail(in)
