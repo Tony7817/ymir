@@ -9,11 +9,8 @@ DataSource: root:test123@tcp(localhost:3306)/ymir?parseTime=true&loc=Local
 CacheRedis:
   - Host: localhost:6379
 
-Redis:
-  - Host: localhost:6379
-  - Pass: 
-  - Type: node
-
+BizRedis:
+  Host: 127.0.0.1:6379
 
 Log:
   ServiceName: ymir.star.rpc

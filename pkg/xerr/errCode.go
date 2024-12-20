@@ -29,8 +29,9 @@ const DataNoExistError uint32 = 100007
 
 // user service 200000-200999
 const UserAlreadyExistError uint32 = 201001
-
-//用户服务
+const CaptchaExpireError uint32 = 201002
+const WrongCaptchaError uint32 = 201003
+const MaxCaptchaSendTimeError uint32 = 201004
 
 //订单服务
 

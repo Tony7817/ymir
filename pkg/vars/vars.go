@@ -2,13 +2,24 @@ package vars
 
 import "fmt"
 
+// captcha
+const CaptchaCodeAnyWay = "293049"
+const CaptchaMaxSendTimesPerDay int64 = 12
+
+func GetCaptchaEmailSendTimes(email string) string {
+	return "cache:captcha:email:" + email + ":sendtimes"
+}
+
 // sql
 
 // cache
-const CacheExpireIn300s = 5 * 60
+const CacheExpireIn5m = 5 * 60
 
 func GetEmailCapchaCacheKey(email string) string {
 	return "cache:capcha:email:" + email
+}
+func GetEmailCapcheCreatedKey(email string) string {
+	return "cache:capcha:email:" + email + "created_at:"
 }
 
 func GetPhonenumberCapchaCacheKey(phonenumber string) string {
@@ -20,7 +31,8 @@ const ResetPasswordSite = "www.lureros.com/user/forgetpass/reset"
 
 // email
 // captcha
-var EmailCaptchaSenderName = "noreply@mail.lureros.com"
+var EmailNoReplySenderName = "noreply@mail.lureros.com"
+var EmailAlias = "Miss Lover"
 var EmailCaptchaSubJect = "Verify your Email"
 
 func GetCaptchaEmailTemplate(captcha string) string {

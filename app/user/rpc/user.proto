@@ -21,22 +21,6 @@ message GetUserResponse {
   optional UserInfo user = 1;
 }
 
-message SendCaptchaToEmailRequest {
-  string Email = 1;
-}
-
-message SendCaptchaToEmailResponse {
-  string Captcha = 1;
-}
-
-message SendCaptchaToPhonenumberRequest {
-  string Phonenumber = 1;
-}
-
-message SendPhonenumberResponse {
-  string Captcha = 1;
-}
-
 message WriteUserInDBWithEmailRequest {
   string Email = 1;
   string PasswordHash = 2;
@@ -60,20 +44,40 @@ message WriteUserInDBWithPhonenumberResponse {
   int64 UserId = 1;
 }
 
-message GetCaptchaRequest {
-  optional string Email = 1;
-  optional string Phonenumber = 2;
+message SendCaptchaToEmailRequest {
+  string Email = 2;
+}
+
+message SendCaptchaToEmailResponse {
+  int64 CreatedAt = 1;
+}
+
+message SendCaptchaToPhonenumberRequest {
+  string Phonenumber = 1;
+}
+
+message SendCaptchaToPhonenumberResponse {
+  int64 CreatedAt = 1;
+}
+
+message GetCaptchaByEmailRequest {
+  string Email = 1;
+}
+
+message GetCaptchaByPhonenumberRequest {
+  string Phonenumber = 1;
 }
 
 message GetCaptchaResponse {
   string Captcha = 1;
+  int64 CreatedAt = 2;
 }
 
 service user {
   rpc GetUser(GetUserRequest) returns (GetUserResponse);
   rpc SendCaptchaToEmail(SendCaptchaToEmailRequest) returns (SendCaptchaToEmailResponse);
-  rpc SendCaptchaToPhonenumber(SendCaptchaToPhonenumberRequest) returns (SendPhonenumberResponse);
-  rpc GetCaptcha(GetCaptchaRequest) returns (GetCaptchaResponse);
+  rpc GetCaptchaByEmail(GetCaptchaByEmailRequest) returns (GetCaptchaResponse);
+  rpc GetCaptchaByPhonenumber(GetCaptchaByPhonenumberRequest) returns (GetCaptchaResponse);
   rpc WriteUserInDBWithEmail(WriteUserInDBWithEmailRequest) returns (WriteUserInDBWithEmailResponse);
   rpc WriteUserInDBWithPhonenumber(WriteUserInDBWithPhonenumberRequest) returns (WriteUserInDBWithPhonenumberResponse);
 }

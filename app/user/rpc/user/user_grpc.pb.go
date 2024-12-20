@@ -21,8 +21,8 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	User_GetUser_FullMethodName                      = "/user.user/GetUser"
 	User_SendCaptchaToEmail_FullMethodName           = "/user.user/SendCaptchaToEmail"
-	User_SendCaptchaToPhonenumber_FullMethodName     = "/user.user/SendCaptchaToPhonenumber"
-	User_GetCaptcha_FullMethodName                   = "/user.user/GetCaptcha"
+	User_GetCaptchaByEmail_FullMethodName            = "/user.user/GetCaptchaByEmail"
+	User_GetCaptchaByPhonenumber_FullMethodName      = "/user.user/GetCaptchaByPhonenumber"
 	User_WriteUserInDBWithEmail_FullMethodName       = "/user.user/WriteUserInDBWithEmail"
 	User_WriteUserInDBWithPhonenumber_FullMethodName = "/user.user/WriteUserInDBWithPhonenumber"
 )
@@ -33,8 +33,8 @@ const (
 type UserClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	SendCaptchaToEmail(ctx context.Context, in *SendCaptchaToEmailRequest, opts ...grpc.CallOption) (*SendCaptchaToEmailResponse, error)
-	SendCaptchaToPhonenumber(ctx context.Context, in *SendCaptchaToPhonenumberRequest, opts ...grpc.CallOption) (*SendPhonenumberResponse, error)
-	GetCaptcha(ctx context.Context, in *GetCaptchaRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
+	GetCaptchaByEmail(ctx context.Context, in *GetCaptchaByEmailRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
+	GetCaptchaByPhonenumber(ctx context.Context, in *GetCaptchaByPhonenumberRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
 	WriteUserInDBWithEmail(ctx context.Context, in *WriteUserInDBWithEmailRequest, opts ...grpc.CallOption) (*WriteUserInDBWithEmailResponse, error)
 	WriteUserInDBWithPhonenumber(ctx context.Context, in *WriteUserInDBWithPhonenumberRequest, opts ...grpc.CallOption) (*WriteUserInDBWithPhonenumberResponse, error)
 }
@@ -67,20 +67,20 @@ func (c *userClient) SendCaptchaToEmail(ctx context.Context, in *SendCaptchaToEm
 	return out, nil
 }
 
-func (c *userClient) SendCaptchaToPhonenumber(ctx context.Context, in *SendCaptchaToPhonenumberRequest, opts ...grpc.CallOption) (*SendPhonenumberResponse, error) {
+func (c *userClient) GetCaptchaByEmail(ctx context.Context, in *GetCaptchaByEmailRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SendPhonenumberResponse)
-	err := c.cc.Invoke(ctx, User_SendCaptchaToPhonenumber_FullMethodName, in, out, cOpts...)
+	out := new(GetCaptchaResponse)
+	err := c.cc.Invoke(ctx, User_GetCaptchaByEmail_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userClient) GetCaptcha(ctx context.Context, in *GetCaptchaRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error) {
+func (c *userClient) GetCaptchaByPhonenumber(ctx context.Context, in *GetCaptchaByPhonenumberRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetCaptchaResponse)
-	err := c.cc.Invoke(ctx, User_GetCaptcha_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, User_GetCaptchaByPhonenumber_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -113,8 +113,8 @@ func (c *userClient) WriteUserInDBWithPhonenumber(ctx context.Context, in *Write
 type UserServer interface {
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	SendCaptchaToEmail(context.Context, *SendCaptchaToEmailRequest) (*SendCaptchaToEmailResponse, error)
-	SendCaptchaToPhonenumber(context.Context, *SendCaptchaToPhonenumberRequest) (*SendPhonenumberResponse, error)
-	GetCaptcha(context.Context, *GetCaptchaRequest) (*GetCaptchaResponse, error)
+	GetCaptchaByEmail(context.Context, *GetCaptchaByEmailRequest) (*GetCaptchaResponse, error)
+	GetCaptchaByPhonenumber(context.Context, *GetCaptchaByPhonenumberRequest) (*GetCaptchaResponse, error)
 	WriteUserInDBWithEmail(context.Context, *WriteUserInDBWithEmailRequest) (*WriteUserInDBWithEmailResponse, error)
 	WriteUserInDBWithPhonenumber(context.Context, *WriteUserInDBWithPhonenumberRequest) (*WriteUserInDBWithPhonenumberResponse, error)
 	mustEmbedUnimplementedUserServer()
@@ -133,11 +133,11 @@ func (UnimplementedUserServer) GetUser(context.Context, *GetUserRequest) (*GetUs
 func (UnimplementedUserServer) SendCaptchaToEmail(context.Context, *SendCaptchaToEmailRequest) (*SendCaptchaToEmailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendCaptchaToEmail not implemented")
 }
-func (UnimplementedUserServer) SendCaptchaToPhonenumber(context.Context, *SendCaptchaToPhonenumberRequest) (*SendPhonenumberResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendCaptchaToPhonenumber not implemented")
+func (UnimplementedUserServer) GetCaptchaByEmail(context.Context, *GetCaptchaByEmailRequest) (*GetCaptchaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCaptchaByEmail not implemented")
 }
-func (UnimplementedUserServer) GetCaptcha(context.Context, *GetCaptchaRequest) (*GetCaptchaResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCaptcha not implemented")
+func (UnimplementedUserServer) GetCaptchaByPhonenumber(context.Context, *GetCaptchaByPhonenumberRequest) (*GetCaptchaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCaptchaByPhonenumber not implemented")
 }
 func (UnimplementedUserServer) WriteUserInDBWithEmail(context.Context, *WriteUserInDBWithEmailRequest) (*WriteUserInDBWithEmailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WriteUserInDBWithEmail not implemented")
@@ -202,38 +202,38 @@ func _User_SendCaptchaToEmail_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_SendCaptchaToPhonenumber_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SendCaptchaToPhonenumberRequest)
+func _User_GetCaptchaByEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCaptchaByEmailRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).SendCaptchaToPhonenumber(ctx, in)
+		return srv.(UserServer).GetCaptchaByEmail(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: User_SendCaptchaToPhonenumber_FullMethodName,
+		FullMethod: User_GetCaptchaByEmail_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).SendCaptchaToPhonenumber(ctx, req.(*SendCaptchaToPhonenumberRequest))
+		return srv.(UserServer).GetCaptchaByEmail(ctx, req.(*GetCaptchaByEmailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_GetCaptcha_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCaptchaRequest)
+func _User_GetCaptchaByPhonenumber_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCaptchaByPhonenumberRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).GetCaptcha(ctx, in)
+		return srv.(UserServer).GetCaptchaByPhonenumber(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: User_GetCaptcha_FullMethodName,
+		FullMethod: User_GetCaptchaByPhonenumber_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetCaptcha(ctx, req.(*GetCaptchaRequest))
+		return srv.(UserServer).GetCaptchaByPhonenumber(ctx, req.(*GetCaptchaByPhonenumberRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -290,12 +290,12 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_SendCaptchaToEmail_Handler,
 		},
 		{
-			MethodName: "SendCaptchaToPhonenumber",
-			Handler:    _User_SendCaptchaToPhonenumber_Handler,
+			MethodName: "GetCaptchaByEmail",
+			Handler:    _User_GetCaptchaByEmail_Handler,
 		},
 		{
-			MethodName: "GetCaptcha",
-			Handler:    _User_GetCaptcha_Handler,
+			MethodName: "GetCaptchaByPhonenumber",
+			Handler:    _User_GetCaptchaByPhonenumber_Handler,
 		},
 		{
 			MethodName: "WriteUserInDBWithEmail",

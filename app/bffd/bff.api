@@ -1,5 +1,3 @@
-syntax = "v1"
-
 type (
 	// star apis
 	StarListRequest {
@@ -103,21 +101,19 @@ type (
 	SignupResponse {
 		UserId string `json:"user_id"`
 	}
-	GetSignupCaptchaRequest {
+	SendSignupCaptchaRequest {
 		Phonenumber *string `json:"phone_number,optional"`
 		Email       *string `json:"email,optional"`
 	}
-	GetSignupCaptchaResponse {
+	SendSignupCaptchaResponse {
 		CreatedAt int64 `json:"created_at"`
-		OK        bool  `json:"ok"`
 	}
-	GetForgetPasswordCaptchaRequest {
+	SendForgetPasswordCaptchaRequest {
 		Phonenumber *string `json:"phone_number,optional"`
 		Email       *string `json:"email,optional"`
 	}
-	GetForgetPasswordCaptchaResponse {
+	SendForgetPasswordCaptchaResponse {
 		CreatedAt int64 `json:"created_at"`
-		OK        bool  `json:"ok"`
 	}
 	GetIpAddressRequest  {}
 	GetIpAddressResponse {
@@ -147,22 +143,22 @@ type (
 		OK bool `json:"ok"`
 	}
 	// order
-	ProductCartListRequest {}
+	ProductCartListRequest  {}
 	ProductCartListItem {
-		Id string `json:"id"`
-		Description string `json:"description"`
-		Price float64 `json:"price"`
-		Unit string `json:"unit"`
-		CoverUrl string `json:"cover_url"`
-		Quantity int64 `json:"quantity"`
-		Sizes []string `json:"sizes"`
+		Id          string   `json:"id"`
+		Description string   `json:"description"`
+		Price       float64  `json:"price"`
+		Unit        string   `json:"unit"`
+		CoverUrl    string   `json:"cover_url"`
+		Quantity    int64    `json:"quantity"`
+		Sizes       []string `json:"sizes"`
 	}
 	ProductCartListResponse {
 		Products []ProductCartListItem `json:"product"`
 	}
 	AddProductAmountInCartRequest {
 		ProductId string `json:"product_id"`
-	} 
+	}
 	AddProductAmountInCartResponse {
 		OK bool `json:"ok"`
 	}
@@ -193,16 +189,6 @@ service bff {
 }
 
 @server (
-	group: order
-	prefix: /api
-	jwt: Auth
-)
-
-service bff {
-	@handler
-}
-
-@server (
 	group:  recommend
 	prefix: /api
 )
@@ -228,9 +214,6 @@ service bff {
 	@handler VerifyCaptcha
 	post /user/verify/captcha (VerifyCaptchaRequest) returns (VerifyCaptchaResponse)
 
-	@handler VerifyCaptchaWithAccount
-	post /user/verifyaccount/captcha (VerifyCaptchaRequest) returns (VerifyCaptchaResponse)
-
 	@handler ForgetPasswordReset
 	post /user/forgetpass/reset (ForgetPasswordRequest) returns (ForgetpasswordResponse)
 }
@@ -241,10 +224,10 @@ service bff {
 	prefix:    /api
 )
 service bff {
-	@handler GetSignupCaptcha
-	post /user/signup/captcha (GetSignupCaptchaRequest) returns (GetSignupCaptchaResponse)
+	@handler SendSignupCaptcha
+	post /user/signup/captcha (SendSignupCaptchaRequest) returns (SendSignupCaptchaResponse)
 
-	@handler GetForgetPasswordCaptcha
-	post /user/forgetpassword/captcha (GetForgetPasswordCaptchaRequest) returns (GetForgetPasswordCaptchaResponse)
+	@handler SendForgetPasswordCaptcha
+	post /user/forgetpassword/captcha (SendForgetPasswordCaptchaRequest) returns (SendForgetPasswordCaptchaResponse)
 }
 

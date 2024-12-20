@@ -5,7 +5,6 @@ import (
 	"ymir.com/app/user/rpc/model"
 	"ymir.com/pkg/aliyun"
 
-	dm "github.com/alibabacloud-go/dm-20151123/v2/client"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
@@ -17,11 +16,11 @@ type ServiceContext struct {
 	Redis        *redis.Redis
 
 	// aliyun
-	EmailClient *dm.Client
+	EmailClient *aliyun.ClientWrapper
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	client, err := aliyun.NewEmailClient()
+	client, err := aliyun.NewClientWrapper()
 	if err != nil {
 		panic(err)
 	}
@@ -29,7 +28,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config:       c,
 		UserModel:    model.NewUserModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
 		CaptchaModel: model.NewCaptchaModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
-		Redis:        redis.New(c.Redis.Host, redis.WithPass(c.Redis.Pass)),
+		Redis:        redis.New(c.BizRedis.Host, redis.WithPass(c.BizRedis.Pass)),
 		EmailClient:  client,
 	}
 }

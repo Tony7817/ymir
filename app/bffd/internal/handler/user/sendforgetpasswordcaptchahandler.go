@@ -9,16 +9,16 @@ import (
 	"ymir.com/app/bffd/internal/types"
 )
 
-func VerifyCaptchaHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func SendForgetPasswordCaptchaHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.VerifyCaptchaRequest
+		var req types.SendForgetPasswordCaptchaRequest
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
 
-		l := user.NewVerifyCaptchaLogic(r.Context(), svcCtx)
-		resp, err := l.VerifyCaptcha(&req)
+		l := user.NewSendForgetPasswordCaptchaLogic(r.Context(), svcCtx)
+		resp, err := l.SendForgetPasswordCaptcha(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {

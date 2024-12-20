@@ -14,14 +14,15 @@ import (
 )
 
 type (
-	GetCaptchaRequest                    = user.GetCaptchaRequest
+	GetCaptchaByEmailRequest             = user.GetCaptchaByEmailRequest
+	GetCaptchaByPhonenumberRequest       = user.GetCaptchaByPhonenumberRequest
 	GetCaptchaResponse                   = user.GetCaptchaResponse
 	GetUserRequest                       = user.GetUserRequest
 	GetUserResponse                      = user.GetUserResponse
 	SendCaptchaToEmailRequest            = user.SendCaptchaToEmailRequest
 	SendCaptchaToEmailResponse           = user.SendCaptchaToEmailResponse
 	SendCaptchaToPhonenumberRequest      = user.SendCaptchaToPhonenumberRequest
-	SendPhonenumberResponse              = user.SendPhonenumberResponse
+	SendCaptchaToPhonenumberResponse     = user.SendCaptchaToPhonenumberResponse
 	UserInfo                             = user.UserInfo
 	WriteUserInDBWithEmailRequest        = user.WriteUserInDBWithEmailRequest
 	WriteUserInDBWithEmailResponse       = user.WriteUserInDBWithEmailResponse
@@ -31,8 +32,8 @@ type (
 	User interface {
 		GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 		SendCaptchaToEmail(ctx context.Context, in *SendCaptchaToEmailRequest, opts ...grpc.CallOption) (*SendCaptchaToEmailResponse, error)
-		SendCaptchaToPhonenumber(ctx context.Context, in *SendCaptchaToPhonenumberRequest, opts ...grpc.CallOption) (*SendPhonenumberResponse, error)
-		GetCaptcha(ctx context.Context, in *GetCaptchaRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
+		GetCaptchaByEmail(ctx context.Context, in *GetCaptchaByEmailRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
+		GetCaptchaByPhonenumber(ctx context.Context, in *GetCaptchaByPhonenumberRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
 		WriteUserInDBWithEmail(ctx context.Context, in *WriteUserInDBWithEmailRequest, opts ...grpc.CallOption) (*WriteUserInDBWithEmailResponse, error)
 		WriteUserInDBWithPhonenumber(ctx context.Context, in *WriteUserInDBWithPhonenumberRequest, opts ...grpc.CallOption) (*WriteUserInDBWithPhonenumberResponse, error)
 	}
@@ -58,14 +59,14 @@ func (m *defaultUser) SendCaptchaToEmail(ctx context.Context, in *SendCaptchaToE
 	return client.SendCaptchaToEmail(ctx, in, opts...)
 }
 
-func (m *defaultUser) SendCaptchaToPhonenumber(ctx context.Context, in *SendCaptchaToPhonenumberRequest, opts ...grpc.CallOption) (*SendPhonenumberResponse, error) {
+func (m *defaultUser) GetCaptchaByEmail(ctx context.Context, in *GetCaptchaByEmailRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
-	return client.SendCaptchaToPhonenumber(ctx, in, opts...)
+	return client.GetCaptchaByEmail(ctx, in, opts...)
 }
 
-func (m *defaultUser) GetCaptcha(ctx context.Context, in *GetCaptchaRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error) {
+func (m *defaultUser) GetCaptchaByPhonenumber(ctx context.Context, in *GetCaptchaByPhonenumberRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
-	return client.GetCaptcha(ctx, in, opts...)
+	return client.GetCaptchaByPhonenumber(ctx, in, opts...)
 }
 
 func (m *defaultUser) WriteUserInDBWithEmail(ctx context.Context, in *WriteUserInDBWithEmailRequest, opts ...grpc.CallOption) (*WriteUserInDBWithEmailResponse, error) {

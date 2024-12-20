@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"strconv"
 
 	"ymir.com/app/user/rpc/internal/svc"
 	"ymir.com/app/user/rpc/model"
@@ -11,8 +12,7 @@ import (
 	"ymir.com/pkg/vars"
 	"ymir.com/pkg/xerr"
 
-	"github.com/alibabacloud-go/dm-20151123/v2/client"
-	"github.com/alibabacloud-go/tea/tea"
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -31,54 +31,61 @@ func NewSendCaptchaToEmailLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 }
 
 func (l *SendCaptchaToEmailLogic) SendCaptchaToEmail(in *user.SendCaptchaToEmailRequest) (*user.SendCaptchaToEmailResponse, error) {
-	if util.IsEmailValid(in.Email) {
-		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+	sendTimesRaw, _ := l.svcCtx.Redis.Get(vars.GetCaptchaEmailSendTimes(in.Email))
+	if sendTimesRaw != "" {
+		sendTimes, _ := strconv.ParseInt(sendTimesRaw, 10, 64)
+		if sendTimes > vars.CaptchaMaxSendTimesPerDay {
+			return nil, xerr.NewErrCode(xerr.CaptchaExpireError)
+		}
 	}
-
-	var cacheKey = vars.GetEmailCapchaCacheKey(in.Email)
-	err := l.svcCtx.Redis.SetexCtx(l.ctx, cacheKey, "123456", 300)
-	if err != nil {
-		logx.Errorf("set email captcha to redis failed, err: %+v", err)
-		err = nil
-	}
-
-	code, err := util.GenerateCpatcha()
+	
+	captcha, err := l.svcCtx.CaptchaModel.FindCaptchaByEmail(in.Email)
 	if err != nil {
 		return nil, err
 	}
 
-	captcha := model.Captcha{
+	if captcha != nil {
+		go l.sendCaptchaEmail(in.Email, captcha.VerifyCode)
+	}
+
+	code, err := util.GenerateCpatcha()
+	if err != nil {
+		code = vars.CaptchaCodeAnyWay
+	}
+
+	var newCaptcha = model.Captcha{
 		VerifyCode: code,
 		Email: sql.NullString{
 			String: in.Email,
 			Valid:  true,
 		},
-		IsDelete: 0,
 	}
-	_, err = l.svcCtx.CaptchaModel.Insert(l.ctx, &captcha)
+
+	ret, err := l.svcCtx.CaptchaModel.InsertCaptchaToDbAndCache(newCaptcha)
 	if err != nil {
 		return nil, err
 	}
 
-	go func() {
-		resp, err := l.svcCtx.EmailClient.SingleSendMail(&client.SingleSendMailRequest{
-			AccountName:    tea.String(vars.EmailCaptchaSenderName),
-			AddressType:    tea.Int32(1),
-			ReplyToAddress: tea.Bool(false),
-			ToAddress:      tea.String(in.Email),
-			Subject:        tea.String(vars.EmailCaptchaSubJect),
-			HtmlBody:       tea.String(vars.GetCaptchaEmailTemplate(code)),
-			FromAlias:      tea.String("Miss Lover"),
-		})
-		if err != nil {
-			logx.Errorf("[EmailCaptcha] send captcha to email failed, err: %+v", err)
-		}
-		if resp.StatusCode != nil && (*resp.StatusCode < 200 || *resp.StatusCode >= 300) {
-			logx.Errorf("[EmailCaptcha] send captcha to email failed resp: %+v", *resp)
-		}
-	}()
+	lastInsertedI, err := ret.LastInsertId()
+	if err != nil {
+		return nil, errors.Wrap(err, "[SendCaptchaToEmail] get last insert id failed")
+	}
+
+	lastInsertedCaptcha, err := l.svcCtx.CaptchaModel.FindOne(l.ctx, lastInsertedI)
+	if err != nil {
+		return nil, errors.Wrapf(err, "[SendCaptchaToEmail] find captcha failed, id: %d", lastInsertedI)
+	}
 
 	return &user.SendCaptchaToEmailResponse{
-		Captcha: "123456",
+		CreatedAt: lastInsertedCaptcha.CreatedAt.Unix(),
 	}, nil
+}
+
+func (l *SendCaptchaToEmailLogic) sendCaptchaEmail(email string, captcha string) error {
+	err := l.svcCtx.EmailClient.SendNoReplayEmail(email, vars.EmailCaptchaSubJect, vars.GetCaptchaEmailTemplate(captcha))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

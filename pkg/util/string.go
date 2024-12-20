@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -43,4 +44,19 @@ func GenerateCpatcha() (string, error) {
 		code += num.String()
 	}
 	return code, nil
+}
+
+// Save captcha in redis as the format of "captcha:createdAt"
+func ParseRedisCaptcha(value string) (string, int64, error) {
+	var vs = strings.Split(value, ":")
+	if len(vs) != 2 {
+		return "", 0, errors.Wrapf(xerr.NewErrCode(xerr.ReuqestParamError), "invalid redis captcha value")
+	}
+
+	createdAt, err := strconv.ParseInt(vs[1], 10, 64)
+	if err != nil {
+		return "", 0, errors.Wrapf(xerr.NewErrCode(xerr.ReuqestParamError), "invalid redis captcha created time")
+	}
+
+	return vs[0], createdAt, nil
 }
