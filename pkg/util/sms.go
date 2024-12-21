@@ -38,6 +38,7 @@ func SendCaptchaToPhonenumber(phonenumber string, captcha string) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
 	resRaw, err := io.ReadAll(resp.Body)
 	if err != nil {
