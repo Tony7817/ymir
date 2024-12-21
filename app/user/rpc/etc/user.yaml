@@ -14,4 +14,4 @@ BizRedis:
 
 Log:
   ServiceName: ymir.star.rpc
-  Level: debug
+  Level: error
