@@ -17,7 +17,7 @@ func GetCaptchaEmailSendTimesKey(email string) string {
 }
 
 func GetCaptchaPhonenumberSendTimesKey(phonenumber string) string {
-    return "cache:captcha:phonenumber:" + phonenumber + ":sendtimes"
+	return "cache:captcha:phonenumber:" + phonenumber + ":sendtimes"
 }
 
 func GetCaptchaPhonenumberLastRequestTime(phonenumber string) string {
@@ -119,7 +119,7 @@ func GetCaptchaEmailTemplate(captcha string) string {
 <body>
     <div class="container">
         <div class="header">
-            <h1>miss lover</h1>
+            <h1>Lureros</h1>
         </div>
         <div class="title">
             <strong>Verify your email address</strong>
