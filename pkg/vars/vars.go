@@ -6,12 +6,20 @@ import "fmt"
 const CaptchaCodeAnyWay = "293049"
 const CaptchaMaxSendTimesPerDay int64 = 12
 
+// template sms send api
+const SmsUrl = "https://api-v4.mysubmail.com/internationalsms/xsend"
+
 func GetCaptchaEmailLastRequestTime(email string) string {
 	return "cache:captcha:email:" + email + ":last_request_time"
 }
-func GetCaptchaEmailSendTimes(email string) string {
+func GetCaptchaEmailSendTimesKey(email string) string {
 	return "cache:captcha:email:" + email + ":sendtimes"
 }
+
+func GetCaptchaPhonenumberSendTimesKey(phonenumber string) string {
+    return "cache:captcha:phonenumber:" + phonenumber + ":sendtimes"
+}
+
 func GetCaptchaPhonenumberLastRequestTime(phonenumber string) string {
 	return "cache:captcha:phonenumber:" + phonenumber + ":last_request_time"
 }

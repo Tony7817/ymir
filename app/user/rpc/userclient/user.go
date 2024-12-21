@@ -34,6 +34,7 @@ type (
 	User interface {
 		GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 		SendCaptchaToEmail(ctx context.Context, in *SendCaptchaToEmailRequest, opts ...grpc.CallOption) (*SendCaptchaToEmailResponse, error)
+		SendCaptchaToPhonenumber(ctx context.Context, in *SendCaptchaToPhonenumberRequest, opts ...grpc.CallOption) (*SendCaptchaToPhonenumberResponse, error)
 		GetCaptchaByEmail(ctx context.Context, in *GetCaptchaByEmailRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
 		GetCaptchaByPhonenumber(ctx context.Context, in *GetCaptchaByPhonenumberRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
 		DeleteCaptcha(ctx context.Context, in *DeleteCaptchaRequest, opts ...grpc.CallOption) (*DeleteCaptchaResponse, error)
@@ -60,6 +61,11 @@ func (m *defaultUser) GetUser(ctx context.Context, in *GetUserRequest, opts ...g
 func (m *defaultUser) SendCaptchaToEmail(ctx context.Context, in *SendCaptchaToEmailRequest, opts ...grpc.CallOption) (*SendCaptchaToEmailResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.SendCaptchaToEmail(ctx, in, opts...)
+}
+
+func (m *defaultUser) SendCaptchaToPhonenumber(ctx context.Context, in *SendCaptchaToPhonenumberRequest, opts ...grpc.CallOption) (*SendCaptchaToPhonenumberResponse, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.SendCaptchaToPhonenumber(ctx, in, opts...)
 }
 
 func (m *defaultUser) GetCaptchaByEmail(ctx context.Context, in *GetCaptchaByEmailRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error) {

@@ -189,6 +189,16 @@ service bff {
 }
 
 @server (
+	group:  order
+	prefix: /api
+	jwt:    Auth
+)
+service bff {
+	@handler CartList
+	post /cart/list (ProductCartListRequest) returns (ProductCartListResponse)
+}
+
+@server (
 	group:  recommend
 	prefix: /api
 )

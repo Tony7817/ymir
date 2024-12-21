@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	User_GetUser_FullMethodName                      = "/user.user/GetUser"
 	User_SendCaptchaToEmail_FullMethodName           = "/user.user/SendCaptchaToEmail"
+	User_SendCaptchaToPhonenumber_FullMethodName     = "/user.user/SendCaptchaToPhonenumber"
 	User_GetCaptchaByEmail_FullMethodName            = "/user.user/GetCaptchaByEmail"
 	User_GetCaptchaByPhonenumber_FullMethodName      = "/user.user/GetCaptchaByPhonenumber"
 	User_DeleteCaptcha_FullMethodName                = "/user.user/DeleteCaptcha"
@@ -34,6 +35,7 @@ const (
 type UserClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	SendCaptchaToEmail(ctx context.Context, in *SendCaptchaToEmailRequest, opts ...grpc.CallOption) (*SendCaptchaToEmailResponse, error)
+	SendCaptchaToPhonenumber(ctx context.Context, in *SendCaptchaToPhonenumberRequest, opts ...grpc.CallOption) (*SendCaptchaToPhonenumberResponse, error)
 	GetCaptchaByEmail(ctx context.Context, in *GetCaptchaByEmailRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
 	GetCaptchaByPhonenumber(ctx context.Context, in *GetCaptchaByPhonenumberRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
 	DeleteCaptcha(ctx context.Context, in *DeleteCaptchaRequest, opts ...grpc.CallOption) (*DeleteCaptchaResponse, error)
@@ -63,6 +65,16 @@ func (c *userClient) SendCaptchaToEmail(ctx context.Context, in *SendCaptchaToEm
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SendCaptchaToEmailResponse)
 	err := c.cc.Invoke(ctx, User_SendCaptchaToEmail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) SendCaptchaToPhonenumber(ctx context.Context, in *SendCaptchaToPhonenumberRequest, opts ...grpc.CallOption) (*SendCaptchaToPhonenumberResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SendCaptchaToPhonenumberResponse)
+	err := c.cc.Invoke(ctx, User_SendCaptchaToPhonenumber_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -125,6 +137,7 @@ func (c *userClient) WriteUserInDBWithPhonenumber(ctx context.Context, in *Write
 type UserServer interface {
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	SendCaptchaToEmail(context.Context, *SendCaptchaToEmailRequest) (*SendCaptchaToEmailResponse, error)
+	SendCaptchaToPhonenumber(context.Context, *SendCaptchaToPhonenumberRequest) (*SendCaptchaToPhonenumberResponse, error)
 	GetCaptchaByEmail(context.Context, *GetCaptchaByEmailRequest) (*GetCaptchaResponse, error)
 	GetCaptchaByPhonenumber(context.Context, *GetCaptchaByPhonenumberRequest) (*GetCaptchaResponse, error)
 	DeleteCaptcha(context.Context, *DeleteCaptchaRequest) (*DeleteCaptchaResponse, error)
@@ -145,6 +158,9 @@ func (UnimplementedUserServer) GetUser(context.Context, *GetUserRequest) (*GetUs
 }
 func (UnimplementedUserServer) SendCaptchaToEmail(context.Context, *SendCaptchaToEmailRequest) (*SendCaptchaToEmailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendCaptchaToEmail not implemented")
+}
+func (UnimplementedUserServer) SendCaptchaToPhonenumber(context.Context, *SendCaptchaToPhonenumberRequest) (*SendCaptchaToPhonenumberResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendCaptchaToPhonenumber not implemented")
 }
 func (UnimplementedUserServer) GetCaptchaByEmail(context.Context, *GetCaptchaByEmailRequest) (*GetCaptchaResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCaptchaByEmail not implemented")
@@ -214,6 +230,24 @@ func _User_SendCaptchaToEmail_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).SendCaptchaToEmail(ctx, req.(*SendCaptchaToEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_SendCaptchaToPhonenumber_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendCaptchaToPhonenumberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SendCaptchaToPhonenumber(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_SendCaptchaToPhonenumber_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SendCaptchaToPhonenumber(ctx, req.(*SendCaptchaToPhonenumberRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -322,6 +356,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendCaptchaToEmail",
 			Handler:    _User_SendCaptchaToEmail_Handler,
+		},
+		{
+			MethodName: "SendCaptchaToPhonenumber",
+			Handler:    _User_SendCaptchaToPhonenumber_Handler,
 		},
 		{
 			MethodName: "GetCaptchaByEmail",

@@ -87,6 +87,7 @@ message DeleteCaptchaResponse {
 service user {
   rpc GetUser(GetUserRequest) returns (GetUserResponse);
   rpc SendCaptchaToEmail(SendCaptchaToEmailRequest) returns (SendCaptchaToEmailResponse);
+  rpc SendCaptchaToPhonenumber(SendCaptchaToPhonenumberRequest) returns (SendCaptchaToPhonenumberResponse);
   rpc GetCaptchaByEmail(GetCaptchaByEmailRequest) returns (GetCaptchaResponse);
   rpc GetCaptchaByPhonenumber(GetCaptchaByPhonenumberRequest) returns (GetCaptchaResponse);
   rpc DeleteCaptcha(DeleteCaptchaRequest) returns (DeleteCaptchaResponse);
