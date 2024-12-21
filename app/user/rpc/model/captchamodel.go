@@ -18,9 +18,11 @@ type (
 	// and implement the added methods in customCaptchaModel.
 	CaptchaModel interface {
 		captchaModel
+		FindOneNoCache(ctx context.Context, id int64) (*Captcha, error)
 		FindCaptchaByEmail(email string) (*Captcha, error)
 		FindCaptchaByPhonenumber(phonenumber string) (*Captcha, error)
 		InsertCaptchaToDbAndCache(captcha Captcha) (sql.Result, error)
+		softDelete(id int64, key string) error
 	}
 
 	customCaptchaModel struct {
@@ -38,15 +40,28 @@ func NewCaptchaModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option)
 func (m *customCaptchaModel) FindCaptchaByEmail(email string) (*Captcha, error) {
 	var cacheKey = vars.GetEmailCapchaCacheKey(email)
 	var captcha Captcha
-	err := m.QueryRow(&captcha, cacheKey, func(conn sqlx.SqlConn, v any) error {
-		return conn.QueryRow(&captcha, "select * from captcha where email = ? and is_delete = 0 and created_at > DATE_SUB(now(), INTERVAL 5 MINUTE) order by created_at desc limit 1", email)
-	})
-	if err != nil {
-		logx.Errorf("[FindCaptchaByEmail] find captcha by email failed, err: %+v", err)
-		return nil, errors.Wrapf(err, "[FindValidCaptchaByEmail] find captcha by email failed, email:%s", email)
+
+	// cache
+	err := m.CachedConn.GetCache(cacheKey, &captcha)
+	if errors.Is(err, nil) {
+		return &captcha, nil
+	} else if !errors.Is(err, sql.ErrNoRows) {
+		logx.Errorf("[FindCaptchaByEmail] get captcha from cache failed, err: %+v", err)
 	}
-	if err == sql.ErrNoRows {
+
+	// db
+	err = m.QueryRowNoCache(&captcha, "select * from captcha where email = ? and is_delete = 0 and created_at > DATE_SUB(now(), INTERVAL 5 MINUTE) order by created_at desc limit 1", email)
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
+	}
+
+	// cache
+	err = m.CachedConn.SetCacheWithExpire(cacheKey, captcha, vars.CacheExpireIn5m)
+	if err != nil {
+		logx.Errorf("[FindCaptchaByEmail] set captcha to cache failed, err: %+v", err)
 	}
 
 	return &captcha, nil
@@ -55,15 +70,27 @@ func (m *customCaptchaModel) FindCaptchaByEmail(email string) (*Captcha, error) 
 func (m *customCaptchaModel) FindCaptchaByPhonenumber(phonenumber string) (*Captcha, error) {
 	var cacheKey = vars.GetPhonenumberCapchaCacheKey(phonenumber)
 	var captcha Captcha
-	err := m.QueryRow(&captcha, cacheKey, func(conn sqlx.SqlConn, v any) error {
-		return conn.QueryRow(&captcha, "select * from captcha where phone_number = ? and is_delete = 0 and created_at > DATE_SUB(now(), INTERVAL 5 MINUTE) order by created_at desc limit 1", phonenumber)
-	})
-	if err != nil {
-		logx.Errorf("[FindCaptchaByEmail] find captcha by email failed, err: %+v", err)
-		return nil, errors.Wrapf(err, "[FindValidCaptchaByEmail] find captcha by email failed, phonenumber:%s", phonenumber)
+
+	// cache
+	err := m.CachedConn.GetCache(cacheKey, &captcha)
+	if err == nil {
+		return &captcha, nil
+	} else if !errors.Is(err, sql.ErrNoRows) {
+		logx.Errorf("[FindCaptchaByPhonenumber] get captcha from cache failed, err: %+v", err)
 	}
-	if err == sql.ErrNoRows {
+
+	// db
+	err = m.QueryRowNoCache(&captcha, "select * from captcha where phone_number = ? and is_delete = 0 and created_at > DATE_SUB(now(), INTERVAL 5 MINUTE) order by created_at desc limit 1", phonenumber)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
+	}
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
+	}
+
+	// cache
+	if err = m.CachedConn.SetCacheWithExpire(cacheKey, captcha, vars.CacheExpireIn5m); err != nil {
+		logx.Errorf("[FindCaptchaByPhonenumber] set captcha to cache failed, err: %+v", err)
 	}
 
 	return &captcha, nil
@@ -87,4 +114,27 @@ func (m *customCaptchaModel) InsertCaptchaToDbAndCache(captcha Captcha) (sql.Res
 	}
 
 	return ret, nil
+}
+
+func (m *customCaptchaModel) FindOneNoCache(ctx context.Context, id int64) (*Captcha, error) {
+	var captcha Captcha
+	if err := m.QueryRowNoCacheCtx(ctx, &captcha, "select * from captcha where id = ?", id); err != nil {
+		return nil, err
+	}
+
+	return &captcha, nil
+}
+
+func (m *customCaptchaModel) softDelete(id int64, key string) error {
+	_, err := m.ExecNoCache("update captcha set is_delete = 1 where id = ?", id)
+	if err != nil {
+		return errors.Wrapf(err, "[FalseDelete] update captcha failed, id: %+v", id)
+	}
+
+	err = m.CachedConn.DelCache(key)
+	if err != nil {
+		logx.Errorf("[FalseDelete] delete captcha from cache failed, err: %+v", err)
+	}
+
+	return nil
 }

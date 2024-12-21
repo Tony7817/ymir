@@ -27,9 +27,16 @@ Auth:
   AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
   AccessExpire: 604800
 
+BizRedis:
+  Host: 127.0.0.1:6379
+
 Signature:
   Strict: true
   Expircy: 24h
   PrivateKeys:
     - Fingerprint: "aaaasdf"
       KeyFile: etc/private_key.pem
+
+Log:
+  ServiceName: bff
+  Level: debug

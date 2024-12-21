@@ -91,18 +91,21 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodPost,
-				Path:    "/user/forgetpassword/captcha",
-				Handler: user.SendForgetPasswordCaptchaHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/user/signup/captcha",
-				Handler: user.SendSignupCaptchaHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.Timer},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/user/forgetpassword/captcha",
+					Handler: user.SendForgetPasswordCaptchaHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/user/signup/captcha",
+					Handler: user.SendSignupCaptchaHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithSignature(serverCtx.Config.Signature),
 		rest.WithPrefix("/api"),
 	)

@@ -31,18 +31,21 @@ func NewClientWrapper() (clientWrapper *ClientWrapper, err error) {
 	}, err
 }
 
-func (c *ClientWrapper) SendNoReplayEmail(destination string, subject string, htmlBody string) (err error) {
+func (c *ClientWrapper) SendNoReplyEmail(destination string, subject string, htmlBody string) (err error) {
 	resp, err := c.Client.SingleSendMail(&dm.SingleSendMailRequest{
-		AccountName: tea.String(vars.EmailNoReplySenderName),
-		Subject:     tea.String(subject),
-		HtmlBody:    tea.String(htmlBody),
-		FromAlias:   tea.String(vars.EmailAlias),
+		AccountName:    tea.String(vars.EmailNoReplySenderName),
+		AddressType:    tea.Int32(1),
+		ReplyToAddress: tea.Bool(false),
+		Subject:        tea.String(subject),
+		HtmlBody:       tea.String(htmlBody),
+		FromAlias:      tea.String(vars.EmailAlias),
+		ToAddress:      tea.String(destination),
 	})
 	if err != nil {
-		return errors.Wrapf(err, "[SendNoReplyEmail] send email failed, err: %+v", err)
+		return errors.Wrapf(err, "[SendNoReplyEmail] send email failed.")
 	}
 	if resp != nil && (*resp.StatusCode < 200 || *resp.StatusCode >= 300) {
-		return errors.Wrapf(err, "[SendNoReplyEmail] send email failed, response: %+v", *resp)
+		return errors.Wrapf(nil, "[SendNoReplyEmail] send email failed, response: %+v", *resp)
 	}
 
 	return nil

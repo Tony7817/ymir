@@ -8,6 +8,7 @@ import (
 	"ymir.com/app/star/rpc/internal/server"
 	"ymir.com/app/star/rpc/internal/svc"
 	"ymir.com/app/star/rpc/star"
+	"ymir.com/pkg/interceptor"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -33,6 +34,8 @@ func main() {
 		}
 	})
 	defer s.Stop()
+
+	s.AddUnaryInterceptors(interceptor.LoggerInterceptor)
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()

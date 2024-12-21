@@ -7,6 +7,7 @@ import (
 	"ymir.com/app/bffd/internal/logic/user"
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
+	"ymir.com/pkg/result"
 )
 
 func VerifyCaptchaHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -19,10 +20,6 @@ func VerifyCaptchaHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := user.NewVerifyCaptchaLogic(r.Context(), svcCtx)
 		resp, err := l.VerifyCaptcha(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		result.HttpResult(r, w, resp, err)
 	}
 }

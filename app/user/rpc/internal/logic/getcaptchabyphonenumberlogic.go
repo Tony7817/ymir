@@ -5,6 +5,7 @@ import (
 
 	"ymir.com/app/user/rpc/internal/svc"
 	"ymir.com/app/user/rpc/user"
+	"ymir.com/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +25,17 @@ func NewGetCaptchaByPhonenumberLogic(ctx context.Context, svcCtx *svc.ServiceCon
 }
 
 func (l *GetCaptchaByPhonenumberLogic) GetCaptchaByPhonenumber(in *user.GetCaptchaByPhonenumberRequest) (*user.GetCaptchaResponse, error) {
-	// todo: add your logic here and delete this line
+	captcha, err := l.svcCtx.CaptchaModel.FindCaptchaByPhonenumber(in.Phonenumber)
+	if err != nil {
+		return nil, err
+	}
 
-	return &user.GetCaptchaResponse{}, nil
+	if captcha == nil {
+		return nil, xerr.NewErrCode(xerr.WrongCaptchaError)
+	}
+
+	return &user.GetCaptchaResponse{
+		Captcha:   captcha.VerifyCode,
+		CreatedAt: captcha.CreatedAt.Unix(),
+	}, nil
 }

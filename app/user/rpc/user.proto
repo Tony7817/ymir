@@ -69,8 +69,19 @@ message GetCaptchaByPhonenumberRequest {
 }
 
 message GetCaptchaResponse {
-  string Captcha = 1;
-  int64 CreatedAt = 2;
+  int64 Id = 1;
+  string Captcha = 2;
+  int64 CreatedAt = 3;
+}
+
+message DeleteCaptchaRequest {
+  optional string Email = 1;
+  optional string Phonenumber = 2;
+  int64 Id = 3;
+}
+
+message DeleteCaptchaResponse {
+
 }
 
 service user {
@@ -78,6 +89,7 @@ service user {
   rpc SendCaptchaToEmail(SendCaptchaToEmailRequest) returns (SendCaptchaToEmailResponse);
   rpc GetCaptchaByEmail(GetCaptchaByEmailRequest) returns (GetCaptchaResponse);
   rpc GetCaptchaByPhonenumber(GetCaptchaByPhonenumberRequest) returns (GetCaptchaResponse);
+  rpc DeleteCaptcha(DeleteCaptchaRequest) returns (DeleteCaptchaResponse);
   rpc WriteUserInDBWithEmail(WriteUserInDBWithEmailRequest) returns (WriteUserInDBWithEmailResponse);
   rpc WriteUserInDBWithPhonenumber(WriteUserInDBWithPhonenumberRequest) returns (WriteUserInDBWithPhonenumberResponse);
 }

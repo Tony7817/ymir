@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"strconv"
+	"time"
 
 	"ymir.com/app/user/rpc/internal/svc"
 	"ymir.com/app/user/rpc/model"
@@ -12,7 +13,6 @@ import (
 	"ymir.com/pkg/vars"
 	"ymir.com/pkg/xerr"
 
-	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -31,14 +31,28 @@ func NewSendCaptchaToEmailLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 }
 
 func (l *SendCaptchaToEmailLogic) SendCaptchaToEmail(in *user.SendCaptchaToEmailRequest) (*user.SendCaptchaToEmailResponse, error) {
-	sendTimesRaw, _ := l.svcCtx.Redis.Get(vars.GetCaptchaEmailSendTimes(in.Email))
-	if sendTimesRaw != "" {
+	sendTimesRaw, err := l.svcCtx.Redis.Get(vars.GetCaptchaEmailSendTimes(in.Email))
+	if err != nil {
+		logx.Errorf("[SendCaptchaToEmail] get captcha send times failed, email: %s, err: %+v", in.Email, err)
+	}
+	if len(sendTimesRaw) != 0 {
 		sendTimes, _ := strconv.ParseInt(sendTimesRaw, 10, 64)
-		if sendTimes > vars.CaptchaMaxSendTimesPerDay {
-			return nil, xerr.NewErrCode(xerr.CaptchaExpireError)
+		if sendTimes+1 > vars.CaptchaMaxSendTimesPerDay {
+			return nil, xerr.NewErrCode(xerr.MaxCaptchaSendTimeError)
+		}
+		if _, err := l.svcCtx.Redis.Incr(vars.GetCaptchaEmailSendTimes(in.Email)); err != nil {
+			logx.Errorf("[SendCaptchaToEmail] incr captcha send times failed, email: %s, err: %+v", in.Email, err)
+		}
+	} else {
+		if err := l.svcCtx.Redis.Setex(vars.GetCaptchaEmailSendTimes(in.Email), "1", vars.CacheExpireIn1d); err != nil {
+			logx.Errorf("[SendCaptchaToEmail] set captcha send times failed, email: %s, err: %+v", in.Email, err)
 		}
 	}
-	
+	var resp = &user.SendCaptchaToEmailResponse{
+		CreatedAt: time.Now().UTC().Unix(),
+	}
+
+	// find captcha in redis and mysql
 	captcha, err := l.svcCtx.CaptchaModel.FindCaptchaByEmail(in.Email)
 	if err != nil {
 		return nil, err
@@ -46,6 +60,7 @@ func (l *SendCaptchaToEmailLogic) SendCaptchaToEmail(in *user.SendCaptchaToEmail
 
 	if captcha != nil {
 		go l.sendCaptchaEmail(in.Email, captcha.VerifyCode)
+		return resp, nil
 	}
 
 	code, err := util.GenerateCpatcha()
@@ -61,28 +76,18 @@ func (l *SendCaptchaToEmailLogic) SendCaptchaToEmail(in *user.SendCaptchaToEmail
 		},
 	}
 
-	ret, err := l.svcCtx.CaptchaModel.InsertCaptchaToDbAndCache(newCaptcha)
+	_, err = l.svcCtx.CaptchaModel.InsertCaptchaToDbAndCache(newCaptcha)
 	if err != nil {
 		return nil, err
 	}
 
-	lastInsertedI, err := ret.LastInsertId()
-	if err != nil {
-		return nil, errors.Wrap(err, "[SendCaptchaToEmail] get last insert id failed")
-	}
+	go l.sendCaptchaEmail(in.Email, code)
 
-	lastInsertedCaptcha, err := l.svcCtx.CaptchaModel.FindOne(l.ctx, lastInsertedI)
-	if err != nil {
-		return nil, errors.Wrapf(err, "[SendCaptchaToEmail] find captcha failed, id: %d", lastInsertedI)
-	}
-
-	return &user.SendCaptchaToEmailResponse{
-		CreatedAt: lastInsertedCaptcha.CreatedAt.Unix(),
-	}, nil
+	return resp, nil
 }
 
 func (l *SendCaptchaToEmailLogic) sendCaptchaEmail(email string, captcha string) error {
-	err := l.svcCtx.EmailClient.SendNoReplayEmail(email, vars.EmailCaptchaSubJect, vars.GetCaptchaEmailTemplate(captcha))
+	err := l.svcCtx.EmailClient.SendNoReplyEmail(email, vars.EmailCaptchaSubJect, vars.GetCaptchaEmailTemplate(captcha))
 	if err != nil {
 		return err
 	}

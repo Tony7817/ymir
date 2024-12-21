@@ -6,14 +6,22 @@ import "fmt"
 const CaptchaCodeAnyWay = "293049"
 const CaptchaMaxSendTimesPerDay int64 = 12
 
+func GetCaptchaEmailLastRequestTime(email string) string {
+	return "cache:captcha:email:" + email + ":last_request_time"
+}
 func GetCaptchaEmailSendTimes(email string) string {
 	return "cache:captcha:email:" + email + ":sendtimes"
+}
+func GetCaptchaPhonenumberLastRequestTime(phonenumber string) string {
+	return "cache:captcha:phonenumber:" + phonenumber + ":last_request_time"
 }
 
 // sql
 
 // cache
 const CacheExpireIn5m = 5 * 60
+const CacheExpireIn1d = 60 * 60 * 24
+const CacheExpireIn1m = 60
 
 func GetEmailCapchaCacheKey(email string) string {
 	return "cache:capcha:email:" + email
@@ -125,3 +133,8 @@ func GetCaptchaEmailTemplate(captcha string) string {
 </html>	
 	`, captcha, ResetPasswordSite)
 }
+
+// context key
+type contextKey string
+
+const RequestContextKey contextKey = "Request"

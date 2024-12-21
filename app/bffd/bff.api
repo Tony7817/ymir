@@ -222,6 +222,8 @@ service bff {
 	group:     user
 	signature: true
 	prefix:    /api
+	// check if the interval between last request and current request is less than 60s
+	middleware: Timer
 )
 service bff {
 	@handler SendSignupCaptcha

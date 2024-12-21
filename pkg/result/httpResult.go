@@ -12,7 +12,7 @@ import (
 )
 
 // http response
-func HttpResult(r *http.Request, w http.ResponseWriter, resp interface{}, err error) {
+func HttpResult(r *http.Request, w http.ResponseWriter, resp any, err error) {
 	if err == nil {
 		//return success
 		r := Success(resp)
@@ -20,7 +20,7 @@ func HttpResult(r *http.Request, w http.ResponseWriter, resp interface{}, err er
 	} else {
 		errcode := xerr.ServerCommonError
 		//default error msg
-		errmsg := "服务器开小差啦，稍后再试"
+		errmsg := "Internal server error"
 
 		causeErr := errors.Cause(err)
 		if e, ok := causeErr.(*xerr.CodeError); ok {
@@ -37,9 +37,6 @@ func HttpResult(r *http.Request, w http.ResponseWriter, resp interface{}, err er
 				}
 			}
 		}
-
-		logx.WithContext(r.Context()).Errorf("【API-ERR】 : %+v ", err)
-
 		httpx.WriteJson(w, http.StatusBadRequest, Error(errcode, errmsg))
 	}
 }

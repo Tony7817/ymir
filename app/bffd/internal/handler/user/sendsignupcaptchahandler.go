@@ -3,26 +3,23 @@ package user
 import (
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"ymir.com/app/bffd/internal/logic/user"
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
+	"ymir.com/pkg/result"
+	"ymir.com/pkg/vars"
+	"ymir.com/pkg/xerr"
 )
 
 func SendSignupCaptchaHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.SendSignupCaptchaRequest
-		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-			return
+		req, ok := r.Context().Value(vars.RequestContextKey).(types.SendSignupCaptchaRequest)
+		if !ok {
+			result.HttpResult(r, w, nil, xerr.NewErrMsg("invalid request"))
 		}
 
 		l := user.NewSendSignupCaptchaLogic(r.Context(), svcCtx)
 		resp, err := l.SendSignupCaptcha(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		result.HttpResult(r, w, resp, err)
 	}
 }

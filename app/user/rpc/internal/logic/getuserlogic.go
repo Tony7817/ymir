@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"ymir.com/app/user/rpc/internal/svc"
 	"ymir.com/app/user/rpc/model"
@@ -41,8 +42,13 @@ func (l *GetUserLogic) GetUser(in *user.GetUserRequest) (*user.GetUserResponse, 
 			Valid:  true,
 		})
 	}
-	if err != nil {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
+	}
+	if err == sql.ErrNoRows {
+		return &user.GetUserResponse{
+			User: nil,
+		}, nil
 	}
 
 	var res = &user.GetUserResponse{
