@@ -189,7 +189,7 @@ service bff {
 }
 
 @server (
-	group:  order
+	group:  product
 	prefix: /api
 	jwt:    Auth
 )
@@ -197,6 +197,13 @@ service bff {
 	@handler CartList
 	post /cart/list (ProductCartListRequest) returns (ProductCartListResponse)
 }
+
+@server (
+	group:  order
+	prefix: /api
+	jwt:    Auth
+)
+service bff {}
 
 @server (
 	group:  recommend
@@ -233,6 +240,7 @@ service bff {
 	signature: true
 	prefix:    /api
 	// check if the interval between last request and current request is less than 60s
+	// keep Timer middleware in the first place, so that it can calculate the time interval and parse the request
 	middleware: Timer
 )
 service bff {

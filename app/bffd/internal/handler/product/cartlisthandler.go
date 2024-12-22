@@ -1,10 +1,10 @@
-package order
+package product
 
 import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"ymir.com/app/bffd/internal/logic/order"
+	"ymir.com/app/bffd/internal/logic/product"
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
 
@@ -19,7 +19,7 @@ func CartListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := order.NewCartListLogic(r.Context(), svcCtx)
+		l := product.NewCartListLogic(r.Context(), svcCtx)
 		resp, err := l.CartList(&req)
 		result.HttpResult(r, w, resp, err)
 	}

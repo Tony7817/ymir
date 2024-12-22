@@ -43,7 +43,7 @@ func (l *SendCaptchaToPhonenumberLogic) SendCaptchaToPhonenumber(in *user.SendCa
 	}
 
 	if captcha != nil {
-		go util.SendCaptchaToPhonenumber(in.Phonenumber, captcha.VerifyCode)
+		// go util.SendCaptchaToPhonenumber(in.Phonenumber, captcha.VerifyCode)
 		return resp, nil
 	}
 
@@ -65,7 +65,7 @@ func (l *SendCaptchaToPhonenumberLogic) SendCaptchaToPhonenumber(in *user.SendCa
 		return nil, err
 	}
 
-	go util.SendCaptchaToPhonenumber(in.Phonenumber, code)
+	// go util.SendCaptchaToPhonenumber(in.Phonenumber, code)
 
 	return resp, nil
 }

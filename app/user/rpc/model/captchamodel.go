@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 
+	"ymir.com/pkg/vars"
+
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"ymir.com/pkg/vars"
 )
 
 var _ CaptchaModel = (*customCaptchaModel)(nil)
@@ -22,7 +23,7 @@ type (
 		FindCaptchaByEmail(email string) (*Captcha, error)
 		FindCaptchaByPhonenumber(phonenumber string) (*Captcha, error)
 		InsertCaptchaToDbAndCache(captcha Captcha) (sql.Result, error)
-		softDelete(id int64, key string) error
+		SoftDelete(id int64, key string) (sql.Result, error)
 	}
 
 	customCaptchaModel struct {
@@ -38,12 +39,16 @@ func NewCaptchaModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option)
 }
 
 func (m *customCaptchaModel) FindCaptchaByEmail(email string) (*Captcha, error) {
-	var cacheKey = vars.GetEmailCapchaCacheKey(email)
+	var cacheKey = vars.GetCaptchaEmailCacheKey(email)
 	var captcha Captcha
 
 	// cache
 	err := m.CachedConn.GetCache(cacheKey, &captcha)
 	if errors.Is(err, nil) {
+		err := m.CachedConn.SetCacheWithExpire(cacheKey, captcha, vars.CacheExpireIn5m)
+		if err != nil {
+			logx.Errorf("[FindCaptchaByEmail] set captcha to cache failed, err: %+v", err)
+		}
 		return &captcha, nil
 	} else if !errors.Is(err, sql.ErrNoRows) {
 		logx.Errorf("[FindCaptchaByEmail] get captcha from cache failed, err: %+v", err)
@@ -68,12 +73,15 @@ func (m *customCaptchaModel) FindCaptchaByEmail(email string) (*Captcha, error) 
 }
 
 func (m *customCaptchaModel) FindCaptchaByPhonenumber(phonenumber string) (*Captcha, error) {
-	var cacheKey = vars.GetPhonenumberCapchaCacheKey(phonenumber)
+	var cacheKey = vars.GetCaptchaPhonenumberCacheKey(phonenumber)
 	var captcha Captcha
 
 	// cache
 	err := m.CachedConn.GetCache(cacheKey, &captcha)
 	if err == nil {
+		if err = m.CachedConn.SetCacheWithExpire(cacheKey, captcha, vars.CacheExpireIn5m); err != nil {
+			logx.Errorf("[FindCaptchaByPhonenumber] set captcha to cache failed, err: %+v", err)
+		}
 		return &captcha, nil
 	} else if !errors.Is(err, sql.ErrNoRows) {
 		logx.Errorf("[FindCaptchaByPhonenumber] get captcha from cache failed, err: %+v", err)
@@ -99,9 +107,9 @@ func (m *customCaptchaModel) FindCaptchaByPhonenumber(phonenumber string) (*Capt
 func (m *customCaptchaModel) InsertCaptchaToDbAndCache(captcha Captcha) (sql.Result, error) {
 	var cacheKey string
 	if captcha.Email.Valid {
-		cacheKey = vars.GetEmailCapchaCacheKey(captcha.Email.String)
+		cacheKey = vars.GetCaptchaEmailCacheKey(captcha.Email.String)
 	} else {
-		cacheKey = vars.GetPhonenumberCapchaCacheKey(captcha.PhoneNumber.String)
+		cacheKey = vars.GetCaptchaPhonenumberCacheKey(captcha.PhoneNumber.String)
 	}
 
 	ret, err := m.Insert(context.Background(), &captcha)
@@ -125,10 +133,10 @@ func (m *customCaptchaModel) FindOneNoCache(ctx context.Context, id int64) (*Cap
 	return &captcha, nil
 }
 
-func (m *customCaptchaModel) softDelete(id int64, key string) error {
-	_, err := m.ExecNoCache("update captcha set is_delete = 1 where id = ?", id)
+func (m *customCaptchaModel) SoftDelete(id int64, key string) (sql.Result, error) {
+	ret, err := m.ExecNoCache("update captcha set is_delete = 1 where id = ?", id)
 	if err != nil {
-		return errors.Wrapf(err, "[FalseDelete] update captcha failed, id: %+v", id)
+		return nil, errors.Wrapf(err, "[FalseDelete] update captcha failed, id: %+v", id)
 	}
 
 	err = m.CachedConn.DelCache(key)
@@ -136,5 +144,5 @@ func (m *customCaptchaModel) softDelete(id int64, key string) error {
 		logx.Errorf("[FalseDelete] delete captcha from cache failed, err: %+v", err)
 	}
 
-	return nil
+	return ret, nil
 }

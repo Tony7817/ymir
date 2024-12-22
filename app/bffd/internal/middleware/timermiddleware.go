@@ -34,20 +34,20 @@ func (m *TimerMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		var lastReqTime string
-		var err error
+		var cacheKey string
 		if req.Email != nil {
-			lastReqTime, err = m.Redis.Get(vars.GetCaptchaEmailLastRequestTime(*req.Email))
+			cacheKey = vars.GetCaptchaEmailLastRequestTimeKey(*req.Email)
 		} else if req.Phonenumber != nil {
-			lastReqTime, err = m.Redis.Get(vars.GetCaptchaPhonenumberLastRequestTime(*req.Phonenumber))
+			cacheKey = vars.GetCaptchaPhonenumberLastRequestTimeKey(*req.Phonenumber)
 		} else {
 			result.HttpResult(r, w, nil, xerr.NewErrCode(xerr.ReuqestParamError))
 		}
+
+		lastReqTime, err := m.Redis.Get(cacheKey)
 		if err != nil {
 			logx.Errorf("[TimerMiddleware] get last request time failed, err: %+v", err)
 			err = nil
 		}
-
 		if lastReqTime != "" {
 			lastReqTimeInt, _ := strconv.ParseInt(lastReqTime, 10, 64)
 			if time.Now().Unix()-lastReqTimeInt < int64(time.Minute) {
@@ -55,7 +55,7 @@ func (m *TimerMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 		} else {
-			_, err = m.Redis.SetnxEx(vars.GetCaptchaEmailLastRequestTime(*req.Email), "1", vars.CacheExpireIn1m)
+			_, err = m.Redis.SetnxEx(cacheKey, "1", vars.CacheExpireIn1m)
 			if err != nil {
 				logx.Errorf("[TimerMiddleware] set last request time failed, err: %+v", err)
 			}

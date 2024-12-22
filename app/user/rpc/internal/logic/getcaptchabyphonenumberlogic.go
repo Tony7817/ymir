@@ -35,6 +35,7 @@ func (l *GetCaptchaByPhonenumberLogic) GetCaptchaByPhonenumber(in *user.GetCaptc
 	}
 
 	return &user.GetCaptchaResponse{
+		Id: captcha.Id,
 		Captcha:   captcha.VerifyCode,
 		CreatedAt: captcha.CreatedAt.Unix(),
 	}, nil

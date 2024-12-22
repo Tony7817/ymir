@@ -6,6 +6,8 @@ import (
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/user/rpc/user"
+	"ymir.com/pkg/util"
+	"ymir.com/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,14 +27,31 @@ func NewSendSignupCaptchaLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *SendSignupCaptchaLogic) SendSignupCaptcha(req *types.SendSignupCaptchaRequest) (*types.SendSignupCaptchaResponse, error) {
-	resp, err := l.svcCtx.UserRPC.SendCaptchaToEmail(l.ctx, &user.SendCaptchaToEmailRequest{
-		Email: *req.Email,
-	})
-	if err != nil {
-		return nil, err
+	var createdAt int64
+	if req.Email != nil {
+		resp, err := l.svcCtx.UserRPC.SendCaptchaToEmail(l.ctx, &user.SendCaptchaToEmailRequest{
+			Email: *req.Email,
+		})
+		if err != nil {
+			return nil, err
+		}
+		createdAt = resp.CreatedAt
+	} else if req.Phonenumber != nil {
+		if !util.IsPhonenumberValid(*req.Phonenumber) {
+			return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+		}
+		resp, err := l.svcCtx.UserRPC.SendCaptchaToPhonenumber(l.ctx, &user.SendCaptchaToPhonenumberRequest{
+			Phonenumber: *req.Phonenumber,
+		})
+		if err != nil {
+			return nil, err
+		}
+		createdAt = resp.CreatedAt
+	} else {
+		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
 	}
 
 	return &types.SendSignupCaptchaResponse{
-		CreatedAt: resp.CreatedAt,
+		CreatedAt: createdAt,
 	}, nil
 }

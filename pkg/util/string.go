@@ -17,7 +17,7 @@ func IsEmailValid(e string) bool {
 	return emailRegex.MatchString(e)
 }
 
-func Mask(s string) (string, error) {
+func MaskEmail(s string) (string, error) {
 	if IsEmailValid(s) {
 		s = strings.Split(s, "@")[0]
 	}
@@ -59,4 +59,18 @@ func ParseRedisCaptcha(value string) (string, int64, error) {
 	}
 
 	return vs[0], createdAt, nil
+}
+
+var E164Regex = regexp.MustCompile(`^\+[1-9]\d{1,14}$`)
+
+func IsPhonenumberValid(phonenumber string) bool {
+	return E164Regex.MatchString(phonenumber)
+}
+
+func MaskPhonenumber(phonenumber string) (string, error) {
+	if len(phonenumber) < 4 {
+		return "", xerr.NewErrCode(xerr.ReuqestParamError)
+	}
+
+	return "****" + phonenumber[len(phonenumber)-4:], nil
 }

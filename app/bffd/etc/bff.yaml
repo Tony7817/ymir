@@ -39,4 +39,4 @@ Signature:
 
 Log:
   ServiceName: bff
-  Level: error
+  Level: debug

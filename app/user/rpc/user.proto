@@ -75,9 +75,8 @@ message GetCaptchaResponse {
 }
 
 message DeleteCaptchaRequest {
-  optional string Email = 1;
-  optional string Phonenumber = 2;
-  int64 Id = 3;
+  int64 Id = 1;
+  string cacheKey = 2;
 }
 
 message DeleteCaptchaResponse {

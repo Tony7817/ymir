@@ -6,7 +6,6 @@ package handler
 import (
 	"net/http"
 
-	order "ymir.com/app/bffd/internal/handler/order"
 	product "ymir.com/app/bffd/internal/handler/product"
 	recommend "ymir.com/app/bffd/internal/handler/recommend"
 	star "ymir.com/app/bffd/internal/handler/star"
@@ -18,13 +17,7 @@ import (
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodPost,
-				Path:    "/cart/list",
-				Handler: order.CartListHandler(serverCtx),
-			},
-		},
+		[]rest.Route{},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/api"),
 	)
@@ -42,6 +35,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: product.ProductListHandler(serverCtx),
 			},
 		},
+		rest.WithPrefix("/api"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/cart/list",
+				Handler: product.CartListHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/api"),
 	)
 

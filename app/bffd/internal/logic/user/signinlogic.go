@@ -29,6 +29,18 @@ func NewSigninLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SigninLogi
 }
 
 func (l *SigninLogic) Signin(req *types.SigninRequest) (resp *types.SigninResponse, err error) {
+	if req.Email != nil {
+		if !util.IsEmailValid(*req.Email) {
+			return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+		}
+	} else if req.Phonenumber != nil {
+		if !util.IsPhonenumberValid(*req.Phonenumber) {
+			return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+		}
+	} else {
+		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+	}
+
 	respb, err := l.svcCtx.UserRPC.GetUser(l.ctx, &user.GetUserRequest{
 		Email:       req.Email,
 		Phonenumber: req.Phonenumber,

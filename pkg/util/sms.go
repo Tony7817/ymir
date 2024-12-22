@@ -23,9 +23,8 @@ func SendCaptchaToPhonenumber(phonenumber string, captcha string) error {
 	body["to"] = phonenumber
 	body["vars"] = variable
 
-	var bodyBuffer = bytes.NewBuffer([]byte{})
+	var bodyBuffer = &bytes.Buffer{}
 	var writer = multipart.NewWriter(bodyBuffer)
-	defer writer.Close()
 
 	for k, v := range body {
 		if err := writer.WriteField(k, v); err != nil {
@@ -33,6 +32,9 @@ func SendCaptchaToPhonenumber(phonenumber string, captcha string) error {
 		}
 	}
 	var contentType = writer.FormDataContentType()
+	_ = writer.Close()
+
+	logx.Debugf("[test] %s, content: %s", bodyBuffer.String(), contentType)
 
 	resp, err := http.Post(vars.SmsUrl, contentType, bodyBuffer)
 	if err != nil {
@@ -45,6 +47,6 @@ func SendCaptchaToPhonenumber(phonenumber string, captcha string) error {
 		return err
 	}
 
-	logx.Debug(resRaw)
+	logx.Debug(string(resRaw))
 	return nil
 }

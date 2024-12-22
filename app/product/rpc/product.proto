@@ -60,7 +60,16 @@ message ProductDetailResponse {
   repeated ProductImage DetailImages = 13;
 }
 
+message UserProductIdsRequest {
+  int64 UserId = 1;
+}
+
+message UserProductIdsResponse {
+  repeated int64 ProductIds = 1;
+}
+
 service Product {
   rpc ProductList(ProductListRequest) returns (ProductListResponse);
   rpc ProductDetail(ProductDetailReqeust) returns (ProductDetailResponse);
+  rpc ProductsInUserCart(UserProductIdsRequest) returns (UserProductIdsResponse);
 }

@@ -29,6 +29,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		ProductRPC: productclient.NewProduct(zrpc.MustNewClient(c.ProductRPC)),
 		StarRPC:    starclient.NewStar(zrpc.MustNewClient(c.StarRPC)),
 		UserRPC:    userclient.NewUser(zrpc.MustNewClient(c.UserRPC)),
-		Timer:      middleware.NewTimerMiddleware(c).Handle,
+		//
+		Timer: middleware.NewTimerMiddleware(c).Handle,
 	}
 }

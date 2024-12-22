@@ -45,7 +45,12 @@ func (l *SignupLogic) Signup(req *types.SignupRequest) (*types.SignupResponse, e
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.UserAlreadyExistError), "user exist already")
 	}
 
-	username, err := util.Mask(*req.Email)
+	var username string
+	if req.Email != nil {
+		username, err = util.MaskEmail(*req.Email)
+	} else {
+		username, err = util.MaskPhonenumber(*req.Phonenumber)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +71,7 @@ func (l *SignupLogic) Signup(req *types.SignupRequest) (*types.SignupResponse, e
 			return nil, err
 		}
 		userId = respb.UserId
-	} else if req.Phonenumber != nil {
+	} else {
 		respb, err := l.svcCtx.UserRPC.WriteUserInDBWithPhonenumber(l.ctx, &user.WriteUserInDBWithPhonenumberRequest{
 			Phonenumber:  *req.Phonenumber,
 			PasswordHash: passwordHash,
@@ -76,10 +81,7 @@ func (l *SignupLogic) Signup(req *types.SignupRequest) (*types.SignupResponse, e
 			return nil, err
 		}
 		userId = respb.UserId
-	} else {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ReuqestParamError), "email or phonenumber must be set")
 	}
-
 	userIdEncoded, err := l.svcCtx.Hash.EncodedId(userId)
 	if err != nil {
 		return nil, err

@@ -9,7 +9,7 @@ const CaptchaMaxSendTimesPerDay int64 = 12
 // template sms send api
 const SmsUrl = "https://api-v4.mysubmail.com/internationalsms/xsend"
 
-func GetCaptchaEmailLastRequestTime(email string) string {
+func GetCaptchaEmailLastRequestTimeKey(email string) string {
 	return "cache:captcha:email:" + email + ":last_request_time"
 }
 func GetCaptchaEmailSendTimesKey(email string) string {
@@ -20,7 +20,7 @@ func GetCaptchaPhonenumberSendTimesKey(phonenumber string) string {
 	return "cache:captcha:phonenumber:" + phonenumber + ":sendtimes"
 }
 
-func GetCaptchaPhonenumberLastRequestTime(phonenumber string) string {
+func GetCaptchaPhonenumberLastRequestTimeKey(phonenumber string) string {
 	return "cache:captcha:phonenumber:" + phonenumber + ":last_request_time"
 }
 
@@ -31,14 +31,11 @@ const CacheExpireIn5m = 5 * 60
 const CacheExpireIn1d = 60 * 60 * 24
 const CacheExpireIn1m = 60
 
-func GetEmailCapchaCacheKey(email string) string {
+func GetCaptchaEmailCacheKey(email string) string {
 	return "cache:capcha:email:" + email
 }
-func GetEmailCapcheCreatedKey(email string) string {
-	return "cache:capcha:email:" + email + "created_at:"
-}
 
-func GetPhonenumberCapchaCacheKey(phonenumber string) string {
+func GetCaptchaPhonenumberCacheKey(phonenumber string) string {
 	return "cache:capcha:phonenumber:" + phonenumber
 }
 

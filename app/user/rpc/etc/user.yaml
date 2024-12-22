@@ -1,5 +1,7 @@
 Name: ymir.user.rpc
 ListenOn: 0.0.0.0:8003
+mode: dev
+
 Etcd:
   Hosts:
   - 127.0.0.1:2379
@@ -14,4 +16,4 @@ BizRedis:
 
 Log:
   ServiceName: ymir.star.rpc
-  Level: error
+  Level: debug
