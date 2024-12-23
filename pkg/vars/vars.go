@@ -143,3 +143,8 @@ func GetCaptchaEmailTemplate(captcha string) string {
 type contextKey string
 
 const RequestContextKey contextKey = "Request"
+
+// product
+func CacheProductInCartKey(userId int64) string {
+    return fmt.Sprintf("cache:product:cart:%d", userId)
+}

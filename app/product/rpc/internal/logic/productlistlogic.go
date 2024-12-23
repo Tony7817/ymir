@@ -2,12 +2,13 @@ package logic
 
 import (
 	"context"
-	"encoding/json"
 
 	"ymir.com/app/product/rpc/internal/svc"
+	"ymir.com/app/product/rpc/model"
 	"ymir.com/app/product/rpc/product"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/mr"
 )
 
 type ProductListLogic struct {
@@ -25,31 +26,44 @@ func NewProductListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Produ
 }
 
 func (l *ProductListLogic) ProductList(in *product.ProductListRequest) (*product.ProductListResponse, error) {
-	var offset = (in.Page - 1) * in.PageSize
-	ps, err := l.svcCtx.ProductModel.FindProductList(l.ctx, in.StarId, offset, in.PageSize)
-	logx.Infof("%+v", ps)
+	var (
+		offset   = (in.Page - 1) * in.PageSize
+		products []*model.Product
+		total    int64
+	)
+	err := mr.Finish(func() error {
+		var err error
+		products, err = l.svcCtx.ProductModel.FindProductList(l.ctx, in.StarId, offset, in.PageSize)
+		if err != nil {
+			return err
+		}
+		return nil
+	}, func() error {
+		var err error
+		total, err = l.svcCtx.ProductModel.CountTotalProduct(l.ctx, in.StarId)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
 
 	var productItems []*product.ProductListItem
-	for i := 0; i < len(ps); i++ {
-		var images []*product.ProductImage
-		if err := json.Unmarshal([]byte(ps[i].Images), &images); err != nil {
-			return nil, err
-		}
+	for i := 0; i < len(products); i++ {
 		productItems = append(productItems, &product.ProductListItem{
-			Id:          ps[i].Id,
-			Description: ps[i].Description,
-			Color:       ps[i].Color,
-			Coverurl:    images[0],
-			Price:       ps[i].Price,
-			Unit:        ps[i].Unit,
+			Id:          productItems[i].Id,
+			Description: productItems[i].Description,
+			Color:       productItems[i].Color,
+			Coverurl:    productItems[i].Coverurl,
+			Price:       productItems[i].Price,
+			Unit:        productItems[i].Unit,
 		})
 	}
 
 	var res = &product.ProductListResponse{
-		Total:    int64(len(productItems)),
+		Total:    total,
 		Products: productItems,
 	}
 

@@ -32,6 +32,7 @@ const UserAlreadyExistError uint32 = 201001
 const CaptchaExpireError uint32 = 201002
 const WrongCaptchaError uint32 = 201003
 const MaxCaptchaSendTimeError uint32 = 201004
+const NotAuthorizedError uint32 = 201005
 
 //订单服务
 

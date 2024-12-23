@@ -16,6 +16,7 @@ type (
 	ProductModel interface {
 		productModel
 		FindProductList(ctx context.Context, starId *int64, offset, limit int64) ([]*Product, error)
+		CountTotalProduct(ctx context.Context, starId *int64) (int64, error)
 		CheckProductBelongToStar(ctx context.Context, productId, starId int64) (bool, error)
 	}
 
@@ -63,4 +64,26 @@ func (m *customProductModel) FindProductList(ctx context.Context, starId *int64,
 	}
 
 	return ps, nil
+}
+
+func (m *customProductModel) CountTotalProduct(ctx context.Context, starId *int64) (int64, error) {
+	var cacheKey string
+	if starId != nil {
+		cacheKey = fmt.Sprintf("cache:total:product:star:%d", *starId)
+	} else {
+		cacheKey = "cache:total:product"
+	}
+	var count int64
+	var cond = " where 1=1"
+	if starId != nil {
+		cond += fmt.Sprintf(" and star_id = %d", *starId)
+	}
+	err := m.QueryRowCtx(ctx, &count, cacheKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
+		return conn.QueryRowCtx(ctx, &count, "select count(*) from product %s", cond)
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }

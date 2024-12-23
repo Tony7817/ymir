@@ -21,7 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Product_ProductList_FullMethodName        = "/product.Product/ProductList"
 	Product_ProductDetail_FullMethodName      = "/product.Product/ProductDetail"
-	Product_ProductsInUserCart_FullMethodName = "/product.Product/ProductsInUserCart"
+	Product_ProductsInCartList_FullMethodName = "/product.Product/ProductsInCartList"
 )
 
 // ProductClient is the client API for Product service.
@@ -30,7 +30,7 @@ const (
 type ProductClient interface {
 	ProductList(ctx context.Context, in *ProductListRequest, opts ...grpc.CallOption) (*ProductListResponse, error)
 	ProductDetail(ctx context.Context, in *ProductDetailReqeust, opts ...grpc.CallOption) (*ProductDetailResponse, error)
-	ProductsInUserCart(ctx context.Context, in *UserProductIdsRequest, opts ...grpc.CallOption) (*UserProductIdsResponse, error)
+	ProductsInCartList(ctx context.Context, in *ProductsInCartListRequest, opts ...grpc.CallOption) (*ProducrtsInCartListResponse, error)
 }
 
 type productClient struct {
@@ -61,10 +61,10 @@ func (c *productClient) ProductDetail(ctx context.Context, in *ProductDetailReqe
 	return out, nil
 }
 
-func (c *productClient) ProductsInUserCart(ctx context.Context, in *UserProductIdsRequest, opts ...grpc.CallOption) (*UserProductIdsResponse, error) {
+func (c *productClient) ProductsInCartList(ctx context.Context, in *ProductsInCartListRequest, opts ...grpc.CallOption) (*ProducrtsInCartListResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserProductIdsResponse)
-	err := c.cc.Invoke(ctx, Product_ProductsInUserCart_FullMethodName, in, out, cOpts...)
+	out := new(ProducrtsInCartListResponse)
+	err := c.cc.Invoke(ctx, Product_ProductsInCartList_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (c *productClient) ProductsInUserCart(ctx context.Context, in *UserProductI
 type ProductServer interface {
 	ProductList(context.Context, *ProductListRequest) (*ProductListResponse, error)
 	ProductDetail(context.Context, *ProductDetailReqeust) (*ProductDetailResponse, error)
-	ProductsInUserCart(context.Context, *UserProductIdsRequest) (*UserProductIdsResponse, error)
+	ProductsInCartList(context.Context, *ProductsInCartListRequest) (*ProducrtsInCartListResponse, error)
 	mustEmbedUnimplementedProductServer()
 }
 
@@ -94,8 +94,8 @@ func (UnimplementedProductServer) ProductList(context.Context, *ProductListReque
 func (UnimplementedProductServer) ProductDetail(context.Context, *ProductDetailReqeust) (*ProductDetailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProductDetail not implemented")
 }
-func (UnimplementedProductServer) ProductsInUserCart(context.Context, *UserProductIdsRequest) (*UserProductIdsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ProductsInUserCart not implemented")
+func (UnimplementedProductServer) ProductsInCartList(context.Context, *ProductsInCartListRequest) (*ProducrtsInCartListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProductsInCartList not implemented")
 }
 func (UnimplementedProductServer) mustEmbedUnimplementedProductServer() {}
 func (UnimplementedProductServer) testEmbeddedByValue()                 {}
@@ -154,20 +154,20 @@ func _Product_ProductDetail_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Product_ProductsInUserCart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserProductIdsRequest)
+func _Product_ProductsInCartList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProductsInCartListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProductServer).ProductsInUserCart(ctx, in)
+		return srv.(ProductServer).ProductsInCartList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Product_ProductsInUserCart_FullMethodName,
+		FullMethod: Product_ProductsInCartList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductServer).ProductsInUserCart(ctx, req.(*UserProductIdsRequest))
+		return srv.(ProductServer).ProductsInCartList(ctx, req.(*ProductsInCartListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -188,8 +188,8 @@ var Product_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Product_ProductDetail_Handler,
 		},
 		{
-			MethodName: "ProductsInUserCart",
-			Handler:    _Product_ProductsInUserCart_Handler,
+			MethodName: "ProductsInCartList",
+			Handler:    _Product_ProductsInCartList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -43,7 +43,7 @@ func (l *ProductListLogic) ProductList(req *types.ProductListRequest) (*types.Pr
 		}
 		ps = append(ps, types.ProductListItem{
 			Id:          idEncoded,
-			CoverUrl:    respb.Products[i].Coverurl.Url,
+			CoverUrl:    respb.Products[i].Coverurl,
 			Description: respb.Products[i].Description,
 			Price:       respb.Products[i].Price,
 			Unit:        respb.Products[i].Unit,

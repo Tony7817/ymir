@@ -17,6 +17,7 @@ func init() {
 	// user service
 	message[UserAlreadyExistError] = "user already signed up"
 	message[MaxCaptchaSendTimeError] = "maxmum captcha send time reached"
+	message[NotAuthorizedError] = "not authorized"
 }
 
 func MapErrMsg(errcode uint32) string {

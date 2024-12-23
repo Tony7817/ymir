@@ -12,9 +12,10 @@ import (
 const localCacheExpire = time.Duration(time.Second * 60)
 
 type ServiceContext struct {
-	Config       config.Config
-	ProductModel model.ProductModel
-	LocalCache   *collection.Cache
+	Config           config.Config
+	ProductModel     model.ProductModel
+	ProductCartModel model.ProductCartModel
+	LocalCache       *collection.Cache
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -24,8 +25,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		panic(err)
 	}
 	return &ServiceContext{
-		ProductModel: model.NewProductModel(conn, c.CacheRedis),
-		LocalCache:   localCache,
-		Config:       c,
+		ProductModel:     model.NewProductModel(conn, c.CacheRedis),
+		ProductCartModel: model.NewProductCartModel(conn, c.CacheRedis),
+		LocalCache:       localCache,
+		Config:           c,
 	}
 }

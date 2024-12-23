@@ -21,7 +21,7 @@ message ProductListItem {
   string Description = 2;
   double Price = 3;
   string Color = 4;
-  ProductImage Coverurl = 5;
+  string Coverurl = 5;
   string Unit = 6;
 }
 
@@ -60,16 +60,31 @@ message ProductDetailResponse {
   repeated ProductImage DetailImages = 13;
 }
 
-message UserProductIdsRequest {
+message ProductsInCartListRequest {
   int64 UserId = 1;
+  int64 Page = 2;
+  int64 PageSize = 3;
 }
 
-message UserProductIdsResponse {
-  repeated int64 ProductIds = 1;
+message ProductsInCartListItem {
+  int64 ProductId = 1;
+  int64 Amount = 2;
+  repeated string Sizes = 3;
+  string Description = 4;
+  double Price = 5;
+  double TotalPrice = 6;
+  string Unit = 7;
+  string CoverUrl = 8;
+  int64 QUantity = 9;
+}
+
+message ProducrtsInCartListResponse {
+  repeated ProductsInCartListItem Products = 1;
+  int64 Total = 2;
 }
 
 service Product {
   rpc ProductList(ProductListRequest) returns (ProductListResponse);
   rpc ProductDetail(ProductDetailReqeust) returns (ProductDetailResponse);
-  rpc ProductsInUserCart(UserProductIdsRequest) returns (UserProductIdsResponse);
+  rpc ProductsInCartList(ProductsInCartListRequest) returns (ProducrtsInCartListResponse);
 }

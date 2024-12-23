@@ -33,7 +33,7 @@ func (s *ProductServer) ProductDetail(ctx context.Context, in *product.ProductDe
 	return l.ProductDetail(in)
 }
 
-func (s *ProductServer) ProductsInUserCart(ctx context.Context, in *product.UserProductIdsRequest) (*product.UserProductIdsResponse, error) {
-	l := logic.NewProductsInUserCartLogic(ctx, s.svcCtx)
-	return l.ProductsInUserCart(in)
+func (s *ProductServer) ProductsInCartList(ctx context.Context, in *product.ProductsInCartListRequest) (*product.ProducrtsInCartListResponse, error) {
+	l := logic.NewProductsInCartListLogic(ctx, s.svcCtx)
+	return l.ProductsInCartList(in)
 }

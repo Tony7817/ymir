@@ -68,6 +68,31 @@ type (
 		StarName     string         `json:"star_name"`
 		StarId       string         `json:"star_id"`
 	}
+	ProductCartListRequest {
+		UserId   string `json:"user_id"`
+		Page     int64  `json:"page"`
+		PageSize int64  `json:"page_size"`
+	}
+	ProductCartListItem {
+		Id          string   `json:"id"`
+		Description string   `json:"description"`
+		Price       float64  `json:"price"`
+		Unit        string   `json:"unit"`
+		CoverUrl    string   `json:"cover_url"`
+		Quantity    int64    `json:"quantity"`
+		Amount      int64    `json:"amount"`
+		Sizes       []string `json:"sizes"`
+	}
+	ProductCartListResponse {
+		Products []ProductCartListItem `json:"product"`
+		Total    int64                 `json:"total"`
+	}
+	AddProductAmountInCartRequest {
+		ProductId string `json:"product_id"`
+	}
+	AddProductAmountInCartResponse {
+		OK bool `json:"ok"`
+	}
 	// recommend apis
 	RecommendStarListRequest  {}
 	RecommendStarListResponse {
@@ -140,26 +165,6 @@ type (
 		Captcha     string  `json:"captcha"`
 	}
 	VerifyCaptchaResponse {
-		OK bool `json:"ok"`
-	}
-	// order
-	ProductCartListRequest  {}
-	ProductCartListItem {
-		Id          string   `json:"id"`
-		Description string   `json:"description"`
-		Price       float64  `json:"price"`
-		Unit        string   `json:"unit"`
-		CoverUrl    string   `json:"cover_url"`
-		Quantity    int64    `json:"quantity"`
-		Sizes       []string `json:"sizes"`
-	}
-	ProductCartListResponse {
-		Products []ProductCartListItem `json:"product"`
-	}
-	AddProductAmountInCartRequest {
-		ProductId string `json:"product_id"`
-	}
-	AddProductAmountInCartResponse {
 		OK bool `json:"ok"`
 	}
 )

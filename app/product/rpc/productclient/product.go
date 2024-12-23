@@ -14,21 +14,22 @@ import (
 )
 
 type (
-	ProductCoverUrlRequest  = product.ProductCoverUrlRequest
-	ProductCoverUrlResponse = product.ProductCoverUrlResponse
-	ProductDetailReqeust    = product.ProductDetailReqeust
-	ProductDetailResponse   = product.ProductDetailResponse
-	ProductImage            = product.ProductImage
-	ProductListItem         = product.ProductListItem
-	ProductListRequest      = product.ProductListRequest
-	ProductListResponse     = product.ProductListResponse
-	UserProductIdsRequest   = product.UserProductIdsRequest
-	UserProductIdsResponse  = product.UserProductIdsResponse
+	ProducrtsInCartListResponse = product.ProducrtsInCartListResponse
+	ProductCoverUrlRequest      = product.ProductCoverUrlRequest
+	ProductCoverUrlResponse     = product.ProductCoverUrlResponse
+	ProductDetailReqeust        = product.ProductDetailReqeust
+	ProductDetailResponse       = product.ProductDetailResponse
+	ProductImage                = product.ProductImage
+	ProductListItem             = product.ProductListItem
+	ProductListRequest          = product.ProductListRequest
+	ProductListResponse         = product.ProductListResponse
+	ProductsInCartListItem      = product.ProductsInCartListItem
+	ProductsInCartListRequest   = product.ProductsInCartListRequest
 
 	Product interface {
 		ProductList(ctx context.Context, in *ProductListRequest, opts ...grpc.CallOption) (*ProductListResponse, error)
 		ProductDetail(ctx context.Context, in *ProductDetailReqeust, opts ...grpc.CallOption) (*ProductDetailResponse, error)
-		ProductsInUserCart(ctx context.Context, in *UserProductIdsRequest, opts ...grpc.CallOption) (*UserProductIdsResponse, error)
+		ProductsInCartList(ctx context.Context, in *ProductsInCartListRequest, opts ...grpc.CallOption) (*ProducrtsInCartListResponse, error)
 	}
 
 	defaultProduct struct {
@@ -52,7 +53,7 @@ func (m *defaultProduct) ProductDetail(ctx context.Context, in *ProductDetailReq
 	return client.ProductDetail(ctx, in, opts...)
 }
 
-func (m *defaultProduct) ProductsInUserCart(ctx context.Context, in *UserProductIdsRequest, opts ...grpc.CallOption) (*UserProductIdsResponse, error) {
+func (m *defaultProduct) ProductsInCartList(ctx context.Context, in *ProductsInCartListRequest, opts ...grpc.CallOption) (*ProducrtsInCartListResponse, error) {
 	client := product.NewProductClient(m.cli.Conn())
-	return client.ProductsInUserCart(ctx, in, opts...)
+	return client.ProductsInCartList(ctx, in, opts...)
 }

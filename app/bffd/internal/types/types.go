@@ -35,14 +35,19 @@ type ProductCartListItem struct {
 	Unit        string   `json:"unit"`
 	CoverUrl    string   `json:"cover_url"`
 	Quantity    int64    `json:"quantity"`
+	Amount      int64    `json:"amount"`
 	Sizes       []string `json:"sizes"`
 }
 
 type ProductCartListRequest struct {
+	UserId   string `json:"user_id"`
+	Page     int64  `json:"page"`
+	PageSize int64  `json:"page_size"`
 }
 
 type ProductCartListResponse struct {
 	Products []ProductCartListItem `json:"product"`
+	Total    int64                 `json:"total"`
 }
 
 type ProductDetailRequest struct {

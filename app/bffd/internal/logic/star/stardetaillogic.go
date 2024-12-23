@@ -76,7 +76,7 @@ func (l *StarDetailLogic) StarDetail(req *types.StarDetailRequest) (*types.StarD
 		}
 		ps = append(ps, types.ProductListItem{
 			Id:          idEncoded,
-			CoverUrl:    products.Products[i].Coverurl.Url,
+			CoverUrl:    products.Products[i].Coverurl,
 			Description: products.Products[i].Description,
 			Price:       products.Products[i].Price,
 			Unit:        products.Products[i].Unit,
