@@ -2,9 +2,12 @@ package model
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/zeromicro/go-zero/core/threading"
+	"ymir.com/pkg/xerr"
 )
 
 var _ ProductCartModel = (*customProductCartModel)(nil)
@@ -16,6 +19,10 @@ type (
 		productCartModel
 		FindProductsOfUser(userId int64, page int64, pageSize int64) ([]*ProductCart, error)
 		CountTotalProductOfUser(ctx context.Context, userId int64) (int64, error)
+		IncrProductAmount(ctx context.Context, userId int64, productId int64, color string) error
+		DescProductAmount(ctx context.Context, userId int64, productId int64, color string) error
+		AddToProductCart(ctx context.Context, userId int64, productId int64, size string, color string) (sql.Result, error)
+		SoftRemoveToProductFromCart(ctx context.Context, userId int64, productId int64, color string) (sql.Result, error)
 	}
 
 	customProductCartModel struct {
@@ -55,4 +62,51 @@ func (m *customProductCartModel) CountTotalProductOfUser(ctx context.Context, us
 	}
 
 	return count, nil
+}
+
+func (m *customProductCartModel) IncrProductAmount(ctx context.Context, userId int64, productId int64, color string) error {
+	err := m.TransactCtx(ctx, func(ctx context.Context, s sqlx.Session) error {
+		var inStock int64
+		err := s.QueryRowCtx(ctx, &inStock, "select in_stock from product_stock where product_id = ? and color = ?", productId, color)
+		if err != nil {
+			return err
+		}
+
+		if inStock <= 0 {
+			return xerr.NewErrCode(xerr.CaptchaExpireError)
+		}
+
+		_, err = s.ExecCtx(ctx, "update ? set amount = amount + 1 where user_id = ? and product_id = ? and color = ?", m.table, userId, productId, color)
+		if err != nil {
+			return err
+		}
+
+		threading.GoSafeCtx(ctx, func() {
+			_ = m.DelCacheCtx(ctx, cacheYmirProductCartIdPrefix)
+		})
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *customProductCartModel) DescProductAmount(ctx context.Context, userId int64, productId int64, color string) error {
+	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (sql.Result, error) {
+		return conn.ExecCtx(ctx, "update ? set amount = amount - 1 where user_id = ? and product_id = ? and color = ?", m.table, userId, productId, color)
+	}, cacheYmirProductCartIdPrefix)
+	return err
+}
+
+func (m *customProductCartModel) AddToProductCart(ctx context.Context, userId int64, productId int64, size string, color string) (sql.Result, error) {
+	return m.ExecNoCacheCtx(ctx, "insert into ? (user_id, product_id, size, amount, color) values (?, ?, ?, 1, ?) on duplicate key update set amount = amount + 1", m.table, userId, productId, size, color)
+}
+
+func (m *customProductCartModel) SoftRemoveToProductFromCart(ctx context.Context, userId int64, productId int64, color string) (sql.Result, error) {
+	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (sql.Result, error) {
+		return conn.ExecCtx(ctx, "update ? set is_delete = 1 where user_id = ? and product_id = ? and color = ?", m.table, userId, productId, color)
+	}, cacheYmirProductCartIdPrefix)
 }

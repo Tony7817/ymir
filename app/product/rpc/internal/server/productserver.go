@@ -37,3 +37,28 @@ func (s *ProductServer) ProductsInCartList(ctx context.Context, in *product.Prod
 	l := logic.NewProductsInCartListLogic(ctx, s.svcCtx)
 	return l.ProductsInCartList(in)
 }
+
+func (s *ProductServer) AddProductAmountInCart(ctx context.Context, in *product.AddProductAmountInCartRequest) (*product.AddProductAmountInCartResponse, error) {
+	l := logic.NewAddProductAmountInCartLogic(ctx, s.svcCtx)
+	return l.AddProductAmountInCart(in)
+}
+
+func (s *ProductServer) DecreaseProductAmountInCart(ctx context.Context, in *product.DecreaseProductAmountInCartRequest) (*product.AddProductAmountInCartResponse, error) {
+	l := logic.NewDecreaseProductAmountInCartLogic(ctx, s.svcCtx)
+	return l.DecreaseProductAmountInCart(in)
+}
+
+func (s *ProductServer) AddProductToCart(ctx context.Context, in *product.AddProductToCartRequest) (*product.AddProductToCartResponse, error) {
+	l := logic.NewAddProductToCartLogic(ctx, s.svcCtx)
+	return l.AddProductToCart(in)
+}
+
+func (s *ProductServer) RemoveProductFromCart(ctx context.Context, in *product.RemoveProductFromCartRequest) (*product.RemoveProductFromCartResponse, error) {
+	l := logic.NewRemoveProductFromCartLogic(ctx, s.svcCtx)
+	return l.RemoveProductFromCart(in)
+}
+
+func (s *ProductServer) ProductStock(ctx context.Context, in *product.ProductStockRequest) (*product.ProductStockResponse, error) {
+	l := logic.NewProductStockLogic(ctx, s.svcCtx)
+	return l.ProductStock(in)
+}

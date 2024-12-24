@@ -9,6 +9,7 @@ import (
 	"ymir.com/app/star/rpc/star"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/mr"
 )
 
 type ProductDetailLogic struct {
@@ -35,12 +36,31 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (res
 		return nil, err
 	}
 
-	s, err := l.svcCtx.StarRPC.StarDetail(l.ctx, &star.StarDetailRequest{
-		Id: p.StarId,
+	var (
+		s            *star.StarDetailResponse
+		productStock *product.ProductStockResponse
+	)
+
+	mr.Finish(func() error {
+		var err error
+		s, err = l.svcCtx.StarRPC.StarDetail(l.ctx, &star.StarDetailRequest{
+			Id: p.StarId,
+		})
+		if err != nil {
+			return err
+		}
+		return nil
+	}, func() error {
+		var err error
+		productStock, err = l.svcCtx.ProductRPC.ProductStock(l.ctx, &product.ProductStockRequest{
+			ProductId: p.Id,
+			Color:     p.Color,
+		})
+		if err != nil {
+			return err
+		}
+		return nil
 	})
-	if err != nil {
-		return nil, err
-	}
 
 	pIdEncoded, err := l.svcCtx.Hash.EncodedId(p.Id)
 	if err != nil {
@@ -79,6 +99,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (res
 		StarAvatar:   s.AvatarUrl,
 		StarName:     s.Name,
 		StarId:       sIdEncoded,
+		Stock:        productStock.Stock,
 	}
 
 	return res, nil

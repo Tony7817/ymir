@@ -6,6 +6,7 @@ func init() {
 	message = make(map[uint32]string)
 	message[OK] = "SUCCESS"
 	message[ServerCommonError] = "internal Server Error"
+	message[UnauthorizedError] = "not authorized"
 	message[ReuqestParamError] = "bad request param"
 	message[CaptchaExpireError] = "verification code has expired"
 	message[WrongCaptchaError] = "wrong verification code"
@@ -18,6 +19,8 @@ func init() {
 	message[UserAlreadyExistError] = "user already signed up"
 	message[MaxCaptchaSendTimeError] = "maxmum captcha send time reached"
 	message[NotAuthorizedError] = "not authorized"
+	// product service
+	message[OutOfStockError] = "product is out of stock"
 }
 
 func MapErrMsg(errcode uint32) string {

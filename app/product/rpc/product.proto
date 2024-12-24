@@ -60,6 +60,15 @@ message ProductDetailResponse {
   repeated ProductImage DetailImages = 13;
 }
 
+message ProductStockRequest {
+  int64 ProductId = 1;
+  string Color = 2;
+}
+
+message ProductStockResponse {
+  int64 Stock = 1;
+}
+
 message ProductsInCartListRequest {
   int64 UserId = 1;
   int64 Page = 2;
@@ -83,8 +92,46 @@ message ProducrtsInCartListResponse {
   int64 Total = 2;
 }
 
+message AddProductAmountInCartRequest {
+  int64 ProductId = 1;
+  int64 UserId = 2;
+  string Color = 3;
+}
+
+message AddProductAmountInCartResponse {}
+
+message DecreaseProductAmountInCartRequest {
+  int64 ProductId = 1;
+  int64 UserId = 2;
+  string Color = 3;
+}
+
+message AddProductToCartRequest {
+  int64 ProductId = 1;
+  int64 UserId = 2;
+  string Size = 3;
+  string Color = 4;
+}
+
+message AddProductToCartResponse {
+  int64 ProductCartId = 1;
+}
+
+message RemoveProductFromCartRequest {
+  int64 ProductId = 1;
+  int64 UserId = 2;
+  string Color = 3;
+}
+
+message RemoveProductFromCartResponse {}
+
 service Product {
   rpc ProductList(ProductListRequest) returns (ProductListResponse);
   rpc ProductDetail(ProductDetailReqeust) returns (ProductDetailResponse);
   rpc ProductsInCartList(ProductsInCartListRequest) returns (ProducrtsInCartListResponse);
+  rpc AddProductAmountInCart(AddProductAmountInCartRequest) returns (AddProductAmountInCartResponse);
+  rpc DecreaseProductAmountInCart(DecreaseProductAmountInCartRequest) returns (AddProductAmountInCartResponse);
+  rpc AddProductToCart(AddProductToCartRequest) returns (AddProductToCartResponse);
+  rpc RemoveProductFromCart(RemoveProductFromCartRequest) returns (RemoveProductFromCartResponse);
+  rpc ProductStock(ProductStockRequest) returns (ProductStockResponse);
 }

@@ -2,10 +2,16 @@ package id
 
 import (
 	"context"
-	"errors"
 
 	"github.com/speps/go-hashids"
+	"ymir.com/pkg/xerr"
 )
+
+var hash *HashID
+
+func init() {
+	hash = NewHashID()
+}
 
 type HashID struct {
 	hash *hashids.HashID
@@ -39,11 +45,11 @@ func (h *HashID) DecodedId(id string) int64 {
 	return h.hash.DecodeInt64(id)[0]
 }
 
-func GetUserIdFromCtx(ctx context.Context) (string, error) {
+func GetDecodedUserId(ctx context.Context) (int64, error) {
 	userId, ok := ctx.Value("userId").(string)
 	if !ok {
-		return "", errors.New("userId not found in context")
+		return -1, xerr.NewErrCode(xerr.UnauthorizedError)
 	}
 
-	return userId, nil
+	return hash.DecodedId(userId), nil
 }

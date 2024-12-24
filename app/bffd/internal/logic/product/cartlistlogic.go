@@ -6,6 +6,8 @@ import (
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/product/rpc/product"
+	"ymir.com/pkg/vars"
+	"ymir.com/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,13 +27,19 @@ func NewCartListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CartList
 }
 
 func (l *CartListLogic) CartList(req *types.ProductCartListRequest) (resp *types.ProductCartListResponse, err error) {
+	userIdRaw, ok := l.ctx.Value(vars.UserIdKey).(string)
+	if !ok {
+		return nil, xerr.NewErrCode(xerr.UnauthorizedError)
+	}
+
+	var uIdDoceded = l.svcCtx.Hash.DecodedId(userIdRaw)
+
 	if req.PageSize > 10 {
 		req.PageSize = 10
 	}
 
-	uIddeocded := l.svcCtx.Hash.DecodedId(req.UserId)
 	respb, err := l.svcCtx.ProductRPC.ProductsInCartList(l.ctx, &product.ProductsInCartListRequest{
-		UserId:   uIddeocded,
+		UserId:   uIdDoceded,
 		Page:     req.Page,
 		PageSize: req.PageSize,
 	})

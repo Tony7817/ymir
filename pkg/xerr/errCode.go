@@ -8,6 +8,7 @@ const OK uint32 = 200
 /**全局错误码*/
 //服务器开小差
 const ServerCommonError uint32 = 100001
+const UnauthorizedError uint32 = 100002
 
 // 请求参数错误
 const ReuqestParamError uint32 = 100002
@@ -36,6 +37,7 @@ const NotAuthorizedError uint32 = 201005
 
 //订单服务
 
-//商品服务
+// 商品服务
+const OutOfStockError uint32 = 400001
 
 //支付服务

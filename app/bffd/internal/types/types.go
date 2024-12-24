@@ -5,10 +5,26 @@ package types
 
 type AddProductAmountInCartRequest struct {
 	ProductId string `json:"product_id"`
+	Color     string `json:"color"`
 }
 
 type AddProductAmountInCartResponse struct {
-	OK bool `json:"ok"`
+}
+
+type AddProductToCartRequest struct {
+	ProductId string `json:"productId"`
+	Color     string `json:"color"`
+	Size      string `json:"size"`
+}
+
+type AddProductToCartResponse struct {
+}
+
+type DecreaseProductAmountInCartRequest struct {
+	ProductId string `json:"product_id"`
+}
+
+type DecreaseProductAmountInCartResponse struct {
 }
 
 type ForgetPasswordRequest struct {
@@ -40,9 +56,8 @@ type ProductCartListItem struct {
 }
 
 type ProductCartListRequest struct {
-	UserId   string `json:"user_id"`
-	Page     int64  `json:"page"`
-	PageSize int64  `json:"page_size"`
+	Page     int64 `json:"page"`
+	PageSize int64 `json:"page_size"`
 }
 
 type ProductCartListResponse struct {
@@ -70,6 +85,7 @@ type ProductDetailResponse struct {
 	StarAvatar   string         `json:"star_avatar"`
 	StarName     string         `json:"star_name"`
 	StarId       string         `json:"star_id"`
+	Stock        int64          `json:"stock"`
 }
 
 type ProductImage struct {
@@ -108,6 +124,13 @@ type RecommendStarListRequest struct {
 
 type RecommendStarListResponse struct {
 	Recommends []RecommendStarListItem `json:"recommends"`
+}
+
+type RemoveProductFromCartRequest struct {
+	ProductId string `json:"product_id"`
+}
+
+type RemoveProductFromCartResponse struct {
 }
 
 type SendForgetPasswordCaptchaRequest struct {

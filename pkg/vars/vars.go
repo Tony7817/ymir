@@ -30,6 +30,7 @@ func GetCaptchaPhonenumberLastRequestTimeKey(phonenumber string) string {
 const CacheExpireIn5m = 5 * 60
 const CacheExpireIn1d = 60 * 60 * 24
 const CacheExpireIn1m = 60
+const CacheExpireIn1W = 60 * 60 * 24 * 7
 
 func GetCaptchaEmailCacheKey(email string) string {
 	return "cache:capcha:email:" + email
@@ -143,8 +144,9 @@ func GetCaptchaEmailTemplate(captcha string) string {
 type contextKey string
 
 const RequestContextKey contextKey = "Request"
+const UserIdKey = "UserId"
 
 // product
 func CacheProductInCartKey(userId int64) string {
-    return fmt.Sprintf("cache:product:cart:%d", userId)
+	return fmt.Sprintf("cache:product:cart:%d", userId)
 }

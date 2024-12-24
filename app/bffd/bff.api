@@ -67,11 +67,11 @@ type (
 		StarAvatar   string         `json:"star_avatar"`
 		StarName     string         `json:"star_name"`
 		StarId       string         `json:"star_id"`
+		Stock        int64          `json:"stock"`
 	}
 	ProductCartListRequest {
-		UserId   string `json:"user_id"`
-		Page     int64  `json:"page"`
-		PageSize int64  `json:"page_size"`
+		Page     int64 `json:"page"`
+		PageSize int64 `json:"page_size"`
 	}
 	ProductCartListItem {
 		Id          string   `json:"id"`
@@ -89,10 +89,24 @@ type (
 	}
 	AddProductAmountInCartRequest {
 		ProductId string `json:"product_id"`
+		Color     string `json:"color"`
 	}
-	AddProductAmountInCartResponse {
-		OK bool `json:"ok"`
+	AddProductAmountInCartResponse  {}
+	DecreaseProductAmountInCartRequest {
+		ProductId string `json:"product_id"`
 	}
+	DecreaseProductAmountInCartResponse  {}
+	AddProductToCartRequest {
+		ProductId string `json:"productId"`
+		Color     string `json:"color"`
+		Size      string `json:"size"`
+	}
+	AddProductToCartResponse  {}
+	RemoveProductFromCartRequest {
+		ProductId string `json:"product_id"`
+	}
+	RemoveProductFromCartResponse  {}
+	// -------------
 	// recommend apis
 	RecommendStarListRequest  {}
 	RecommendStarListResponse {
@@ -201,6 +215,18 @@ service bff {
 service bff {
 	@handler CartList
 	post /cart/list (ProductCartListRequest) returns (ProductCartListResponse)
+
+	@handler AddProductToCart
+	post /cart/add/product/ (AddProductToCartRequest) returns (AddProductToCartResponse)
+
+	@handler RemoveProductFromCart
+	post /cart/remove/:productCartId (RemoveProductFromCartRequest) returns (RemoveProductFromCartResponse)
+
+	@handler AddProductAmountInCart
+	post /cart/add/amount/:productId (AddProductAmountInCartRequest) returns (AddProductAmountInCartResponse)
+
+	@handler DecreaseProductAmountInCart
+	post /cart/decrease/amount/:productId (DecreaseProductAmountInCartRequest) returns (DecreaseProductAmountInCartResponse)
 }
 
 @server (

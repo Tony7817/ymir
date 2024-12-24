@@ -42,8 +42,28 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
+				Path:    "/cart/add/amount/:productId",
+				Handler: product.AddProductAmountInCartHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/cart/add/product/",
+				Handler: product.AddProductToCartHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/cart/decrease/amount/:productId",
+				Handler: product.DecreaseProductAmountInCartHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/cart/list",
 				Handler: product.CartListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/cart/remove/:productCartId",
+				Handler: product.RemoveProductFromCartHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

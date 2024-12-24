@@ -57,7 +57,6 @@ type (
 		Rate         float64        `db:"rate"`
 		RateCount    int64          `db:"rate_count"`
 		Detail       sql.NullString `db:"detail"`
-		InStock      int64          `db:"in_stock"`
 		Color        string         `db:"color"`
 		CoverUrl     string         `db:"cover_url"`
 	}
@@ -99,8 +98,8 @@ func (m *defaultProductModel) FindOne(ctx context.Context, id int64) (*Product, 
 func (m *defaultProductModel) Insert(ctx context.Context, data *Product) (sql.Result, error) {
 	ymirProductIdKey := fmt.Sprintf("%s%v", cacheYmirProductIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, productRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.StarId, data.Name, data.Images, data.DetailImages, data.Size, data.Tags, data.Price, data.Unit, data.SoldNum, data.Description, data.Rate, data.RateCount, data.Detail, data.InStock, data.Color, data.CoverUrl)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, productRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.StarId, data.Name, data.Images, data.DetailImages, data.Size, data.Tags, data.Price, data.Unit, data.SoldNum, data.Description, data.Rate, data.RateCount, data.Detail, data.Color, data.CoverUrl)
 	}, ymirProductIdKey)
 	return ret, err
 }
@@ -109,7 +108,7 @@ func (m *defaultProductModel) Update(ctx context.Context, data *Product) error {
 	ymirProductIdKey := fmt.Sprintf("%s%v", cacheYmirProductIdPrefix, data.Id)
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, productRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.StarId, data.Name, data.Images, data.DetailImages, data.Size, data.Tags, data.Price, data.Unit, data.SoldNum, data.Description, data.Rate, data.RateCount, data.Detail, data.InStock, data.Color, data.CoverUrl, data.Id)
+		return conn.ExecCtx(ctx, query, data.StarId, data.Name, data.Images, data.DetailImages, data.Size, data.Tags, data.Price, data.Unit, data.SoldNum, data.Description, data.Rate, data.RateCount, data.Detail, data.Color, data.CoverUrl, data.Id)
 	}, ymirProductIdKey)
 	return err
 }

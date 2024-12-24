@@ -14,22 +14,36 @@ import (
 )
 
 type (
-	ProducrtsInCartListResponse = product.ProducrtsInCartListResponse
-	ProductCoverUrlRequest      = product.ProductCoverUrlRequest
-	ProductCoverUrlResponse     = product.ProductCoverUrlResponse
-	ProductDetailReqeust        = product.ProductDetailReqeust
-	ProductDetailResponse       = product.ProductDetailResponse
-	ProductImage                = product.ProductImage
-	ProductListItem             = product.ProductListItem
-	ProductListRequest          = product.ProductListRequest
-	ProductListResponse         = product.ProductListResponse
-	ProductsInCartListItem      = product.ProductsInCartListItem
-	ProductsInCartListRequest   = product.ProductsInCartListRequest
+	AddProductAmountInCartRequest      = product.AddProductAmountInCartRequest
+	AddProductAmountInCartResponse     = product.AddProductAmountInCartResponse
+	AddProductToCartRequest            = product.AddProductToCartRequest
+	AddProductToCartResponse           = product.AddProductToCartResponse
+	DecreaseProductAmountInCartRequest = product.DecreaseProductAmountInCartRequest
+	ProducrtsInCartListResponse        = product.ProducrtsInCartListResponse
+	ProductCoverUrlRequest             = product.ProductCoverUrlRequest
+	ProductCoverUrlResponse            = product.ProductCoverUrlResponse
+	ProductDetailReqeust               = product.ProductDetailReqeust
+	ProductDetailResponse              = product.ProductDetailResponse
+	ProductImage                       = product.ProductImage
+	ProductListItem                    = product.ProductListItem
+	ProductListRequest                 = product.ProductListRequest
+	ProductListResponse                = product.ProductListResponse
+	ProductStockRequest                = product.ProductStockRequest
+	ProductStockResponse               = product.ProductStockResponse
+	ProductsInCartListItem             = product.ProductsInCartListItem
+	ProductsInCartListRequest          = product.ProductsInCartListRequest
+	RemoveProductFromCartRequest       = product.RemoveProductFromCartRequest
+	RemoveProductFromCartResponse      = product.RemoveProductFromCartResponse
 
 	Product interface {
 		ProductList(ctx context.Context, in *ProductListRequest, opts ...grpc.CallOption) (*ProductListResponse, error)
 		ProductDetail(ctx context.Context, in *ProductDetailReqeust, opts ...grpc.CallOption) (*ProductDetailResponse, error)
 		ProductsInCartList(ctx context.Context, in *ProductsInCartListRequest, opts ...grpc.CallOption) (*ProducrtsInCartListResponse, error)
+		AddProductAmountInCart(ctx context.Context, in *AddProductAmountInCartRequest, opts ...grpc.CallOption) (*AddProductAmountInCartResponse, error)
+		DecreaseProductAmountInCart(ctx context.Context, in *DecreaseProductAmountInCartRequest, opts ...grpc.CallOption) (*AddProductAmountInCartResponse, error)
+		AddProductToCart(ctx context.Context, in *AddProductToCartRequest, opts ...grpc.CallOption) (*AddProductToCartResponse, error)
+		RemoveProductFromCart(ctx context.Context, in *RemoveProductFromCartRequest, opts ...grpc.CallOption) (*RemoveProductFromCartResponse, error)
+		ProductStock(ctx context.Context, in *ProductStockRequest, opts ...grpc.CallOption) (*ProductStockResponse, error)
 	}
 
 	defaultProduct struct {
@@ -56,4 +70,29 @@ func (m *defaultProduct) ProductDetail(ctx context.Context, in *ProductDetailReq
 func (m *defaultProduct) ProductsInCartList(ctx context.Context, in *ProductsInCartListRequest, opts ...grpc.CallOption) (*ProducrtsInCartListResponse, error) {
 	client := product.NewProductClient(m.cli.Conn())
 	return client.ProductsInCartList(ctx, in, opts...)
+}
+
+func (m *defaultProduct) AddProductAmountInCart(ctx context.Context, in *AddProductAmountInCartRequest, opts ...grpc.CallOption) (*AddProductAmountInCartResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.AddProductAmountInCart(ctx, in, opts...)
+}
+
+func (m *defaultProduct) DecreaseProductAmountInCart(ctx context.Context, in *DecreaseProductAmountInCartRequest, opts ...grpc.CallOption) (*AddProductAmountInCartResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.DecreaseProductAmountInCart(ctx, in, opts...)
+}
+
+func (m *defaultProduct) AddProductToCart(ctx context.Context, in *AddProductToCartRequest, opts ...grpc.CallOption) (*AddProductToCartResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.AddProductToCart(ctx, in, opts...)
+}
+
+func (m *defaultProduct) RemoveProductFromCart(ctx context.Context, in *RemoveProductFromCartRequest, opts ...grpc.CallOption) (*RemoveProductFromCartResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.RemoveProductFromCart(ctx, in, opts...)
+}
+
+func (m *defaultProduct) ProductStock(ctx context.Context, in *ProductStockRequest, opts ...grpc.CallOption) (*ProductStockResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.ProductStock(ctx, in, opts...)
 }
