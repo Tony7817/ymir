@@ -94,6 +94,7 @@ type (
 	AddProductAmountInCartResponse  {}
 	DecreaseProductAmountInCartRequest {
 		ProductId string `json:"product_id"`
+		Color     string `json:"color"`
 	}
 	DecreaseProductAmountInCartResponse  {}
 	AddProductToCartRequest {
@@ -101,9 +102,12 @@ type (
 		Color     string `json:"color"`
 		Size      string `json:"size"`
 	}
-	AddProductToCartResponse  {}
+	AddProductToCartResponse {
+		ProductCartId string `json:"product_cart_id"`
+	}
 	RemoveProductFromCartRequest {
 		ProductId string `json:"product_id"`
+		Color     string `json:"color"`
 	}
 	RemoveProductFromCartResponse  {}
 	// -------------

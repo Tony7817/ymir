@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 
+	"ymir.com/pkg/xerr"
+
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"github.com/zeromicro/go-zero/core/threading"
-	"ymir.com/pkg/xerr"
 )
 
 var _ ProductCartModel = (*customProductCartModel)(nil)
@@ -81,10 +81,6 @@ func (m *customProductCartModel) IncrProductAmount(ctx context.Context, userId i
 			return err
 		}
 
-		threading.GoSafeCtx(ctx, func() {
-			_ = m.DelCacheCtx(ctx, cacheYmirProductCartIdPrefix)
-		})
-
 		return nil
 	})
 	if err != nil {
@@ -97,7 +93,7 @@ func (m *customProductCartModel) IncrProductAmount(ctx context.Context, userId i
 func (m *customProductCartModel) DescProductAmount(ctx context.Context, userId int64, productId int64, color string) error {
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (sql.Result, error) {
 		return conn.ExecCtx(ctx, "update ? set amount = amount - 1 where user_id = ? and product_id = ? and color = ?", m.table, userId, productId, color)
-	}, cacheYmirProductCartIdPrefix)
+	})
 	return err
 }
 
@@ -108,5 +104,5 @@ func (m *customProductCartModel) AddToProductCart(ctx context.Context, userId in
 func (m *customProductCartModel) SoftRemoveToProductFromCart(ctx context.Context, userId int64, productId int64, color string) (sql.Result, error) {
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (sql.Result, error) {
 		return conn.ExecCtx(ctx, "update ? set is_delete = 1 where user_id = ? and product_id = ? and color = ?", m.table, userId, productId, color)
-	}, cacheYmirProductCartIdPrefix)
+	})
 }

@@ -5,6 +5,8 @@ import (
 
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
+	"ymir.com/app/product/rpc/product"
+	"ymir.com/pkg/id"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +26,21 @@ func NewDecreaseProductAmountInCartLogic(ctx context.Context, svcCtx *svc.Servic
 }
 
 func (l *DecreaseProductAmountInCartLogic) DecreaseProductAmountInCart(req *types.DecreaseProductAmountInCartRequest) (resp *types.DecreaseProductAmountInCartResponse, err error) {
-	// todo: add your logic here and delete this line
+	uIdDecoded, err := id.GetDecodedUserId(l.ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	var pIdDecoded = l.svcCtx.Hash.DecodedId(req.ProductId)
+
+	_, err = l.svcCtx.ProductRPC.DecreaseProductAmountInCart(l.ctx, &product.DecreaseProductAmountInCartRequest{
+		ProductId: pIdDecoded,
+		UserId:    uIdDecoded,
+		Color:     req.Color,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.DecreaseProductAmountInCartResponse{}, nil
 }

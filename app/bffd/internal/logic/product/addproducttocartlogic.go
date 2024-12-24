@@ -5,6 +5,8 @@ import (
 
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
+	"ymir.com/app/product/rpc/product"
+	"ymir.com/pkg/id"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +26,28 @@ func NewAddProductToCartLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *AddProductToCartLogic) AddProductToCart(req *types.AddProductToCartRequest) (resp *types.AddProductToCartResponse, err error) {
-	// todo: add your logic here and delete this line
+	uIdDecoded, err := id.GetDecodedUserId(l.ctx)
+	if err != nil {
+		return nil, err
+	}
+	var pIdDecoded = id.Hash.DecodedId(req.ProductId)
 
-	return
+	respb, err := l.svcCtx.ProductRPC.AddProductToCart(l.ctx, &product.AddProductToCartRequest{
+		ProductId: pIdDecoded,
+		UserId:    uIdDecoded,
+		Size:      req.Size,
+		Color:     req.Color,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	pcIdEncoded, err := id.Hash.EncodedId(respb.ProductCartId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.AddProductToCartResponse{
+		ProductCartId: pcIdEncoded,
+	}, nil
 }

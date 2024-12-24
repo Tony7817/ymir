@@ -18,10 +18,12 @@ type AddProductToCartRequest struct {
 }
 
 type AddProductToCartResponse struct {
+	ProductCartId string `json:"product_cart_id"`
 }
 
 type DecreaseProductAmountInCartRequest struct {
 	ProductId string `json:"product_id"`
+	Color     string `json:"color"`
 }
 
 type DecreaseProductAmountInCartResponse struct {
@@ -128,6 +130,7 @@ type RecommendStarListResponse struct {
 
 type RemoveProductFromCartRequest struct {
 	ProductId string `json:"product_id"`
+	Color     string `json:"color"`
 }
 
 type RemoveProductFromCartResponse struct {

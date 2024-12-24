@@ -5,6 +5,8 @@ import (
 
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
+	"ymir.com/app/product/rpc/product"
+	"ymir.com/pkg/id"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +26,19 @@ func NewRemoveProductFromCartLogic(ctx context.Context, svcCtx *svc.ServiceConte
 }
 
 func (l *RemoveProductFromCartLogic) RemoveProductFromCart(req *types.RemoveProductFromCartRequest) (resp *types.RemoveProductFromCartResponse, err error) {
-	ret, err := 
+	uIdDecoded, err := id.GetDecodedUserId(l.ctx)
+	if err != nil {
+		return nil, err
+	}
+	var pIdDecoded = id.Hash.DecodedId(req.ProductId)
+	_, err = l.svcCtx.ProductRPC.RemoveProductFromCart(l.ctx, &product.RemoveProductFromCartRequest{
+		ProductId: pIdDecoded,
+		UserId:    uIdDecoded,
+		Color:     req.Color,
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	return &types.RemoveProductFromCartResponse{}, nil
 }

@@ -7,10 +7,10 @@ import (
 	"ymir.com/pkg/xerr"
 )
 
-var hash *HashID
+var Hash *HashID
 
 func init() {
-	hash = NewHashID()
+	Hash = NewHashID()
 }
 
 type HashID struct {
@@ -51,5 +51,5 @@ func GetDecodedUserId(ctx context.Context) (int64, error) {
 		return -1, xerr.NewErrCode(xerr.UnauthorizedError)
 	}
 
-	return hash.DecodedId(userId), nil
+	return Hash.DecodedId(userId), nil
 }
