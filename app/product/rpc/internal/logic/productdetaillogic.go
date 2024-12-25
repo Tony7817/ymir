@@ -36,8 +36,6 @@ func (l *ProductDetailLogic) ProductDetail(in *product.ProductDetailReqeust) (*p
 	var size = strings.Split(p.Size, ",")
 	var images []*product.ProductImage
 	var detailImages []*product.ProductImage
-	logx.Infof("images: %+v", p.Images)
-	logx.Infof("detail images: %+v", p.DetailImages)
 	if err := json.Unmarshal([]byte(p.Images), &images); err != nil {
 		return nil, errors.Wrapf(err, "unmarshal product images failed, err: %+v", err)
 	}

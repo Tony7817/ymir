@@ -39,6 +39,7 @@ func (l *RemoveProductFromCartLogic) RemoveProductFromCart(req *types.RemoveProd
 	if err != nil {
 		return nil, err
 	}
+	
 
 	return &types.RemoveProductFromCartResponse{}, nil
 }
