@@ -20,11 +20,15 @@ type (
 	AddProductToCartResponse           = product.AddProductToCartResponse
 	DecreaseProductAmountInCartRequest = product.DecreaseProductAmountInCartRequest
 	ProducrtsInCartListResponse        = product.ProducrtsInCartListResponse
+	ProductColorListItem               = product.ProductColorListItem
+	ProductColorListRequest            = product.ProductColorListRequest
+	ProductColorListResponse           = product.ProductColorListResponse
+	ProductColorRequest                = product.ProductColorRequest
+	ProductColorResponse               = product.ProductColorResponse
 	ProductCoverUrlRequest             = product.ProductCoverUrlRequest
 	ProductCoverUrlResponse            = product.ProductCoverUrlResponse
 	ProductDetailReqeust               = product.ProductDetailReqeust
 	ProductDetailResponse              = product.ProductDetailResponse
-	ProductImage                       = product.ProductImage
 	ProductListItem                    = product.ProductListItem
 	ProductListRequest                 = product.ProductListRequest
 	ProductListResponse                = product.ProductListResponse
@@ -44,6 +48,8 @@ type (
 		AddProductToCart(ctx context.Context, in *AddProductToCartRequest, opts ...grpc.CallOption) (*AddProductToCartResponse, error)
 		RemoveProductFromCart(ctx context.Context, in *RemoveProductFromCartRequest, opts ...grpc.CallOption) (*RemoveProductFromCartResponse, error)
 		ProductStock(ctx context.Context, in *ProductStockRequest, opts ...grpc.CallOption) (*ProductStockResponse, error)
+		ProductColor(ctx context.Context, in *ProductColorRequest, opts ...grpc.CallOption) (*ProductColorResponse, error)
+		ProductColorList(ctx context.Context, in *ProductColorListRequest, opts ...grpc.CallOption) (*ProductColorListResponse, error)
 	}
 
 	defaultProduct struct {
@@ -95,4 +101,14 @@ func (m *defaultProduct) RemoveProductFromCart(ctx context.Context, in *RemovePr
 func (m *defaultProduct) ProductStock(ctx context.Context, in *ProductStockRequest, opts ...grpc.CallOption) (*ProductStockResponse, error) {
 	client := product.NewProductClient(m.cli.Conn())
 	return client.ProductStock(ctx, in, opts...)
+}
+
+func (m *defaultProduct) ProductColor(ctx context.Context, in *ProductColorRequest, opts ...grpc.CallOption) (*ProductColorResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.ProductColor(ctx, in, opts...)
+}
+
+func (m *defaultProduct) ProductColorList(ctx context.Context, in *ProductColorListRequest, opts ...grpc.CallOption) (*ProductColorListResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.ProductColorList(ctx, in, opts...)
 }

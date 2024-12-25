@@ -11,4 +11,4 @@ CacheRedis:
 
 Log:
   ServiceName: ymir.product.rpc
-  Level: error
+  Level: debug

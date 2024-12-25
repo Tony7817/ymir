@@ -7,6 +7,7 @@ import (
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/product/rpc/product"
 	"ymir.com/app/star/rpc/star"
+	"ymir.com/pkg/id"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
@@ -26,19 +27,40 @@ func NewProductDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pro
 	}
 }
 
-func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (resp *types.ProductDetailResponse, err error) {
+func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*types.ProductDetailResponse, error) {
 	var pIdDecoded = l.svcCtx.Hash.DecodedId(req.Id)
 
-	p, err := l.svcCtx.ProductRPC.ProductDetail(l.ctx, &product.ProductDetailReqeust{
-		Id: pIdDecoded,
+	var (
+		p  *product.ProductDetailResponse
+		cl *product.ProductColorListResponse
+	)
+
+	err := mr.Finish(func() error {
+		var err error
+		p, err = l.svcCtx.ProductRPC.ProductDetail(l.ctx, &product.ProductDetailReqeust{
+			Id: pIdDecoded,
+		})
+		if err != nil {
+			return err
+		}
+		return nil
+	}, func() error {
+		var err error
+		cl, err = l.svcCtx.ProductRPC.ProductColorList(l.ctx, &product.ProductColorListRequest{
+			ProductId: pIdDecoded,
+		})
+		if err != nil {
+			return err
+		}
+		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	var (
-		s            *star.StarDetailResponse
-		productStock *product.ProductStockResponse
+		s  *star.StarDetailResponse
+		pc *product.ProductColorResponse
 	)
 
 	mr.Finish(func() error {
@@ -52,15 +74,44 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (res
 		return nil
 	}, func() error {
 		var err error
-		productStock, err = l.svcCtx.ProductRPC.ProductStock(l.ctx, &product.ProductStockRequest{
-			ProductId: p.Id,
-			Color:     p.Color,
+		pc, err = l.svcCtx.ProductRPC.ProductColor(l.ctx, &product.ProductColorRequest{
+			ColorId: p.DefaultColorId,
 		})
 		if err != nil {
 			return err
 		}
 		return nil
 	})
+
+	sizes, err := mr.MapReduce(func(source chan<- string) {
+		for _, size := range pc.AvaliableSizes {
+			source <- size
+		}
+	}, func(size string, writer mr.Writer[*types.ProductSize], cancel func(error)) {
+		stock, err := l.svcCtx.ProductRPC.ProductStock(l.ctx, &product.ProductStockRequest{
+			ProductId: pIdDecoded,
+			ColorId:   pc.Id,
+			Size:      size,
+		})
+		if err != nil {
+			cancel(err)
+			return
+		}
+		productStock := types.ProductSize{
+			SizeName: size,
+			InStock:  stock.Stock,
+		}
+		writer.Write(&productStock)
+	}, func(pipe <-chan *types.ProductSize, writer mr.Writer[[]types.ProductSize], cancel func(error)) {
+		var sizes []types.ProductSize
+		for size := range pipe {
+			sizes = append(sizes, *size)
+		}
+		writer.Write(sizes)
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	pIdEncoded, err := l.svcCtx.Hash.EncodedId(p.Id)
 	if err != nil {
@@ -71,35 +122,40 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (res
 		return nil, err
 	}
 
-	var images []types.ProductImage
-	var detailImages []types.ProductImage
-	for i := 0; i < len(p.Images); i++ {
-		images = append(images, types.ProductImage{
-			Url: p.Images[i].Url,
+	var color = types.ProductColor{
+		Id:            pIdEncoded,
+		ColorName:     pc.Color,
+		Images:        pc.Images,
+		Detail_Images: pc.DetailImages,
+		Price:         pc.Price,
+		Unit:          pc.Unit,
+		Size:          sizes,
+	}
+
+	var clres []types.ProductColorListItem
+	for i := 0; i < len(cl.Colors); i++ {
+		cIdEncoded, err := id.Hash.EncodedId(cl.Colors[i].ColorId)
+		if err != nil {
+			return nil, err
+		}
+		clres = append(clres, types.ProductColorListItem{
+			ColorId:  cIdEncoded,
+			CoverUrl: cl.Colors[i].CoverUrl,
 		})
 	}
-	for i := 0; i < len(p.DetailImages); i++ {
-		detailImages = append(detailImages, types.ProductImage{
-			Url: p.DetailImages[i].Url,
-		})
-	}
+
 	var res = &types.ProductDetailResponse{
-		Id:           pIdEncoded,
-		Description:  p.Description,
-		Rate:         p.Rate,
-		RateCount:    p.ReteCount,
-		Price:        p.Price,
-		Unit:         p.Unit,
-		Size:         p.Size,
-		Color:        p.Color,
-		Images:       images,
-		DetailImages: detailImages,
-		SoldNum:      p.SoldNum,
-		Detail:       &p.Detail,
-		StarAvatar:   s.AvatarUrl,
-		StarName:     s.Name,
-		StarId:       sIdEncoded,
-		Stock:        productStock.Stock,
+		Id:          pIdEncoded,
+		Description: p.Description,
+		Rate:        p.Rate,
+		RateCount:   p.ReteCount,
+		Color:       color,
+		ColorList:   clres,
+		SoldNum:     p.SoldNum,
+		Detail:      &p.Detail,
+		StarAvatar:  s.AvatarUrl,
+		StarName:    s.Name,
+		StarId:      sIdEncoded,
 	}
 
 	return res, nil

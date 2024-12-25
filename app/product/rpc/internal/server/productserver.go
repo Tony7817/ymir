@@ -62,3 +62,13 @@ func (s *ProductServer) ProductStock(ctx context.Context, in *product.ProductSto
 	l := logic.NewProductStockLogic(ctx, s.svcCtx)
 	return l.ProductStock(in)
 }
+
+func (s *ProductServer) ProductColor(ctx context.Context, in *product.ProductColorRequest) (*product.ProductColorResponse, error) {
+	l := logic.NewProductColorLogic(ctx, s.svcCtx)
+	return l.ProductColor(in)
+}
+
+func (s *ProductServer) ProductColorList(ctx context.Context, in *product.ProductColorListRequest) (*product.ProductColorListResponse, error) {
+	l := logic.NewProductColorListLogic(ctx, s.svcCtx)
+	return l.ProductColorList(in)
+}

@@ -41,24 +41,18 @@ type (
 	}
 
 	Product struct {
-		Id           int64          `db:"id"`
-		CreatedAt    time.Time      `db:"created_at"`
-		UpdatedAt    time.Time      `db:"updated_at"`
-		StarId       int64          `db:"star_id"`
-		Name         string         `db:"name"`
-		Images       string         `db:"images"`
-		DetailImages sql.NullString `db:"detail_images"`
-		Size         string         `db:"size"`
-		Tags         sql.NullString `db:"tags"`
-		Price        float64        `db:"price"`
-		Unit         string         `db:"unit"`
-		SoldNum      int64          `db:"sold_num"`
-		Description  string         `db:"description"`
-		Rate         float64        `db:"rate"`
-		RateCount    int64          `db:"rate_count"`
-		Detail       sql.NullString `db:"detail"`
-		Color        string         `db:"color"`
-		CoverUrl     string         `db:"cover_url"`
+		Id             int64          `db:"id"`
+		CreatedAt      time.Time      `db:"created_at"`
+		UpdatedAt      time.Time      `db:"updated_at"`
+		StarId         int64          `db:"star_id"`
+		DefaultColorId int64          `db:"default_color_id"`
+		Name           string         `db:"name"`
+		Tags           sql.NullString `db:"tags"`
+		SoldNum        int64          `db:"sold_num"`
+		Description    string         `db:"description"`
+		Rate           float64        `db:"rate"`
+		RateCount      int64          `db:"rate_count"`
+		Detail         sql.NullString `db:"detail"`
 	}
 )
 
@@ -98,8 +92,8 @@ func (m *defaultProductModel) FindOne(ctx context.Context, id int64) (*Product, 
 func (m *defaultProductModel) Insert(ctx context.Context, data *Product) (sql.Result, error) {
 	ymirProductIdKey := fmt.Sprintf("%s%v", cacheYmirProductIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, productRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.StarId, data.Name, data.Images, data.DetailImages, data.Size, data.Tags, data.Price, data.Unit, data.SoldNum, data.Description, data.Rate, data.RateCount, data.Detail, data.Color, data.CoverUrl)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, productRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.StarId, data.DefaultColorId, data.Name, data.Tags, data.SoldNum, data.Description, data.Rate, data.RateCount, data.Detail)
 	}, ymirProductIdKey)
 	return ret, err
 }
@@ -108,7 +102,7 @@ func (m *defaultProductModel) Update(ctx context.Context, data *Product) error {
 	ymirProductIdKey := fmt.Sprintf("%s%v", cacheYmirProductIdPrefix, data.Id)
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, productRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.StarId, data.Name, data.Images, data.DetailImages, data.Size, data.Tags, data.Price, data.Unit, data.SoldNum, data.Description, data.Rate, data.RateCount, data.Detail, data.Color, data.CoverUrl, data.Id)
+		return conn.ExecCtx(ctx, query, data.StarId, data.DefaultColorId, data.Name, data.Tags, data.SoldNum, data.Description, data.Rate, data.RateCount, data.Detail, data.Id)
 	}, ymirProductIdKey)
 	return err
 }

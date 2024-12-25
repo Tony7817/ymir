@@ -44,7 +44,7 @@ func (m *customProductCartModel) FindProductsOfUser(userId int64, page int64, pa
 
 	var res []*ProductCart
 	var offset = (page - 1) * pageSize
-	if err := m.QueryRowsNoCache(&res, "SELECT * FROM ? WHERE user_id = ? LIMIT ?, ?", m.table, userId, offset, pageSize); err != nil {
+	if err := m.QueryRowsNoCache(&res, "select * from ? where user_id = ? limit ?, ?", m.table, userId, offset, pageSize); err != nil {
 		return nil, err
 	}
 

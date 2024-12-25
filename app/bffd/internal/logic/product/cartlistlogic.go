@@ -59,7 +59,6 @@ func (l *CartListLogic) CartList(req *types.ProductCartListRequest) (resp *types
 			Price:       respb.Products[i].Price,
 			Unit:        respb.Products[i].Unit,
 			CoverUrl:    respb.Products[i].CoverUrl,
-			Quantity:    respb.Products[i].Amount,
 			Amount:      respb.Products[i].Amount,
 			Sizes:       respb.Products[i].Sizes,
 		})

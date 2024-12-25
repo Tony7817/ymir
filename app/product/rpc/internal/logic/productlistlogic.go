@@ -7,6 +7,7 @@ import (
 	"ymir.com/app/product/rpc/model"
 	"ymir.com/app/product/rpc/product"
 
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
 )
@@ -27,13 +28,13 @@ func NewProductListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Produ
 
 func (l *ProductListLogic) ProductList(in *product.ProductListRequest) (*product.ProductListResponse, error) {
 	var (
-		offset   = (in.Page - 1) * in.PageSize
-		products []*model.Product
-		total    int64
+		offset = (in.Page - 1) * in.PageSize
+		p      []*model.Product
+		total  int64
 	)
 	err := mr.Finish(func() error {
 		var err error
-		products, err = l.svcCtx.ProductModel.FindProductList(l.ctx, in.StarId, offset, in.PageSize)
+		p, err = l.svcCtx.ProductModel.FindProductList(l.ctx, in.StarId, offset, in.PageSize)
 		if err != nil {
 			return err
 		}
@@ -47,19 +48,12 @@ func (l *ProductListLogic) ProductList(in *product.ProductListRequest) (*product
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "[ProductList] failed to get product list")
 	}
 
-	var productItems []*product.ProductListItem
-	for i := 0; i < len(products); i++ {
-		productItems = append(productItems, &product.ProductListItem{
-			Id:          productItems[i].Id,
-			Description: productItems[i].Description,
-			Color:       productItems[i].Color,
-			Coverurl:    productItems[i].Coverurl,
-			Price:       productItems[i].Price,
-			Unit:        productItems[i].Unit,
-		})
+	productItems, err := l.colorOfProducts(p)
+	if err != nil {
+		return nil, err
 	}
 
 	var res = &product.ProductListResponse{
@@ -68,4 +62,32 @@ func (l *ProductListLogic) ProductList(in *product.ProductListRequest) (*product
 	}
 
 	return res, nil
+}
+
+func (l *ProductListLogic) colorOfProducts(ps []*model.Product) ([]*product.ProductListItem, error) {
+	return mr.MapReduce(func(source chan<- *model.Product) {
+		for _, p := range ps {
+			source <- p
+		}
+	}, func(p *model.Product, writer mr.Writer[*product.ProductListItem], cancel func(error)) {
+		color, err := l.svcCtx.ProductColorModel.FindOne(l.ctx, p.DefaultColorId)
+		if err != nil {
+			cancel(errors.Wrapf(err, "[colorOfProducts] failed to find color of product"))
+			return
+		}
+		writer.Write(&product.ProductListItem{
+			Id:          p.Id,
+			Description: p.Description,
+			Price:       color.Price,
+			Color:       color.Color,
+			Coverurl:    color.CoverUrl,
+			Unit:        color.Unit,
+		})
+	}, func(pipe <-chan *product.ProductListItem, writer mr.Writer[[]*product.ProductListItem], cancel func(error)) {
+		var items []*product.ProductListItem
+		for p := range pipe {
+			items = append(items, p)
+		}
+		writer.Write(items)
+	})
 }

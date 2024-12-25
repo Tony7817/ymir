@@ -68,7 +68,7 @@ func (l *ProductsInCartListLogic) productsInCarts(pcarts []*model.ProductCart) (
 			source <- item
 		}
 	}, func(pcart *model.ProductCart, writer mr.Writer[*product.ProductsInCartListItem], cancel func(error)) {
-		p, err := l.svcCtx.ProductModel.FindOne(l.ctx, pcart.ProductId)
+		p, c, err := l.findProductDetailAndColorDetail(pcart.ProductId, pcart.ColorId)
 		if err != nil {
 			cancel(err)
 			return
@@ -78,10 +78,9 @@ func (l *ProductsInCartListLogic) productsInCarts(pcarts []*model.ProductCart) (
 			Amount:      pcart.Amount,
 			Sizes:       strings.Split(pcart.Size, ","),
 			Description: p.Description,
-			Price:       p.Price,
-			Unit:        p.Unit,
-			CoverUrl:    p.CoverUrl,
-			QUantity:    pcart.Amount,
+			Price:       c.Price,
+			Unit:        c.Unit,
+			CoverUrl:    c.CoverUrl,
 		})
 	}, func(pipe <-chan *product.ProductsInCartListItem, writer mr.Writer[[]*product.ProductsInCartListItem], cancel func(error)) {
 		pitems := []*product.ProductsInCartListItem{}
@@ -90,4 +89,30 @@ func (l *ProductsInCartListLogic) productsInCarts(pcarts []*model.ProductCart) (
 		}
 		writer.Write(pitems)
 	})
+}
+
+func (l *ProductsInCartListLogic) findProductDetailAndColorDetail(productId int64, colorId int64) (*model.Product, *model.ProductColorDetail, error) {
+	var c *model.ProductColorDetail
+	var p *model.Product
+
+	err := mr.Finish(func() error {
+		var err error
+		c, err = l.svcCtx.ProductColorModel.FindOne(l.ctx, colorId)
+		if err != nil {
+			return err
+		}
+		return nil
+	}, func() error {
+		var err error
+		p, err = l.svcCtx.ProductModel.FindOne(l.ctx, productId)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return p, c, nil
 }

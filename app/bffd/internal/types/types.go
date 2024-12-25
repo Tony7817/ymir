@@ -52,7 +52,6 @@ type ProductCartListItem struct {
 	Price       float64  `json:"price"`
 	Unit        string   `json:"unit"`
 	CoverUrl    string   `json:"cover_url"`
-	Quantity    int64    `json:"quantity"`
 	Amount      int64    `json:"amount"`
 	Sizes       []string `json:"sizes"`
 }
@@ -67,32 +66,37 @@ type ProductCartListResponse struct {
 	Total    int64                 `json:"total"`
 }
 
+type ProductColor struct {
+	Id            string        `json:"id"`
+	ColorName     string        `json:"color_name"`
+	Images        []string      `json:"images"`
+	Detail_Images []string      `json:"detail_images"`
+	Price         float64       `json:"price"`
+	Unit          string        `json:"unit"`
+	Size          []ProductSize `json:"size"`
+}
+
+type ProductColorListItem struct {
+	ColorId  string `json:"color_id"`
+	CoverUrl string `json:"cover_url"`
+}
+
 type ProductDetailRequest struct {
 	Id string `path:"productId"`
 }
 
 type ProductDetailResponse struct {
-	Id           string         `json:"id"`
-	Description  string         `json:"description"`
-	Rate         float64        `json:"rate"`
-	RateCount    int64          `json:"rate_count"`
-	Price        float64        `json:"price"`
-	Unit         string         `json:"unit"`
-	Size         []string       `json:"size"`
-	Color        string         `json:"color"`
-	Images       []ProductImage `json:"images"`
-	DetailImages []ProductImage `json:"detail_images"`
-	SoldNum      int64          `json:"sold_num"`
-	Detail       *string        `json:"detail"`
-	StarAvatar   string         `json:"star_avatar"`
-	StarName     string         `json:"star_name"`
-	StarId       string         `json:"star_id"`
-	Stock        int64          `json:"stock"`
-}
-
-type ProductImage struct {
-	Id  string `json:"id"`
-	Url string `json:"url"`
+	Id          string                 `json:"id"`
+	Description string                 `json:"description"`
+	Rate        float64                `json:"rate"`
+	RateCount   int64                  `json:"rate_count"`
+	Color       ProductColor           `json:"color"`
+	ColorList   []ProductColorListItem `json:"color_list"`
+	SoldNum     int64                  `json:"sold_num"`
+	Detail      *string                `json:"detail"`
+	StarAvatar  string                 `json:"star_avatar"`
+	StarName    string                 `json:"star_name"`
+	StarId      string                 `json:"star_id"`
 }
 
 type ProductListItem struct {
@@ -113,6 +117,11 @@ type ProductListRequest struct {
 type ProductListResponse struct {
 	Total    int64             `json:"total"`
 	Products []ProductListItem `json:"products"`
+}
+
+type ProductSize struct {
+	SizeName string `json:"size_name"`
+	InStock  int64  `json:"in_stock"`
 }
 
 type RecommendStarListItem struct {

@@ -10,12 +10,6 @@ message ProductListRequest {
   int64 PageSize = 4;
 }
 
-message ProductImage {
-  int64 id = 1;
-  string url = 2;
-  int64 disPlayRank = 3;
-}
-
 message ProductListItem {
   int64 Id = 1;
   string Description = 2;
@@ -44,29 +38,53 @@ message ProductDetailReqeust {
   int64 StarId = 2;
 }
 
+message ProductColorRequest {
+  int64 ColorId = 1;
+}
+
+message ProductColorResponse {
+  int64 Id = 1;
+  int64 ProductId = 2;
+  string Color = 3;
+  repeated string Images = 4;
+  repeated string DetailImages = 5;
+  double price = 6;
+  string Unit = 7;
+  repeated string AvaliableSizes = 8;
+}
+
+message ProductColorListRequest {
+  int64 ProductId = 1;
+}
+
+message ProductColorListItem {
+  int64 ColorId = 1;
+  string CoverUrl = 2;
+}
+
+message ProductColorListResponse {
+  repeated ProductColorListItem Colors = 1;
+}
+
+message ProductStockRequest {
+  int64 ProductId = 1;
+  int64 ColorId = 2;
+  string Size = 3;
+}
+
+message ProductStockResponse {
+  int64 Stock = 1;
+}
+
 message ProductDetailResponse {
   int64 Id = 1;
   string Description = 2;
   double Rate = 3;
   int64 ReteCount = 4;
-  double Price = 5;
-  string Unit = 6;
-  string Color = 7;
+  int64 DefaultColorId = 7;
   int64 SoldNum = 8;
   string Detail = 9;
   int64 StarId = 10;
-  repeated string Size = 11;
-  repeated ProductImage Images = 12;
-  repeated ProductImage DetailImages = 13;
-}
-
-message ProductStockRequest {
-  int64 ProductId = 1;
-  string Color = 2;
-}
-
-message ProductStockResponse {
-  int64 Stock = 1;
 }
 
 message ProductsInCartListRequest {
@@ -84,7 +102,6 @@ message ProductsInCartListItem {
   double TotalPrice = 6;
   string Unit = 7;
   string CoverUrl = 8;
-  int64 QUantity = 9;
 }
 
 message ProducrtsInCartListResponse {
@@ -134,4 +151,6 @@ service Product {
   rpc AddProductToCart(AddProductToCartRequest) returns (AddProductToCartResponse);
   rpc RemoveProductFromCart(RemoveProductFromCartRequest) returns (RemoveProductFromCartResponse);
   rpc ProductStock(ProductStockRequest) returns (ProductStockResponse);
+  rpc ProductColor(ProductColorRequest) returns (ProductColorResponse);
+  rpc ProductColorList(ProductColorListRequest) returns (ProductColorListResponse);
 }

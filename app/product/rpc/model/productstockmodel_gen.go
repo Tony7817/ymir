@@ -23,15 +23,15 @@ var (
 	productStockRowsExpectAutoSet   = strings.Join(stringx.Remove(productStockFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	productStockRowsWithPlaceHolder = strings.Join(stringx.Remove(productStockFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
-	cacheYmirProductStockIdPrefix             = "cache:ymir:productStock:id:"
-	cacheYmirProductStockProductIdColorPrefix = "cache:ymir:productStock:productId:color:"
+	cacheYmirProductStockIdPrefix                   = "cache:ymir:productStock:id:"
+	cacheYmirProductStockProductIdColorIdSizePrefix = "cache:ymir:productStock:productId:colorId:size:"
 )
 
 type (
 	productStockModel interface {
 		Insert(ctx context.Context, data *ProductStock) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*ProductStock, error)
-		FindOneByProductIdColor(ctx context.Context, productId int64, color string) (*ProductStock, error)
+		FindOneByProductIdColorIdSize(ctx context.Context, productId int64, colorId int64, size string) (*ProductStock, error)
 		Update(ctx context.Context, data *ProductStock) error
 		Delete(ctx context.Context, id int64) error
 	}
@@ -44,8 +44,9 @@ type (
 	ProductStock struct {
 		Id        int64  `db:"id"`
 		ProductId int64  `db:"product_id"`
-		Color     string `db:"color"`
+		ColorId   int64  `db:"color_id"`
 		InStock   int64  `db:"in_stock"`
+		Size      string `db:"size"`
 	}
 )
 
@@ -63,11 +64,11 @@ func (m *defaultProductStockModel) Delete(ctx context.Context, id int64) error {
 	}
 
 	ymirProductStockIdKey := fmt.Sprintf("%s%v", cacheYmirProductStockIdPrefix, id)
-	ymirProductStockProductIdColorKey := fmt.Sprintf("%s%v:%v", cacheYmirProductStockProductIdColorPrefix, data.ProductId, data.Color)
+	ymirProductStockProductIdColorIdSizeKey := fmt.Sprintf("%s%v:%v:%v", cacheYmirProductStockProductIdColorIdSizePrefix, data.ProductId, data.ColorId, data.Size)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		return conn.ExecCtx(ctx, query, id)
-	}, ymirProductStockIdKey, ymirProductStockProductIdColorKey)
+	}, ymirProductStockIdKey, ymirProductStockProductIdColorIdSizeKey)
 	return err
 }
 
@@ -88,12 +89,12 @@ func (m *defaultProductStockModel) FindOne(ctx context.Context, id int64) (*Prod
 	}
 }
 
-func (m *defaultProductStockModel) FindOneByProductIdColor(ctx context.Context, productId int64, color string) (*ProductStock, error) {
-	ymirProductStockProductIdColorKey := fmt.Sprintf("%s%v:%v", cacheYmirProductStockProductIdColorPrefix, productId, color)
+func (m *defaultProductStockModel) FindOneByProductIdColorIdSize(ctx context.Context, productId int64, colorId int64, size string) (*ProductStock, error) {
+	ymirProductStockProductIdColorIdSizeKey := fmt.Sprintf("%s%v:%v:%v", cacheYmirProductStockProductIdColorIdSizePrefix, productId, colorId, size)
 	var resp ProductStock
-	err := m.QueryRowIndexCtx(ctx, &resp, ymirProductStockProductIdColorKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
-		query := fmt.Sprintf("select %s from %s where `product_id` = ? and `color` = ? limit 1", productStockRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, productId, color); err != nil {
+	err := m.QueryRowIndexCtx(ctx, &resp, ymirProductStockProductIdColorIdSizeKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
+		query := fmt.Sprintf("select %s from %s where `product_id` = ? and `color_id` = ? and `size` = ? limit 1", productStockRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, productId, colorId, size); err != nil {
 			return nil, err
 		}
 		return resp.Id, nil
@@ -110,11 +111,11 @@ func (m *defaultProductStockModel) FindOneByProductIdColor(ctx context.Context, 
 
 func (m *defaultProductStockModel) Insert(ctx context.Context, data *ProductStock) (sql.Result, error) {
 	ymirProductStockIdKey := fmt.Sprintf("%s%v", cacheYmirProductStockIdPrefix, data.Id)
-	ymirProductStockProductIdColorKey := fmt.Sprintf("%s%v:%v", cacheYmirProductStockProductIdColorPrefix, data.ProductId, data.Color)
+	ymirProductStockProductIdColorIdSizeKey := fmt.Sprintf("%s%v:%v:%v", cacheYmirProductStockProductIdColorIdSizePrefix, data.ProductId, data.ColorId, data.Size)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.table, productStockRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.ProductId, data.Color, data.InStock)
-	}, ymirProductStockIdKey, ymirProductStockProductIdColorKey)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, productStockRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.ProductId, data.ColorId, data.InStock, data.Size)
+	}, ymirProductStockIdKey, ymirProductStockProductIdColorIdSizeKey)
 	return ret, err
 }
 
@@ -125,11 +126,11 @@ func (m *defaultProductStockModel) Update(ctx context.Context, newData *ProductS
 	}
 
 	ymirProductStockIdKey := fmt.Sprintf("%s%v", cacheYmirProductStockIdPrefix, data.Id)
-	ymirProductStockProductIdColorKey := fmt.Sprintf("%s%v:%v", cacheYmirProductStockProductIdColorPrefix, data.ProductId, data.Color)
+	ymirProductStockProductIdColorIdSizeKey := fmt.Sprintf("%s%v:%v:%v", cacheYmirProductStockProductIdColorIdSizePrefix, data.ProductId, data.ColorId, data.Size)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, productStockRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.ProductId, newData.Color, newData.InStock, newData.Id)
-	}, ymirProductStockIdKey, ymirProductStockProductIdColorKey)
+		return conn.ExecCtx(ctx, query, newData.ProductId, newData.ColorId, newData.InStock, newData.Size, newData.Id)
+	}, ymirProductStockIdKey, ymirProductStockProductIdColorIdSizeKey)
 	return err
 }
 

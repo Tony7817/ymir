@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
@@ -60,7 +61,7 @@ func (m *customProductModel) FindProductList(ctx context.Context, starId *int64,
 	var query = fmt.Sprintf("SELECT * FROM `product` %s", cond)
 	err := m.QueryRowsNoCacheCtx(ctx, &ps, query, offset, limit)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "[FindProductList]query products list failed")
 	}
 
 	return ps, nil
@@ -79,10 +80,10 @@ func (m *customProductModel) CountTotalProduct(ctx context.Context, starId *int6
 		cond += fmt.Sprintf(" and star_id = %d", *starId)
 	}
 	err := m.QueryRowCtx(ctx, &count, cacheKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
-		return conn.QueryRowCtx(ctx, &count, "select count(*) from product %s", cond)
+		return conn.QueryRowCtx(ctx, &count, "select count(*) from product"+cond)
 	})
 	if err != nil {
-		return 0, err
+		return 0, errors.Wrapf(err, "[CountTotalProduct]query total product failed")
 	}
 
 	return count, nil

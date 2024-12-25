@@ -24,7 +24,7 @@ func NewProductStockLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Prod
 }
 
 func (l *ProductStockLogic) ProductStock(in *product.ProductStockRequest) (*product.ProductStockResponse, error) {
-	s, err := l.svcCtx.ProductStockModel.FindOneByProductIdColor(l.ctx, in.ProductId, in.Color)
+	s, err := l.svcCtx.ProductStockModel.FindOneByProductIdColorIdSize(l.ctx, in.ProductId, in.ColorId, in.Size)
 	if err != nil {
 		return nil, err
 	}
