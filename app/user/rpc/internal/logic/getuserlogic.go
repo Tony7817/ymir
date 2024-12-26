@@ -53,6 +53,7 @@ func (l *GetUserLogic) GetUser(in *user.GetUserRequest) (*user.GetUserResponse, 
 
 	var res = &user.GetUserResponse{
 		User: &user.UserInfo{
+			Id:           usr.Id,
 			Username:     usr.Username,
 			AvatarUrl:    usr.AvatarUrl.String,
 			PasswordHash: usr.PasswordHash,

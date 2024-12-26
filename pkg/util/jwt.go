@@ -2,6 +2,7 @@ package util
 
 import (
 	"github.com/golang-jwt/jwt"
+	"ymir.com/pkg/vars"
 )
 
 func GetJwtToken(secret string, nowDate int64, accessExpire int64, userId string) (string, error) {
@@ -10,7 +11,7 @@ func GetJwtToken(secret string, nowDate int64, accessExpire int64, userId string
 
 	claim["exp"] = nowDate + accessExpire
 	claim["iat"] = nowDate
-	claim["userId"] = userId
+	claim[vars.UserIdKey] = userId
 	token.Claims = claim
 	return token.SignedString([]byte(secret))
 }

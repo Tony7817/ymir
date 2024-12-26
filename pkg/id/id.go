@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/speps/go-hashids"
+	"ymir.com/pkg/vars"
 	"ymir.com/pkg/xerr"
 )
 
@@ -46,7 +47,7 @@ func (h *HashID) DecodedId(id string) int64 {
 }
 
 func GetDecodedUserId(ctx context.Context) (int64, error) {
-	userId, ok := ctx.Value("userId").(string)
+	userId, ok := ctx.Value(vars.UserIdKey).(string)
 	if !ok {
 		return -1, xerr.NewErrCode(xerr.UnauthorizedError)
 	}

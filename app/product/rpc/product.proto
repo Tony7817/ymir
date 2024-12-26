@@ -95,13 +95,14 @@ message ProductsInCartListRequest {
 
 message ProductsInCartListItem {
   int64 ProductId = 1;
-  int64 Amount = 2;
-  repeated string Sizes = 3;
-  string Description = 4;
-  double Price = 5;
-  double TotalPrice = 6;
-  string Unit = 7;
-  string CoverUrl = 8;
+  int64 StarId = 2;
+  int64 Amount = 3;
+  string Sizes = 4;
+  string Description = 5;
+  double Price = 6;
+  double TotalPrice = 7;
+  string Unit = 8;
+  string CoverUrl = 9;
 }
 
 message ProducrtsInCartListResponse {
@@ -126,8 +127,8 @@ message DecreaseProductAmountInCartRequest {
 message AddProductToCartRequest {
   int64 ProductId = 1;
   int64 UserId = 2;
+  int64 ColorId = 4;
   string Size = 3;
-  string Color = 4;
 }
 
 message AddProductToCartResponse {

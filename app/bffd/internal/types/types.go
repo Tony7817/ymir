@@ -12,8 +12,8 @@ type AddProductAmountInCartResponse struct {
 }
 
 type AddProductToCartRequest struct {
-	ProductId string `json:"productId"`
-	Color     string `json:"color"`
+	ProductId string `json:"product_id"`
+	ColorId   string `json:"color_id"`
 	Size      string `json:"size"`
 }
 
@@ -47,13 +47,15 @@ type GetIpAddressResponse struct {
 }
 
 type ProductCartListItem struct {
-	Id          string   `json:"id"`
-	Description string   `json:"description"`
-	Price       float64  `json:"price"`
-	Unit        string   `json:"unit"`
-	CoverUrl    string   `json:"cover_url"`
-	Amount      int64    `json:"amount"`
-	Sizes       []string `json:"sizes"`
+	ProductId   string  `json:"product_id"`
+	StarId      string  `json:"star_id"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	Unit        string  `json:"unit"`
+	CoverUrl    string  `json:"cover_url"`
+	Amount      int64   `json:"amount"`
+	Size        string  `json:"size"`
+	TotalPrice  float64 `json:"total_price"`
 }
 
 type ProductCartListRequest struct {
@@ -62,7 +64,7 @@ type ProductCartListRequest struct {
 }
 
 type ProductCartListResponse struct {
-	Products []ProductCartListItem `json:"product"`
+	Products []ProductCartListItem `json:"products"`
 	Total    int64                 `json:"total"`
 }
 

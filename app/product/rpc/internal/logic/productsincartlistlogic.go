@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"strings"
 
 	"ymir.com/app/product/rpc/internal/svc"
 	"ymir.com/app/product/rpc/model"
@@ -75,8 +74,9 @@ func (l *ProductsInCartListLogic) productsInCarts(pcarts []*model.ProductCart) (
 		}
 		writer.Write(&product.ProductsInCartListItem{
 			ProductId:   p.Id,
+			StarId:      p.StarId,
 			Amount:      pcart.Amount,
-			Sizes:       strings.Split(pcart.Size, ","),
+			Sizes:       pcart.Size,
 			Description: p.Description,
 			Price:       c.Price,
 			Unit:        c.Unit,
