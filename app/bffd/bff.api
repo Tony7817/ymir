@@ -84,6 +84,7 @@ type (
 	ProductCartListItem {
 		ProductId   string  `json:"product_id"`
 		StarId      string  `json:"star_id"`
+		ColorId     string  `json:"color_id"`
 		Description string  `json:"description"`
 		Price       float64 `json:"price"`
 		Unit        string  `json:"unit"`
@@ -116,7 +117,7 @@ type (
 	}
 	RemoveProductFromCartRequest {
 		ProductId string `json:"product_id"`
-		Color     string `json:"color"`
+		ColorId   string `json:"color_id"`
 	}
 	RemoveProductFromCartResponse  {}
 	// -------------
@@ -233,7 +234,7 @@ service bff {
 	post /cart/add/product/ (AddProductToCartRequest) returns (AddProductToCartResponse)
 
 	@handler RemoveProductFromCart
-	post /cart/remove/:productCartId (RemoveProductFromCartRequest) returns (RemoveProductFromCartResponse)
+	post /cart/remove (RemoveProductFromCartRequest) returns (RemoveProductFromCartResponse)
 
 	@handler AddProductAmountInCart
 	post /cart/add/amount/:productId (AddProductAmountInCartRequest) returns (AddProductAmountInCartResponse)

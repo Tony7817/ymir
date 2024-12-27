@@ -49,6 +49,7 @@ type GetIpAddressResponse struct {
 type ProductCartListItem struct {
 	ProductId   string  `json:"product_id"`
 	StarId      string  `json:"star_id"`
+	ColorId     string  `json:"color_id"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Unit        string  `json:"unit"`
@@ -141,7 +142,7 @@ type RecommendStarListResponse struct {
 
 type RemoveProductFromCartRequest struct {
 	ProductId string `json:"product_id"`
-	Color     string `json:"color"`
+	ColorId   string `json:"color_id"`
 }
 
 type RemoveProductFromCartResponse struct {

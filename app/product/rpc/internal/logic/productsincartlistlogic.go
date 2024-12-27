@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"database/sql"
 
 	"ymir.com/app/product/rpc/internal/svc"
 	"ymir.com/app/product/rpc/model"
@@ -27,15 +28,18 @@ func NewProductsInCartListLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 func (l *ProductsInCartListLogic) ProductsInCartList(in *product.ProductsInCartListRequest) (*product.ProducrtsInCartListResponse, error) {
 	productCartsInfo, err := l.svcCtx.ProductCartModel.FindProductsOfUser(in.UserId, in.Page, in.PageSize)
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		return nil, err
+	}
+	if err == sql.ErrNoRows {
+		productCartsInfo = []*model.ProductCart{}
 	}
 
 	var (
-		products []*product.ProductsInCartListItem
+		products = make([]*product.ProductsInCartListItem, 0)
 		total    int64
 	)
-	mr.Finish(
+	err = mr.Finish(
 		func() error {
 			var err error
 			total, err = l.svcCtx.ProductCartModel.CountTotalProductOfUser(l.ctx, in.UserId)
@@ -54,6 +58,9 @@ func (l *ProductsInCartListLogic) ProductsInCartList(in *product.ProductsInCartL
 			return nil
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	return &product.ProducrtsInCartListResponse{
 		Products: products,
@@ -75,6 +82,7 @@ func (l *ProductsInCartListLogic) productsInCarts(pcarts []*model.ProductCart) (
 		writer.Write(&product.ProductsInCartListItem{
 			ProductId:   p.Id,
 			StarId:      p.StarId,
+			ColorId:     c.Id,
 			Amount:      pcart.Amount,
 			Sizes:       pcart.Size,
 			Description: p.Description,

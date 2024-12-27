@@ -6,6 +6,7 @@ import (
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/product/rpc/product"
+	"ymir.com/pkg/id"
 	"ymir.com/pkg/util"
 	"ymir.com/pkg/vars"
 	"ymir.com/pkg/xerr"
@@ -49,15 +50,25 @@ func (l *CartListLogic) CartList(req *types.ProductCartListRequest) (resp *types
 	}
 
 	var (
-		products []types.ProductCartListItem
+		products = make([]types.ProductCartListItem, 0)
 	)
 	for i := 0; i < len(respb.Products); i++ {
 		pIdEncoded, err := l.svcCtx.Hash.EncodedId(respb.Products[i].ProductId)
 		if err != nil {
 			return nil, err
 		}
+		sIdEncoded, err := id.Hash.EncodedId(respb.Products[i].StarId)
+		if err != nil {
+			return nil, err
+		}
+		cIdEncoded, err := id.Hash.EncodedId(respb.Products[i].ColorId)
+		if err != nil {
+			return nil, err
+		}
 		products = append(products, types.ProductCartListItem{
 			ProductId:   pIdEncoded,
+			StarId:      sIdEncoded,
+			ColorId:     cIdEncoded,
 			Description: respb.Products[i].Description,
 			Price:       respb.Products[i].Price,
 			Unit:        respb.Products[i].Unit,

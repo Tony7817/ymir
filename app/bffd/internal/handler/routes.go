@@ -62,7 +62,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/cart/remove/:productCartId",
+				Path:    "/cart/remove",
 				Handler: product.RemoveProductFromCartHandler(serverCtx),
 			},
 		},
