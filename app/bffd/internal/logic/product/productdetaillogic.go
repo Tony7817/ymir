@@ -63,7 +63,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		pc *product.ProductColorResponse
 	)
 
-	mr.Finish(func() error {
+	err = mr.Finish(func() error {
 		var err error
 		s, err = l.svcCtx.StarRPC.StarDetail(l.ctx, &star.StarDetailRequest{
 			Id: p.StarId,
@@ -82,6 +82,9 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	sizes, err := mr.MapReduce(func(source chan<- string) {
 		for _, size := range pc.AvaliableSizes {
