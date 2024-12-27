@@ -9,6 +9,7 @@ import (
 	"ymir.com/app/star/rpc/star"
 	"ymir.com/pkg/id"
 
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
 )
@@ -41,7 +42,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 			Id: pIdDecoded,
 		})
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "[ProductDetail] failed to get product detail")
 		}
 		return nil
 	}, func() error {
@@ -50,7 +51,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 			ProductId: pIdDecoded,
 		})
 		if err != nil {
-			return err
+			return errors.Wrap(err, "[ProductDetail] failed to get product color list")
 		}
 		return nil
 	})
@@ -69,7 +70,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 			Id: p.StarId,
 		})
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "[ProductDetail] failed to get star detail")
 		}
 		return nil
 	}, func() error {
@@ -78,7 +79,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 			ColorId: p.DefaultColorId,
 		})
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "[ProductDetail] failed to get product color")
 		}
 		return nil
 	})
@@ -97,7 +98,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 			Size:      size,
 		})
 		if err != nil {
-			cancel(err)
+			cancel(errors.Wrapf(err, "[ProductDetail] failed to get product stock"))
 			return
 		}
 		productStock := types.ProductSize{
