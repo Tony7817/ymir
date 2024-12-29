@@ -34,6 +34,7 @@ message StarDetailResponse {
   string CoverUrl = 4;
   string AvatarUrl = 5;
   string PosterUrl = 6;
+  double Rate = 7;
 }
 
 

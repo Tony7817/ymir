@@ -46,6 +46,10 @@ type GetIpAddressResponse struct {
 	Ip string `json:"ip"`
 }
 
+type LikeCommmentRequest struct {
+	CommentId string `json:"comment_id"`
+}
+
 type ProductCartListItem struct {
 	ProductId   string  `json:"product_id"`
 	StarId      string  `json:"star_id"`
@@ -84,6 +88,31 @@ type ProductColorListItem struct {
 	CoverUrl string `json:"cover_url"`
 }
 
+type ProductComment struct {
+	Id          string   `json:"id"`
+	UserName    string   `json:"user_name"`
+	UserAvatar  string   `json:"user_avatar"`
+	Rate        float64  `json:"rate"`
+	Comment     string   `json:"comment"`
+	LikeNum     int64    `json:"like_num"`
+	Images      []string `json:"images"`
+	ImagesThumb []string `json:"images_thumb"`
+	CreatedAt   int64    `json:"created_at"`
+	Size        string   `json:"size"`
+	Color       string   `json:"color"`
+}
+
+type ProductCommentRequest struct {
+	ProductId string `json:"product_id"`
+	Page      int64  `json:"page"`
+	PageSize  int64  `json:"page_size"`
+}
+
+type ProductCommentResponse struct {
+	Comments []ProductComment `json:"comments"`
+	Total    int64            `json:"total"`
+}
+
 type ProductDetailRequest struct {
 	Id string `path:"productId"`
 }
@@ -100,6 +129,8 @@ type ProductDetailResponse struct {
 	StarAvatar  string                 `json:"star_avatar"`
 	StarName    string                 `json:"star_name"`
 	StarId      string                 `json:"star_id"`
+	StarRate    float64                `json:"star_rate"`
+	Comments    ProductCommentResponse `json:"comments"`
 }
 
 type ProductListItem struct {

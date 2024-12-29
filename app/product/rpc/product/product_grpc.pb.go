@@ -29,6 +29,7 @@ const (
 	Product_ProductStock_FullMethodName                = "/product.Product/ProductStock"
 	Product_ProductColor_FullMethodName                = "/product.Product/ProductColor"
 	Product_ProductColorList_FullMethodName            = "/product.Product/ProductColorList"
+	Product_ProductCommentList_FullMethodName          = "/product.Product/ProductCommentList"
 )
 
 // ProductClient is the client API for Product service.
@@ -45,6 +46,7 @@ type ProductClient interface {
 	ProductStock(ctx context.Context, in *ProductStockRequest, opts ...grpc.CallOption) (*ProductStockResponse, error)
 	ProductColor(ctx context.Context, in *ProductColorRequest, opts ...grpc.CallOption) (*ProductColorResponse, error)
 	ProductColorList(ctx context.Context, in *ProductColorListRequest, opts ...grpc.CallOption) (*ProductColorListResponse, error)
+	ProductCommentList(ctx context.Context, in *ProductCommentListRequest, opts ...grpc.CallOption) (*ProductCommentListResponse, error)
 }
 
 type productClient struct {
@@ -155,6 +157,16 @@ func (c *productClient) ProductColorList(ctx context.Context, in *ProductColorLi
 	return out, nil
 }
 
+func (c *productClient) ProductCommentList(ctx context.Context, in *ProductCommentListRequest, opts ...grpc.CallOption) (*ProductCommentListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ProductCommentListResponse)
+	err := c.cc.Invoke(ctx, Product_ProductCommentList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProductServer is the server API for Product service.
 // All implementations must embed UnimplementedProductServer
 // for forward compatibility.
@@ -169,6 +181,7 @@ type ProductServer interface {
 	ProductStock(context.Context, *ProductStockRequest) (*ProductStockResponse, error)
 	ProductColor(context.Context, *ProductColorRequest) (*ProductColorResponse, error)
 	ProductColorList(context.Context, *ProductColorListRequest) (*ProductColorListResponse, error)
+	ProductCommentList(context.Context, *ProductCommentListRequest) (*ProductCommentListResponse, error)
 	mustEmbedUnimplementedProductServer()
 }
 
@@ -208,6 +221,9 @@ func (UnimplementedProductServer) ProductColor(context.Context, *ProductColorReq
 }
 func (UnimplementedProductServer) ProductColorList(context.Context, *ProductColorListRequest) (*ProductColorListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProductColorList not implemented")
+}
+func (UnimplementedProductServer) ProductCommentList(context.Context, *ProductCommentListRequest) (*ProductCommentListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProductCommentList not implemented")
 }
 func (UnimplementedProductServer) mustEmbedUnimplementedProductServer() {}
 func (UnimplementedProductServer) testEmbeddedByValue()                 {}
@@ -410,6 +426,24 @@ func _Product_ProductColorList_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Product_ProductCommentList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProductCommentListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServer).ProductCommentList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Product_ProductCommentList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServer).ProductCommentList(ctx, req.(*ProductCommentListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Product_ServiceDesc is the grpc.ServiceDesc for Product service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -456,6 +490,10 @@ var Product_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ProductColorList",
 			Handler:    _Product_ProductColorList_Handler,
+		},
+		{
+			MethodName: "ProductCommentList",
+			Handler:    _Product_ProductCommentList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -76,6 +76,32 @@ message ProductStockResponse {
   int64 Stock = 1;
 }
 
+message ProductComment {
+  int64 Id = 1;
+  int64 ProductId = 2;
+  int64 UserId = 3;
+  string Comment = 4;
+  double Rate = 5;
+  int64 LikeNum = 6;
+  int64 CreateAt = 7;
+  repeated string Images = 8;
+  repeated string ImagesThumb = 9;
+  string Size = 10;
+  string Color = 11;
+}
+
+message ProductCommentListRequest {
+  int64 ProductId = 1;
+  int64 Cursor = 2;
+  int64 Page = 3;
+  int64 PageSize = 4;
+}
+
+message ProductCommentListResponse {
+  repeated ProductComment Comments = 1;
+  int64 Total = 2;
+}
+
 message ProductDetailResponse {
   int64 Id = 1;
   string Description = 2;
@@ -155,4 +181,5 @@ service Product {
   rpc ProductStock(ProductStockRequest) returns (ProductStockResponse);
   rpc ProductColor(ProductColorRequest) returns (ProductColorResponse);
   rpc ProductColorList(ProductColorListRequest) returns (ProductColorListResponse);
+  rpc ProductCommentList(ProductCommentListRequest) returns (ProductCommentListResponse);
 }

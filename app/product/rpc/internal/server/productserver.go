@@ -72,3 +72,8 @@ func (s *ProductServer) ProductColorList(ctx context.Context, in *product.Produc
 	l := logic.NewProductColorListLogic(ctx, s.svcCtx)
 	return l.ProductColorList(in)
 }
+
+func (s *ProductServer) ProductCommentList(ctx context.Context, in *product.ProductCommentListRequest) (*product.ProductCommentListResponse, error) {
+	l := logic.NewProductCommentListLogic(ctx, s.svcCtx)
+	return l.ProductCommentList(in)
+}

@@ -7,6 +7,7 @@ import (
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/product/rpc/product"
 	"ymir.com/app/star/rpc/star"
+	"ymir.com/app/user/rpc/user"
 	"ymir.com/pkg/id"
 
 	"github.com/pkg/errors"
@@ -32,10 +33,15 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 	var pIdDecoded = l.svcCtx.Hash.DecodedId(req.Id)
 
 	var (
-		p  *product.ProductDetailResponse
-		cl *product.ProductColorListResponse
+		p        *product.ProductDetailResponse
+		cl       *product.ProductColorListResponse
+		pcmt     *product.ProductCommentListResponse
+		pcmtSize int64 = 10
 	)
 
+	// find product basic info by pId
+	// find product color list by pId
+	// find product comments by pId
 	err := mr.Finish(func() error {
 		var err error
 		p, err = l.svcCtx.ProductRPC.ProductDetail(l.ctx, &product.ProductDetailReqeust{
@@ -54,16 +60,31 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 			return errors.Wrap(err, "[ProductDetail] failed to get product color list")
 		}
 		return nil
+	}, func() error {
+		var err error
+		pcmt, err = l.svcCtx.ProductRPC.ProductCommentList(l.ctx, &product.ProductCommentListRequest{
+			ProductId: pIdDecoded,
+			Page:      1,
+			PageSize:  pcmtSize,
+		})
+		if err != nil {
+			return err
+		}
+		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	var (
-		s  *star.StarDetailResponse
-		pc *product.ProductColorResponse
+		s         *star.StarDetailResponse
+		pcolor    *product.ProductColorResponse
+		pcmtFinal = make([]types.ProductComment, 0)
 	)
 
+	// find star detail by starId
+	// find default color by defaultColorId
+	// find user info in product comment by user id
 	err = mr.Finish(func() error {
 		var err error
 		s, err = l.svcCtx.StarRPC.StarDetail(l.ctx, &star.StarDetailRequest{
@@ -75,11 +96,20 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		return nil
 	}, func() error {
 		var err error
-		pc, err = l.svcCtx.ProductRPC.ProductColor(l.ctx, &product.ProductColorRequest{
+		pcolor, err = l.svcCtx.ProductRPC.ProductColor(l.ctx, &product.ProductColorRequest{
 			ColorId: p.DefaultColorId,
 		})
 		if err != nil {
 			return errors.Wrapf(err, "[ProductDetail] failed to get product color")
+		}
+		return nil
+	}, func() error {
+		var err error
+		if len(pcmt.Comments) > 0 {
+			pcmtFinal, err = l.buildProductCommentUserInfo(pcmt.Comments)
+			if err != nil {
+				return err
+			}
 		}
 		return nil
 	})
@@ -87,14 +117,15 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		return nil, err
 	}
 
+	// find sizes by productId and colorId
 	sizes, err := mr.MapReduce(func(source chan<- string) {
-		for _, size := range pc.AvaliableSizes {
+		for _, size := range pcolor.AvaliableSizes {
 			source <- size
 		}
 	}, func(size string, writer mr.Writer[*types.ProductSize], cancel func(error)) {
 		stock, err := l.svcCtx.ProductRPC.ProductStock(l.ctx, &product.ProductStockRequest{
 			ProductId: pIdDecoded,
-			ColorId:   pc.Id,
+			ColorId:   pcolor.Id,
 			Size:      size,
 		})
 		if err != nil {
@@ -128,24 +159,29 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 
 	var color = types.ProductColor{
 		Id:            pIdEncoded,
-		ColorName:     pc.Color,
-		Images:        pc.Images,
-		Detail_Images: pc.DetailImages,
-		Price:         pc.Price,
-		Unit:          pc.Unit,
+		ColorName:     pcolor.Color,
+		Images:        pcolor.Images,
+		Detail_Images: pcolor.DetailImages,
+		Price:         pcolor.Price,
+		Unit:          pcolor.Unit,
 		Size:          sizes,
 	}
 
-	var clres []types.ProductColorListItem
+	var clres = make([]types.ProductColorListItem, len(cl.Colors))
 	for i := 0; i < len(cl.Colors); i++ {
 		cIdEncoded, err := id.Hash.EncodedId(cl.Colors[i].ColorId)
 		if err != nil {
 			return nil, err
 		}
-		clres = append(clres, types.ProductColorListItem{
+		clres[i] = types.ProductColorListItem{
 			ColorId:  cIdEncoded,
 			CoverUrl: cl.Colors[i].CoverUrl,
-		})
+		}
+	}
+
+	var pcmtRes = types.ProductCommentResponse{
+		Comments: pcmtFinal,
+		Total:    pcmt.Total,
 	}
 
 	var res = &types.ProductDetailResponse{
@@ -160,6 +196,53 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		StarAvatar:  s.AvatarUrl,
 		StarName:    s.Name,
 		StarId:      sIdEncoded,
+		StarRate:    s.Rate,
+		Comments:    pcmtRes,
+	}
+
+	return res, nil
+}
+
+func (l *ProductDetailLogic) buildProductCommentUserInfo(pcmts []*product.ProductComment) ([]types.ProductComment, error) {
+	res, err := mr.MapReduce(func(source chan<- *product.ProductComment) {
+		for _, pcmt := range pcmts {
+			source <- pcmt
+		}
+	}, func(pcmt *product.ProductComment, writer mr.Writer[types.ProductComment], cancel func(error)) {
+		user, err := l.svcCtx.UserRPC.GetUser(l.ctx, &user.GetUserRequest{
+			UserId: &pcmt.UserId,
+		})
+		if err != nil {
+			cancel(errors.Wrapf(err, "[ProductDetail] failed to get user info"))
+			return
+		}
+		pcmtIdEncoded, err := id.Hash.EncodedId(pcmt.Id)
+		if err != nil {
+			cancel(errors.Wrapf(err, "[ProductDetail] failed to encode product comment id"))
+			return
+		}
+		writer.Write(types.ProductComment{
+			Id:          pcmtIdEncoded,
+			UserName:    user.User.Username,
+			UserAvatar:  user.User.AvatarUrl,
+			Rate:        pcmt.Rate,
+			Comment:     pcmt.Comment,
+			LikeNum:     pcmt.LikeNum,
+			Images:      pcmt.Images,
+			ImagesThumb: pcmt.ImagesThumb,
+			CreatedAt:   pcmt.CreateAt,
+			Size:        pcmt.Size,
+			Color:       pcmt.Color,
+		})
+	}, func(pipe <-chan types.ProductComment, writer mr.Writer[[]types.ProductComment], cancel func(error)) {
+		var pcmts []types.ProductComment
+		for pcmt := range pipe {
+			pcmts = append(pcmts, pcmt)
+		}
+		writer.Write(pcmts)
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	return res, nil

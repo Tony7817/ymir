@@ -25,6 +25,9 @@ type (
 	ProductColorListResponse           = product.ProductColorListResponse
 	ProductColorRequest                = product.ProductColorRequest
 	ProductColorResponse               = product.ProductColorResponse
+	ProductComment                     = product.ProductComment
+	ProductCommentListRequest          = product.ProductCommentListRequest
+	ProductCommentListResponse         = product.ProductCommentListResponse
 	ProductCoverUrlRequest             = product.ProductCoverUrlRequest
 	ProductCoverUrlResponse            = product.ProductCoverUrlResponse
 	ProductDetailReqeust               = product.ProductDetailReqeust
@@ -50,6 +53,7 @@ type (
 		ProductStock(ctx context.Context, in *ProductStockRequest, opts ...grpc.CallOption) (*ProductStockResponse, error)
 		ProductColor(ctx context.Context, in *ProductColorRequest, opts ...grpc.CallOption) (*ProductColorResponse, error)
 		ProductColorList(ctx context.Context, in *ProductColorListRequest, opts ...grpc.CallOption) (*ProductColorListResponse, error)
+		ProductCommentList(ctx context.Context, in *ProductCommentListRequest, opts ...grpc.CallOption) (*ProductCommentListResponse, error)
 	}
 
 	defaultProduct struct {
@@ -111,4 +115,9 @@ func (m *defaultProduct) ProductColor(ctx context.Context, in *ProductColorReque
 func (m *defaultProduct) ProductColorList(ctx context.Context, in *ProductColorListRequest, opts ...grpc.CallOption) (*ProductColorListResponse, error) {
 	client := product.NewProductClient(m.cli.Conn())
 	return client.ProductColorList(ctx, in, opts...)
+}
+
+func (m *defaultProduct) ProductCommentList(ctx context.Context, in *ProductCommentListRequest, opts ...grpc.CallOption) (*ProductCommentListResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.ProductCommentList(ctx, in, opts...)
 }

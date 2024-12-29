@@ -1,6 +1,6 @@
 #Plan
- - [x] star列表
  - [x] star搜索
+ - [x] star列表
  - [x] 广告列表
  - [x] star详情
  - [x] 商品列表

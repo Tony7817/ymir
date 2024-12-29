@@ -37,6 +37,7 @@ func (l *StarDetailLogic) StarDetail(in *star.StarDetailRequest) (*star.StarDeta
 		CoverUrl:    s.CoverUrl,
 		AvatarUrl:   s.AvatarUrl,
 		PosterUrl:   s.PosterUrl,
+		Rate:        s.Rate.Float64,
 	}
 
 	return res, nil
