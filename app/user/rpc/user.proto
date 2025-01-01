@@ -3,44 +3,78 @@ syntax = "proto3";
 package user;
 option go_package="./user";
 
-message GetUserRequest {
-    optional string Email = 1;
-    optional string Phonenumber = 3;
-    optional int64 UserId = 4;
+message GetUserInfoRequest {
+  optional string Email = 1;
+  optional string Phonenumber = 2;
+  optional int64 UserId = 3;
 }
 
 message UserInfo {
   int64 Id = 1;
   string Username = 2;
   string AvatarUrl = 3;
-  string PasswordHash = 4;
-  int64 IsActivated = 5;
+  string Email = 4;
+  string Phonenumber = 5;
+  string Type = 6;
 }
 
-message GetUserResponse {
+message GetUserInfoResponse {
   optional UserInfo user = 1;
 }
 
-message WriteUserInDBWithEmailRequest {
-  string Email = 1;
-  string PasswordHash = 2;
-  string UserName = 3;
+message GetUserLocalRequest {
+    int64 UserId = 4;
+}
+
+message UserLocalInfo {
+  int64 Id = 1;
+  int64 UserId = 2;
+  string PasswordHash = 3;
+  bool isActivated = 4;
+}
+
+message GetUserLocalResponse {
+  optional UserLocalInfo user = 1;
+}
+
+message GetUserGoogleRequest {
+  string GoogleUserId = 2;
+}
+
+message UserGoogleInfo {
+  int64 Id = 1;
+  int64 UserId = 2;
+  string GoogleUserId = 3;
+}
+
+message GetUserGoogleResponse {
+  optional UserGoogleInfo user = 1;
+}
+
+message WriteUserLocalRequest {
+  optional string Email = 1;
+  optional string Phonenumber = 2;
+  string PasswordHash = 3;
+  string UserName = 4;
+  optional string AvatarUrl = 5;
 
   // avatar is not avaliable for now
   // string AvatarUrl = 3; 
 }
 
-message WriteUserInDBWithEmailResponse {
+message WriteUserLocalResponse {
   int64 UserId = 1;
 }
 
-message WriteUserInDBWithPhonenumberRequest {
-  string Phonenumber = 1;
-  string PasswordHash = 2;
-  string UserName = 3;
+
+message WriteUserGoogleRequest {
+  string UserGoogleId = 2;
+  string Email = 3;
+  string AvatarUrl = 4;
+  string UserName = 5;
 }
 
-message WriteUserInDBWithPhonenumberResponse {
+message WriteUserGoogleResponse {
   int64 UserId = 1;
 }
 
@@ -84,12 +118,14 @@ message DeleteCaptchaResponse {
 }
 
 service user {
-  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc GetUserInfo(GetUserInfoRequest) returns (GetUserInfoResponse);
+  rpc GetUserLocal(GetUserLocalRequest) returns (GetUserLocalResponse);
+  rpc GetUserGoogle(GetUserGoogleRequest) returns (GetUserGoogleResponse);
   rpc SendCaptchaToEmail(SendCaptchaToEmailRequest) returns (SendCaptchaToEmailResponse);
   rpc SendCaptchaToPhonenumber(SendCaptchaToPhonenumberRequest) returns (SendCaptchaToPhonenumberResponse);
   rpc GetCaptchaByEmail(GetCaptchaByEmailRequest) returns (GetCaptchaResponse);
   rpc GetCaptchaByPhonenumber(GetCaptchaByPhonenumberRequest) returns (GetCaptchaResponse);
   rpc DeleteCaptcha(DeleteCaptchaRequest) returns (DeleteCaptchaResponse);
-  rpc WriteUserInDBWithEmail(WriteUserInDBWithEmailRequest) returns (WriteUserInDBWithEmailResponse);
-  rpc WriteUserInDBWithPhonenumber(WriteUserInDBWithPhonenumberRequest) returns (WriteUserInDBWithPhonenumberResponse);
+  rpc WriteUserLocalInDB(WriteUserLocalRequest) returns (WriteUserLocalResponse);
+  rpc WriteUserGoogleInDB(WriteUserGoogleRequest) returns (WriteUserGoogleResponse);
 }

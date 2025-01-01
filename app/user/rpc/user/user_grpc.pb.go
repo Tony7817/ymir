@@ -19,28 +19,32 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	User_GetUser_FullMethodName                      = "/user.user/GetUser"
-	User_SendCaptchaToEmail_FullMethodName           = "/user.user/SendCaptchaToEmail"
-	User_SendCaptchaToPhonenumber_FullMethodName     = "/user.user/SendCaptchaToPhonenumber"
-	User_GetCaptchaByEmail_FullMethodName            = "/user.user/GetCaptchaByEmail"
-	User_GetCaptchaByPhonenumber_FullMethodName      = "/user.user/GetCaptchaByPhonenumber"
-	User_DeleteCaptcha_FullMethodName                = "/user.user/DeleteCaptcha"
-	User_WriteUserInDBWithEmail_FullMethodName       = "/user.user/WriteUserInDBWithEmail"
-	User_WriteUserInDBWithPhonenumber_FullMethodName = "/user.user/WriteUserInDBWithPhonenumber"
+	User_GetUserInfo_FullMethodName              = "/user.user/GetUserInfo"
+	User_GetUserLocal_FullMethodName             = "/user.user/GetUserLocal"
+	User_GetUserGoogle_FullMethodName            = "/user.user/GetUserGoogle"
+	User_SendCaptchaToEmail_FullMethodName       = "/user.user/SendCaptchaToEmail"
+	User_SendCaptchaToPhonenumber_FullMethodName = "/user.user/SendCaptchaToPhonenumber"
+	User_GetCaptchaByEmail_FullMethodName        = "/user.user/GetCaptchaByEmail"
+	User_GetCaptchaByPhonenumber_FullMethodName  = "/user.user/GetCaptchaByPhonenumber"
+	User_DeleteCaptcha_FullMethodName            = "/user.user/DeleteCaptcha"
+	User_WriteUserLocalInDB_FullMethodName       = "/user.user/WriteUserLocalInDB"
+	User_WriteUserGoogleInDB_FullMethodName      = "/user.user/WriteUserGoogleInDB"
 )
 
 // UserClient is the client API for User service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
-	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
+	GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*GetUserInfoResponse, error)
+	GetUserLocal(ctx context.Context, in *GetUserLocalRequest, opts ...grpc.CallOption) (*GetUserLocalResponse, error)
+	GetUserGoogle(ctx context.Context, in *GetUserGoogleRequest, opts ...grpc.CallOption) (*GetUserGoogleResponse, error)
 	SendCaptchaToEmail(ctx context.Context, in *SendCaptchaToEmailRequest, opts ...grpc.CallOption) (*SendCaptchaToEmailResponse, error)
 	SendCaptchaToPhonenumber(ctx context.Context, in *SendCaptchaToPhonenumberRequest, opts ...grpc.CallOption) (*SendCaptchaToPhonenumberResponse, error)
 	GetCaptchaByEmail(ctx context.Context, in *GetCaptchaByEmailRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
 	GetCaptchaByPhonenumber(ctx context.Context, in *GetCaptchaByPhonenumberRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
 	DeleteCaptcha(ctx context.Context, in *DeleteCaptchaRequest, opts ...grpc.CallOption) (*DeleteCaptchaResponse, error)
-	WriteUserInDBWithEmail(ctx context.Context, in *WriteUserInDBWithEmailRequest, opts ...grpc.CallOption) (*WriteUserInDBWithEmailResponse, error)
-	WriteUserInDBWithPhonenumber(ctx context.Context, in *WriteUserInDBWithPhonenumberRequest, opts ...grpc.CallOption) (*WriteUserInDBWithPhonenumberResponse, error)
+	WriteUserLocalInDB(ctx context.Context, in *WriteUserLocalRequest, opts ...grpc.CallOption) (*WriteUserLocalResponse, error)
+	WriteUserGoogleInDB(ctx context.Context, in *WriteUserGoogleRequest, opts ...grpc.CallOption) (*WriteUserGoogleResponse, error)
 }
 
 type userClient struct {
@@ -51,10 +55,30 @@ func NewUserClient(cc grpc.ClientConnInterface) UserClient {
 	return &userClient{cc}
 }
 
-func (c *userClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
+func (c *userClient) GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*GetUserInfoResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetUserResponse)
-	err := c.cc.Invoke(ctx, User_GetUser_FullMethodName, in, out, cOpts...)
+	out := new(GetUserInfoResponse)
+	err := c.cc.Invoke(ctx, User_GetUserInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetUserLocal(ctx context.Context, in *GetUserLocalRequest, opts ...grpc.CallOption) (*GetUserLocalResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserLocalResponse)
+	err := c.cc.Invoke(ctx, User_GetUserLocal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetUserGoogle(ctx context.Context, in *GetUserGoogleRequest, opts ...grpc.CallOption) (*GetUserGoogleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserGoogleResponse)
+	err := c.cc.Invoke(ctx, User_GetUserGoogle_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -111,20 +135,20 @@ func (c *userClient) DeleteCaptcha(ctx context.Context, in *DeleteCaptchaRequest
 	return out, nil
 }
 
-func (c *userClient) WriteUserInDBWithEmail(ctx context.Context, in *WriteUserInDBWithEmailRequest, opts ...grpc.CallOption) (*WriteUserInDBWithEmailResponse, error) {
+func (c *userClient) WriteUserLocalInDB(ctx context.Context, in *WriteUserLocalRequest, opts ...grpc.CallOption) (*WriteUserLocalResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(WriteUserInDBWithEmailResponse)
-	err := c.cc.Invoke(ctx, User_WriteUserInDBWithEmail_FullMethodName, in, out, cOpts...)
+	out := new(WriteUserLocalResponse)
+	err := c.cc.Invoke(ctx, User_WriteUserLocalInDB_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userClient) WriteUserInDBWithPhonenumber(ctx context.Context, in *WriteUserInDBWithPhonenumberRequest, opts ...grpc.CallOption) (*WriteUserInDBWithPhonenumberResponse, error) {
+func (c *userClient) WriteUserGoogleInDB(ctx context.Context, in *WriteUserGoogleRequest, opts ...grpc.CallOption) (*WriteUserGoogleResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(WriteUserInDBWithPhonenumberResponse)
-	err := c.cc.Invoke(ctx, User_WriteUserInDBWithPhonenumber_FullMethodName, in, out, cOpts...)
+	out := new(WriteUserGoogleResponse)
+	err := c.cc.Invoke(ctx, User_WriteUserGoogleInDB_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -135,14 +159,16 @@ func (c *userClient) WriteUserInDBWithPhonenumber(ctx context.Context, in *Write
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility.
 type UserServer interface {
-	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
+	GetUserInfo(context.Context, *GetUserInfoRequest) (*GetUserInfoResponse, error)
+	GetUserLocal(context.Context, *GetUserLocalRequest) (*GetUserLocalResponse, error)
+	GetUserGoogle(context.Context, *GetUserGoogleRequest) (*GetUserGoogleResponse, error)
 	SendCaptchaToEmail(context.Context, *SendCaptchaToEmailRequest) (*SendCaptchaToEmailResponse, error)
 	SendCaptchaToPhonenumber(context.Context, *SendCaptchaToPhonenumberRequest) (*SendCaptchaToPhonenumberResponse, error)
 	GetCaptchaByEmail(context.Context, *GetCaptchaByEmailRequest) (*GetCaptchaResponse, error)
 	GetCaptchaByPhonenumber(context.Context, *GetCaptchaByPhonenumberRequest) (*GetCaptchaResponse, error)
 	DeleteCaptcha(context.Context, *DeleteCaptchaRequest) (*DeleteCaptchaResponse, error)
-	WriteUserInDBWithEmail(context.Context, *WriteUserInDBWithEmailRequest) (*WriteUserInDBWithEmailResponse, error)
-	WriteUserInDBWithPhonenumber(context.Context, *WriteUserInDBWithPhonenumberRequest) (*WriteUserInDBWithPhonenumberResponse, error)
+	WriteUserLocalInDB(context.Context, *WriteUserLocalRequest) (*WriteUserLocalResponse, error)
+	WriteUserGoogleInDB(context.Context, *WriteUserGoogleRequest) (*WriteUserGoogleResponse, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -153,8 +179,14 @@ type UserServer interface {
 // pointer dereference when methods are called.
 type UnimplementedUserServer struct{}
 
-func (UnimplementedUserServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+func (UnimplementedUserServer) GetUserInfo(context.Context, *GetUserInfoRequest) (*GetUserInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
+}
+func (UnimplementedUserServer) GetUserLocal(context.Context, *GetUserLocalRequest) (*GetUserLocalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserLocal not implemented")
+}
+func (UnimplementedUserServer) GetUserGoogle(context.Context, *GetUserGoogleRequest) (*GetUserGoogleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserGoogle not implemented")
 }
 func (UnimplementedUserServer) SendCaptchaToEmail(context.Context, *SendCaptchaToEmailRequest) (*SendCaptchaToEmailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendCaptchaToEmail not implemented")
@@ -171,11 +203,11 @@ func (UnimplementedUserServer) GetCaptchaByPhonenumber(context.Context, *GetCapt
 func (UnimplementedUserServer) DeleteCaptcha(context.Context, *DeleteCaptchaRequest) (*DeleteCaptchaResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCaptcha not implemented")
 }
-func (UnimplementedUserServer) WriteUserInDBWithEmail(context.Context, *WriteUserInDBWithEmailRequest) (*WriteUserInDBWithEmailResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WriteUserInDBWithEmail not implemented")
+func (UnimplementedUserServer) WriteUserLocalInDB(context.Context, *WriteUserLocalRequest) (*WriteUserLocalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WriteUserLocalInDB not implemented")
 }
-func (UnimplementedUserServer) WriteUserInDBWithPhonenumber(context.Context, *WriteUserInDBWithPhonenumberRequest) (*WriteUserInDBWithPhonenumberResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WriteUserInDBWithPhonenumber not implemented")
+func (UnimplementedUserServer) WriteUserGoogleInDB(context.Context, *WriteUserGoogleRequest) (*WriteUserGoogleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WriteUserGoogleInDB not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 func (UnimplementedUserServer) testEmbeddedByValue()              {}
@@ -198,20 +230,56 @@ func RegisterUserServer(s grpc.ServiceRegistrar, srv UserServer) {
 	s.RegisterService(&User_ServiceDesc, srv)
 }
 
-func _User_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserRequest)
+func _User_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).GetUser(ctx, in)
+		return srv.(UserServer).GetUserInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: User_GetUser_FullMethodName,
+		FullMethod: User_GetUserInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetUser(ctx, req.(*GetUserRequest))
+		return srv.(UserServer).GetUserInfo(ctx, req.(*GetUserInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetUserLocal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserLocalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserLocal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetUserLocal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserLocal(ctx, req.(*GetUserLocalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetUserGoogle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserGoogleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserGoogle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetUserGoogle_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserGoogle(ctx, req.(*GetUserGoogleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -306,38 +374,38 @@ func _User_DeleteCaptcha_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_WriteUserInDBWithEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WriteUserInDBWithEmailRequest)
+func _User_WriteUserLocalInDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WriteUserLocalRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).WriteUserInDBWithEmail(ctx, in)
+		return srv.(UserServer).WriteUserLocalInDB(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: User_WriteUserInDBWithEmail_FullMethodName,
+		FullMethod: User_WriteUserLocalInDB_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).WriteUserInDBWithEmail(ctx, req.(*WriteUserInDBWithEmailRequest))
+		return srv.(UserServer).WriteUserLocalInDB(ctx, req.(*WriteUserLocalRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_WriteUserInDBWithPhonenumber_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WriteUserInDBWithPhonenumberRequest)
+func _User_WriteUserGoogleInDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WriteUserGoogleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).WriteUserInDBWithPhonenumber(ctx, in)
+		return srv.(UserServer).WriteUserGoogleInDB(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: User_WriteUserInDBWithPhonenumber_FullMethodName,
+		FullMethod: User_WriteUserGoogleInDB_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).WriteUserInDBWithPhonenumber(ctx, req.(*WriteUserInDBWithPhonenumberRequest))
+		return srv.(UserServer).WriteUserGoogleInDB(ctx, req.(*WriteUserGoogleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -350,8 +418,16 @@ var User_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetUser",
-			Handler:    _User_GetUser_Handler,
+			MethodName: "GetUserInfo",
+			Handler:    _User_GetUserInfo_Handler,
+		},
+		{
+			MethodName: "GetUserLocal",
+			Handler:    _User_GetUserLocal_Handler,
+		},
+		{
+			MethodName: "GetUserGoogle",
+			Handler:    _User_GetUserGoogle_Handler,
 		},
 		{
 			MethodName: "SendCaptchaToEmail",
@@ -374,12 +450,12 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_DeleteCaptcha_Handler,
 		},
 		{
-			MethodName: "WriteUserInDBWithEmail",
-			Handler:    _User_WriteUserInDBWithEmail_Handler,
+			MethodName: "WriteUserLocalInDB",
+			Handler:    _User_WriteUserLocalInDB_Handler,
 		},
 		{
-			MethodName: "WriteUserInDBWithPhonenumber",
-			Handler:    _User_WriteUserInDBWithPhonenumber_Handler,
+			MethodName: "WriteUserGoogleInDB",
+			Handler:    _User_WriteUserGoogleInDB_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

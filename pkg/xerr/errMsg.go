@@ -19,6 +19,9 @@ func init() {
 	message[UserAlreadyExistError] = "user already signed up"
 	message[MaxCaptchaSendTimeError] = "maxmum captcha send time reached"
 	message[NotAuthorizedError] = "not authorized"
+	message[ErrorInvalidEmail] = "invalid email"
+	message[ErrorSignedupInGoogle] = "user has signed up by google, please sign in with google"
+	message[ErrorWrongPassword] = "incrrect password"
 	// product service
 	message[OutOfStockError] = "product is out of stock"
 }

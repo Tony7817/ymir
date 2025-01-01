@@ -32,17 +32,16 @@ func (l *SignupLogic) Signup(req *types.SignupRequest) (*types.SignupResponse, e
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ReuqestParamError), "email or phonenumber must be set")
 	}
 	// If user exist
-	respb, err := l.svcCtx.UserRPC.GetUser(l.ctx, &user.GetUserRequest{
+	respb, err := l.svcCtx.UserRPC.GetUserInfo(l.ctx, &user.GetUserInfoRequest{
 		Email:       req.Email,
 		Phonenumber: req.Phonenumber,
-		UserId:      nil,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	if respb.User != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.UserAlreadyExistError), "user exist already")
+		return nil, xerr.NewErrCode(xerr.UserAlreadyExistError)
 	}
 
 	var username string
@@ -61,27 +60,16 @@ func (l *SignupLogic) Signup(req *types.SignupRequest) (*types.SignupResponse, e
 
 	var userId int64
 	// sign up
-	if req.Email != nil {
-		respb, err := l.svcCtx.UserRPC.WriteUserInDBWithEmail(l.ctx, &user.WriteUserInDBWithEmailRequest{
-			Email:        *req.Email,
-			PasswordHash: passwordHash,
-			UserName:     username,
-		})
-		if err != nil {
-			return nil, err
-		}
-		userId = respb.UserId
-	} else {
-		respb, err := l.svcCtx.UserRPC.WriteUserInDBWithPhonenumber(l.ctx, &user.WriteUserInDBWithPhonenumberRequest{
-			Phonenumber:  *req.Phonenumber,
-			PasswordHash: passwordHash,
-			UserName:     username,
-		})
-		if err != nil {
-			return nil, err
-		}
-		userId = respb.UserId
+	respbWriteUser, err := l.svcCtx.UserRPC.WriteUserLocalInDB(l.ctx, &user.WriteUserLocalRequest{
+		Email:        req.Email,
+		Phonenumber:  req.Phonenumber,
+		PasswordHash: passwordHash,
+		UserName:     username,
+	})
+	if err != nil {
+		return nil, err
 	}
+	userId = respbWriteUser.UserId
 	userIdEncoded, err := l.svcCtx.Hash.EncodedId(userId)
 	if err != nil {
 		return nil, err

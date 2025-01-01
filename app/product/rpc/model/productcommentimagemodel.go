@@ -18,7 +18,7 @@ type (
 		FindImagesbyCommentId(ctx context.Context, commentId int64) ([]ProductCommentImage, error)
 	}
 
-	customProductCommentImageModel struct {
+	customProductCommentImageModel/*  */ struct {
 		*defaultProductCommentImageModel
 	}
 )

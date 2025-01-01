@@ -121,6 +121,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
+				Path:    "/user/signin/google",
+				Handler: user.SigninWithGoogleHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/user/signup",
 				Handler: user.SignupHandler(serverCtx),
 			},
@@ -150,6 +155,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			}...,
 		),
 		rest.WithSignature(serverCtx.Config.Signature),
+		rest.WithPrefix("/api"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/user/detail",
+				Handler: user.UserDetailHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/api"),
 	)
 }

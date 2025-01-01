@@ -6,6 +6,7 @@ import (
 
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
+	"ymir.com/app/user/rpc/model"
 	"ymir.com/app/user/rpc/user"
 	"ymir.com/pkg/util"
 	"ymir.com/pkg/xerr"
@@ -41,7 +42,7 @@ func (l *SigninLogic) Signin(req *types.SigninRequest) (resp *types.SigninRespon
 		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
 	}
 
-	respb, err := l.svcCtx.UserRPC.GetUser(l.ctx, &user.GetUserRequest{
+	respb, err := l.svcCtx.UserRPC.GetUserInfo(l.ctx, &user.GetUserInfoRequest{
 		Email:       req.Email,
 		Phonenumber: req.Phonenumber,
 		UserId:      nil,
@@ -51,7 +52,22 @@ func (l *SigninLogic) Signin(req *types.SigninRequest) (resp *types.SigninRespon
 	}
 
 	if respb.User == nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DataNoExistError), "user not exist")
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.DataNoExistError), "user not exist")
+	}
+
+	if respb.User.Type == model.UserTypeGoogle {
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.ErrorWrongPassword), "google user cannot use password")
+	}
+
+	respbUserLocal, err := l.svcCtx.UserRPC.GetUserLocal(l.ctx, &user.GetUserLocalRequest{
+		UserId: respb.User.Id,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if !util.CheckPassword(req.Password, respbUserLocal.User.PasswordHash) {
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.ErrorWrongPassword), "wrong password")
 	}
 
 	var nowDate = time.Now().Unix()
@@ -59,7 +75,7 @@ func (l *SigninLogic) Signin(req *types.SigninRequest) (resp *types.SigninRespon
 	if err != nil {
 		return nil, err
 	}
-	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, l.svcCtx.Config.Auth.AccessExpire, nowDate, uIdEncoded)
+	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, uIdEncoded)
 	if err != nil {
 		return nil, err
 	}
@@ -68,5 +84,6 @@ func (l *SigninLogic) Signin(req *types.SigninRequest) (resp *types.SigninRespon
 		UserId:      uIdEncoded,
 		Username:    respb.User.Username,
 		AccessToken: token,
+		AvatarUrl:   respb.User.AvatarUrl,
 	}, nil
 }

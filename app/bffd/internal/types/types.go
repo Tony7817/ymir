@@ -207,8 +207,11 @@ type SigninResponse struct {
 	UserId      string `json:"user_id"`
 	Username    string `json:"name"`
 	AccessToken string `json:"access_token"`
-	Role        int64  `json:"role"`
 	AvatarUrl   string `json:"avatar_url"`
+}
+
+type SigninWithGoogleRequest struct {
+	Token string `json:"token"`
 }
 
 type SignupRequest struct {

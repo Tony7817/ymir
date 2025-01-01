@@ -166,11 +166,13 @@ type (
 		Phonenumber *string `json:"phone_number,optional"`
 		Password    string  `json:"password"`
 	}
+	SigninWithGoogleRequest {
+		Token string `json:"token"`
+	}
 	SigninResponse {
 		UserId      string `json:"user_id"`
 		Username    string `json:"name"`
 		AccessToken string `json:"access_token"`
-		Role        int64  `json:"role"`
 		AvatarUrl   string `json:"avatar_url"`
 	}
 	SignupRequest {
@@ -297,6 +299,9 @@ service bff {
 	@handler Signin
 	post /user/signin (SigninRequest) returns (SigninResponse)
 
+	@handler SigninWithGoogle
+	post /user/signin/google (SigninWithGoogleRequest) returns (SigninResponse)
+
 	@handler Signup
 	post /user/signup (SignupRequest) returns (SignupResponse)
 
@@ -324,5 +329,15 @@ service bff {
 
 	@handler SendForgetPasswordCaptcha
 	post /user/forgetpassword/captcha (SendForgetPasswordCaptchaRequest) returns (SendForgetPasswordCaptchaResponse)
+}
+
+@server (
+	group:  user
+	prefix: /api
+	jwt:    Auth
+)
+service bff {
+	@handler UserDetail
+	post /user/detail (UserDetailRequest) returns (UserDetailResponse)
 }
 

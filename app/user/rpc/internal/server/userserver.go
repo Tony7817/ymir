@@ -23,9 +23,19 @@ func NewUserServer(svcCtx *svc.ServiceContext) *UserServer {
 	}
 }
 
-func (s *UserServer) GetUser(ctx context.Context, in *user.GetUserRequest) (*user.GetUserResponse, error) {
-	l := logic.NewGetUserLogic(ctx, s.svcCtx)
-	return l.GetUser(in)
+func (s *UserServer) GetUserInfo(ctx context.Context, in *user.GetUserInfoRequest) (*user.GetUserInfoResponse, error) {
+	l := logic.NewGetUserInfoLogic(ctx, s.svcCtx)
+	return l.GetUserInfo(in)
+}
+
+func (s *UserServer) GetUserLocal(ctx context.Context, in *user.GetUserLocalRequest) (*user.GetUserLocalResponse, error) {
+	l := logic.NewGetUserLocalLogic(ctx, s.svcCtx)
+	return l.GetUserLocal(in)
+}
+
+func (s *UserServer) GetUserGoogle(ctx context.Context, in *user.GetUserGoogleRequest) (*user.GetUserGoogleResponse, error) {
+	l := logic.NewGetUserGoogleLogic(ctx, s.svcCtx)
+	return l.GetUserGoogle(in)
 }
 
 func (s *UserServer) SendCaptchaToEmail(ctx context.Context, in *user.SendCaptchaToEmailRequest) (*user.SendCaptchaToEmailResponse, error) {
@@ -53,12 +63,12 @@ func (s *UserServer) DeleteCaptcha(ctx context.Context, in *user.DeleteCaptchaRe
 	return l.DeleteCaptcha(in)
 }
 
-func (s *UserServer) WriteUserInDBWithEmail(ctx context.Context, in *user.WriteUserInDBWithEmailRequest) (*user.WriteUserInDBWithEmailResponse, error) {
-	l := logic.NewWriteUserInDBWithEmailLogic(ctx, s.svcCtx)
-	return l.WriteUserInDBWithEmail(in)
+func (s *UserServer) WriteUserLocalInDB(ctx context.Context, in *user.WriteUserLocalRequest) (*user.WriteUserLocalResponse, error) {
+	l := logic.NewWriteUserLocalInDBLogic(ctx, s.svcCtx)
+	return l.WriteUserLocalInDB(in)
 }
 
-func (s *UserServer) WriteUserInDBWithPhonenumber(ctx context.Context, in *user.WriteUserInDBWithPhonenumberRequest) (*user.WriteUserInDBWithPhonenumberResponse, error) {
-	l := logic.NewWriteUserInDBWithPhonenumberLogic(ctx, s.svcCtx)
-	return l.WriteUserInDBWithPhonenumber(in)
+func (s *UserServer) WriteUserGoogleInDB(ctx context.Context, in *user.WriteUserGoogleRequest) (*user.WriteUserGoogleResponse, error) {
+	l := logic.NewWriteUserGoogleInDBLogic(ctx, s.svcCtx)
+	return l.WriteUserGoogleInDB(in)
 }

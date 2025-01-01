@@ -35,6 +35,9 @@ const CaptchaExpireError uint32 = 201002
 const WrongCaptchaError uint32 = 201003
 const MaxCaptchaSendTimeError uint32 = 201004
 const NotAuthorizedError uint32 = 201005
+const ErrorInvalidEmail uint32 = 201006
+const ErrorSignedupInGoogle uint32 = 201007
+const ErrorWrongPassword uint32 = 201008
 
 //订单服务
 

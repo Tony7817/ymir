@@ -14,32 +14,40 @@ import (
 )
 
 type (
-	DeleteCaptchaRequest                 = user.DeleteCaptchaRequest
-	DeleteCaptchaResponse                = user.DeleteCaptchaResponse
-	GetCaptchaByEmailRequest             = user.GetCaptchaByEmailRequest
-	GetCaptchaByPhonenumberRequest       = user.GetCaptchaByPhonenumberRequest
-	GetCaptchaResponse                   = user.GetCaptchaResponse
-	GetUserRequest                       = user.GetUserRequest
-	GetUserResponse                      = user.GetUserResponse
-	SendCaptchaToEmailRequest            = user.SendCaptchaToEmailRequest
-	SendCaptchaToEmailResponse           = user.SendCaptchaToEmailResponse
-	SendCaptchaToPhonenumberRequest      = user.SendCaptchaToPhonenumberRequest
-	SendCaptchaToPhonenumberResponse     = user.SendCaptchaToPhonenumberResponse
-	UserInfo                             = user.UserInfo
-	WriteUserInDBWithEmailRequest        = user.WriteUserInDBWithEmailRequest
-	WriteUserInDBWithEmailResponse       = user.WriteUserInDBWithEmailResponse
-	WriteUserInDBWithPhonenumberRequest  = user.WriteUserInDBWithPhonenumberRequest
-	WriteUserInDBWithPhonenumberResponse = user.WriteUserInDBWithPhonenumberResponse
+	DeleteCaptchaRequest             = user.DeleteCaptchaRequest
+	DeleteCaptchaResponse            = user.DeleteCaptchaResponse
+	GetCaptchaByEmailRequest         = user.GetCaptchaByEmailRequest
+	GetCaptchaByPhonenumberRequest   = user.GetCaptchaByPhonenumberRequest
+	GetCaptchaResponse               = user.GetCaptchaResponse
+	GetUserGoogleRequest             = user.GetUserGoogleRequest
+	GetUserGoogleResponse            = user.GetUserGoogleResponse
+	GetUserInfoRequest               = user.GetUserInfoRequest
+	GetUserInfoResponse              = user.GetUserInfoResponse
+	GetUserLocalRequest              = user.GetUserLocalRequest
+	GetUserLocalResponse             = user.GetUserLocalResponse
+	SendCaptchaToEmailRequest        = user.SendCaptchaToEmailRequest
+	SendCaptchaToEmailResponse       = user.SendCaptchaToEmailResponse
+	SendCaptchaToPhonenumberRequest  = user.SendCaptchaToPhonenumberRequest
+	SendCaptchaToPhonenumberResponse = user.SendCaptchaToPhonenumberResponse
+	UserGoogleInfo                   = user.UserGoogleInfo
+	UserInfo                         = user.UserInfo
+	UserLocalInfo                    = user.UserLocalInfo
+	WriteUserGoogleRequest           = user.WriteUserGoogleRequest
+	WriteUserGoogleResponse          = user.WriteUserGoogleResponse
+	WriteUserLocalRequest            = user.WriteUserLocalRequest
+	WriteUserLocalResponse           = user.WriteUserLocalResponse
 
 	User interface {
-		GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
+		GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*GetUserInfoResponse, error)
+		GetUserLocal(ctx context.Context, in *GetUserLocalRequest, opts ...grpc.CallOption) (*GetUserLocalResponse, error)
+		GetUserGoogle(ctx context.Context, in *GetUserGoogleRequest, opts ...grpc.CallOption) (*GetUserGoogleResponse, error)
 		SendCaptchaToEmail(ctx context.Context, in *SendCaptchaToEmailRequest, opts ...grpc.CallOption) (*SendCaptchaToEmailResponse, error)
 		SendCaptchaToPhonenumber(ctx context.Context, in *SendCaptchaToPhonenumberRequest, opts ...grpc.CallOption) (*SendCaptchaToPhonenumberResponse, error)
 		GetCaptchaByEmail(ctx context.Context, in *GetCaptchaByEmailRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
 		GetCaptchaByPhonenumber(ctx context.Context, in *GetCaptchaByPhonenumberRequest, opts ...grpc.CallOption) (*GetCaptchaResponse, error)
 		DeleteCaptcha(ctx context.Context, in *DeleteCaptchaRequest, opts ...grpc.CallOption) (*DeleteCaptchaResponse, error)
-		WriteUserInDBWithEmail(ctx context.Context, in *WriteUserInDBWithEmailRequest, opts ...grpc.CallOption) (*WriteUserInDBWithEmailResponse, error)
-		WriteUserInDBWithPhonenumber(ctx context.Context, in *WriteUserInDBWithPhonenumberRequest, opts ...grpc.CallOption) (*WriteUserInDBWithPhonenumberResponse, error)
+		WriteUserLocalInDB(ctx context.Context, in *WriteUserLocalRequest, opts ...grpc.CallOption) (*WriteUserLocalResponse, error)
+		WriteUserGoogleInDB(ctx context.Context, in *WriteUserGoogleRequest, opts ...grpc.CallOption) (*WriteUserGoogleResponse, error)
 	}
 
 	defaultUser struct {
@@ -53,9 +61,19 @@ func NewUser(cli zrpc.Client) User {
 	}
 }
 
-func (m *defaultUser) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
+func (m *defaultUser) GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*GetUserInfoResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
-	return client.GetUser(ctx, in, opts...)
+	return client.GetUserInfo(ctx, in, opts...)
+}
+
+func (m *defaultUser) GetUserLocal(ctx context.Context, in *GetUserLocalRequest, opts ...grpc.CallOption) (*GetUserLocalResponse, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.GetUserLocal(ctx, in, opts...)
+}
+
+func (m *defaultUser) GetUserGoogle(ctx context.Context, in *GetUserGoogleRequest, opts ...grpc.CallOption) (*GetUserGoogleResponse, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.GetUserGoogle(ctx, in, opts...)
 }
 
 func (m *defaultUser) SendCaptchaToEmail(ctx context.Context, in *SendCaptchaToEmailRequest, opts ...grpc.CallOption) (*SendCaptchaToEmailResponse, error) {
@@ -83,12 +101,12 @@ func (m *defaultUser) DeleteCaptcha(ctx context.Context, in *DeleteCaptchaReques
 	return client.DeleteCaptcha(ctx, in, opts...)
 }
 
-func (m *defaultUser) WriteUserInDBWithEmail(ctx context.Context, in *WriteUserInDBWithEmailRequest, opts ...grpc.CallOption) (*WriteUserInDBWithEmailResponse, error) {
+func (m *defaultUser) WriteUserLocalInDB(ctx context.Context, in *WriteUserLocalRequest, opts ...grpc.CallOption) (*WriteUserLocalResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
-	return client.WriteUserInDBWithEmail(ctx, in, opts...)
+	return client.WriteUserLocalInDB(ctx, in, opts...)
 }
 
-func (m *defaultUser) WriteUserInDBWithPhonenumber(ctx context.Context, in *WriteUserInDBWithPhonenumberRequest, opts ...grpc.CallOption) (*WriteUserInDBWithPhonenumberResponse, error) {
+func (m *defaultUser) WriteUserGoogleInDB(ctx context.Context, in *WriteUserGoogleRequest, opts ...grpc.CallOption) (*WriteUserGoogleResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
-	return client.WriteUserInDBWithPhonenumber(ctx, in, opts...)
+	return client.WriteUserGoogleInDB(ctx, in, opts...)
 }

@@ -209,7 +209,7 @@ func (l *ProductDetailLogic) buildProductCommentUserInfo(pcmts []*product.Produc
 			source <- pcmt
 		}
 	}, func(pcmt *product.ProductComment, writer mr.Writer[types.ProductComment], cancel func(error)) {
-		user, err := l.svcCtx.UserRPC.GetUser(l.ctx, &user.GetUserRequest{
+		user, err := l.svcCtx.UserRPC.GetUserInfo(l.ctx, &user.GetUserInfoRequest{
 			UserId: &pcmt.UserId,
 		})
 		if err != nil {
