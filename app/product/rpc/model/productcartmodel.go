@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"ymir.com/pkg/id"
 	"ymir.com/pkg/xerr"
 
 	"github.com/pkg/errors"
@@ -112,7 +113,7 @@ func (m *customProductCartModel) DescProductAmount(ctx context.Context, userId i
 
 func (m *customProductCartModel) AddToProductCart(ctx context.Context, userId int64, productId int64, size string, colorId int64) (sql.Result, error) {
 	return m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (sql.Result, error) {
-		return conn.ExecCtx(ctx, "insert into product_cart (user_id, product_id, size, amount, color_id) values (?, ?, ?, 1, ?) on duplicate key update amount = amount + 1", userId, productId, size, colorId)
+		return conn.ExecCtx(ctx, "insert into product_cart (id, user_id, product_id, size, amount, color_id) values (?, ?, ?, 1, ?) on duplicate key update amount = amount + 1", id.SF.GenerateID(), userId, productId, size, colorId)
 	}, fmt.Sprintf(cacheYmirProductCartTotalUserId, userId))
 }
 

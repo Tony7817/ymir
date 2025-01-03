@@ -5,6 +5,7 @@ import (
 
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"ymir.com/pkg/id"
 )
 
 var _ UserModel = (*customUserModel)(nil)
@@ -14,7 +15,7 @@ type (
 	// and implement the added methods in customUserModel.
 	UserModel interface {
 		userModel
-		InsertIntoUserAndUserGoogle(ctx context.Context, user *User, userGoogle *UserGoogle) (int64,error)
+		InsertIntoUserAndUserGoogle(ctx context.Context, user *User, userGoogle *UserGoogle) (int64, error)
 		InsertIntoUserAndUserLocal(ctx context.Context, user *User, userLocal *UserLocal) (int64, error)
 	}
 
@@ -33,7 +34,7 @@ func NewUserModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) Us
 func (m *customUserModel) InsertIntoUserAndUserGoogle(ctx context.Context, user *User, userGoogle *UserGoogle) (int64, error) {
 	var userId int64
 	err := m.CachedConn.TransactCtx(ctx, func(ctx context.Context, s sqlx.Session) error {
-		ret, err := s.ExecCtx(ctx, "insert into `user` (username, email, phone_number, avatar_url, type) values (?,?,?,?,?)", user.Username, user.Email, user.PhoneNumber, user.AvatarUrl, UserTypeGoogle)
+		ret, err := s.ExecCtx(ctx, "insert into `user` (id, username, email, phone_number, avatar_url, type) values (?,?,?,?,?,?)", id.SF.GenerateID(), user.Username, user.Email, user.PhoneNumber, user.AvatarUrl, UserTypeGoogle)
 		if err != nil {
 			return err
 		}
@@ -43,7 +44,7 @@ func (m *customUserModel) InsertIntoUserAndUserGoogle(ctx context.Context, user 
 			return err
 		}
 
-		_, err = s.ExecCtx(ctx, "insert into user_google (user_id, google_user_id) values (?,?)", lastInsertId, userGoogle.GoogleUserId)
+		_, err = s.ExecCtx(ctx, "insert into user_google (id, user_id, google_user_id) values (?,?,?)", id.SF.GenerateID(), lastInsertId, userGoogle.GoogleUserId)
 		if err != nil {
 			return err
 		}
@@ -62,7 +63,7 @@ func (m *customUserModel) InsertIntoUserAndUserGoogle(ctx context.Context, user 
 func (m *customUserModel) InsertIntoUserAndUserLocal(ctx context.Context, user *User, userLocal *UserLocal) (int64, error) {
 	var userId int64
 	err := m.CachedConn.TransactCtx(ctx, func(ctx context.Context, s sqlx.Session) error {
-		ret, err := s.ExecCtx(ctx, "insert into `user` (username, email, phone_number, avatar_url, type) values (?,?,?,?,?)", user.Username, user.Email, user.PhoneNumber, user.AvatarUrl, UserTypeLocal)
+		ret, err := s.ExecCtx(ctx, "insert into `user` (id, username, email, phone_number, avatar_url, type) values (?,?,?,?,?,?)", id.SF.GenerateID(), user.Username, user.Email, user.PhoneNumber, user.AvatarUrl, UserTypeLocal)
 		if err != nil {
 			return err
 		}
@@ -72,7 +73,7 @@ func (m *customUserModel) InsertIntoUserAndUserLocal(ctx context.Context, user *
 			return err
 		}
 
-		_, err = s.ExecCtx(ctx, "insert into user_local (user_id, password_hash, is_activated) values (?,?,?)", lastInsertId, userLocal.PasswordHash, userLocal.IsActivated)
+		_, err = s.ExecCtx(ctx, "insert into user_local (id, user_id, password_hash, is_activated) values (?,?,?,?)", id.SF.GenerateID(), lastInsertId, userLocal.PasswordHash, userLocal.IsActivated)
 		if err != nil {
 			return err
 		}

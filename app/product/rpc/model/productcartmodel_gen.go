@@ -21,7 +21,7 @@ import (
 var (
 	productCartFieldNames          = builder.RawFieldNames(&ProductCart{})
 	productCartRows                = strings.Join(productCartFieldNames, ",")
-	productCartRowsExpectAutoSet   = strings.Join(stringx.Remove(productCartFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
+	productCartRowsExpectAutoSet   = strings.Join(stringx.Remove(productCartFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	productCartRowsWithPlaceHolder = strings.Join(stringx.Remove(productCartFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
 	cacheYmirProductCartIdPrefix                     = "cache:ymir:productCart:id:"
@@ -117,8 +117,8 @@ func (m *defaultProductCartModel) Insert(ctx context.Context, data *ProductCart)
 	ymirProductCartIdKey := fmt.Sprintf("%s%v", cacheYmirProductCartIdPrefix, data.Id)
 	ymirProductCartProductIdColorIdUserIdKey := fmt.Sprintf("%s%v:%v:%v", cacheYmirProductCartProductIdColorIdUserIdPrefix, data.ProductId, data.ColorId, data.UserId)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, productCartRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.ProductId, data.UserId, data.ColorId, data.Amount, data.Size)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, productCartRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.ProductId, data.UserId, data.ColorId, data.Amount, data.Size)
 	}, ymirProductCartIdKey, ymirProductCartProductIdColorIdUserIdKey)
 	return ret, err
 }

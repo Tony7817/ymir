@@ -20,7 +20,7 @@ import (
 var (
 	userLocalFieldNames          = builder.RawFieldNames(&UserLocal{})
 	userLocalRows                = strings.Join(userLocalFieldNames, ",")
-	userLocalRowsExpectAutoSet   = strings.Join(stringx.Remove(userLocalFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
+	userLocalRowsExpectAutoSet   = strings.Join(stringx.Remove(userLocalFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	userLocalRowsWithPlaceHolder = strings.Join(stringx.Remove(userLocalFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
 	cacheYmirUserLocalIdPrefix     = "cache:ymir:userLocal:id:"
@@ -112,8 +112,8 @@ func (m *defaultUserLocalModel) Insert(ctx context.Context, data *UserLocal) (sq
 	ymirUserLocalIdKey := fmt.Sprintf("%s%v", cacheYmirUserLocalIdPrefix, data.Id)
 	ymirUserLocalUserIdKey := fmt.Sprintf("%s%v", cacheYmirUserLocalUserIdPrefix, data.UserId)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.table, userLocalRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.UserId, data.PasswordHash, data.IsActivated)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, userLocalRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.UserId, data.PasswordHash, data.IsActivated)
 	}, ymirUserLocalIdKey, ymirUserLocalUserIdKey)
 	return ret, err
 }

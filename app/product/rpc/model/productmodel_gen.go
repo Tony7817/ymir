@@ -21,7 +21,7 @@ import (
 var (
 	productFieldNames          = builder.RawFieldNames(&Product{})
 	productRows                = strings.Join(productFieldNames, ",")
-	productRowsExpectAutoSet   = strings.Join(stringx.Remove(productFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
+	productRowsExpectAutoSet   = strings.Join(stringx.Remove(productFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	productRowsWithPlaceHolder = strings.Join(stringx.Remove(productFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
 	cacheYmirProductIdPrefix = "cache:ymir:product:id:"
@@ -92,8 +92,8 @@ func (m *defaultProductModel) FindOne(ctx context.Context, id int64) (*Product, 
 func (m *defaultProductModel) Insert(ctx context.Context, data *Product) (sql.Result, error) {
 	ymirProductIdKey := fmt.Sprintf("%s%v", cacheYmirProductIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, productRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.StarId, data.DefaultColorId, data.Name, data.Tags, data.SoldNum, data.Description, data.Rate, data.RateCount, data.Detail)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, productRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.StarId, data.DefaultColorId, data.Name, data.Tags, data.SoldNum, data.Description, data.Rate, data.RateCount, data.Detail)
 	}, ymirProductIdKey)
 	return ret, err
 }

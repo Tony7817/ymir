@@ -1,0 +1,41 @@
+Name: bffs
+Host: 0.0.0.0
+Port: 8889
+
+StarRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: ymir.star.rpc
+ProductRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: ymir.product.rpc
+UserRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: ymir.user.rpc
+OrganizerRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+
+Auth:
+  AccessSecret: 8812e30a-1327-441c-81f5-a66d6dbabbab
+  AccessExpire: 604800
+
+BizRedis:
+  Host: 127.0.0.1:6379
+
+Signature:
+  Strict: true
+  Expircy: 24h
+  PrivateKeys:
+    - Fingerprint: "aaaasdf"
+      KeyFile: etc/private_key.pem
+
+Log:
+  ServiceName: bff
+  Level: debug

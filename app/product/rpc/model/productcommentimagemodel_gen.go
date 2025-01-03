@@ -21,7 +21,7 @@ import (
 var (
 	productCommentImageFieldNames          = builder.RawFieldNames(&ProductCommentImage{})
 	productCommentImageRows                = strings.Join(productCommentImageFieldNames, ",")
-	productCommentImageRowsExpectAutoSet   = strings.Join(stringx.Remove(productCommentImageFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
+	productCommentImageRowsExpectAutoSet   = strings.Join(stringx.Remove(productCommentImageFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	productCommentImageRowsWithPlaceHolder = strings.Join(stringx.Remove(productCommentImageFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
 	cacheYmirProductCommentImageIdPrefix = "cache:ymir:productCommentImage:id:"
@@ -86,8 +86,8 @@ func (m *defaultProductCommentImageModel) FindOne(ctx context.Context, id int64)
 func (m *defaultProductCommentImageModel) Insert(ctx context.Context, data *ProductCommentImage) (sql.Result, error) {
 	ymirProductCommentImageIdKey := fmt.Sprintf("%s%v", cacheYmirProductCommentImageIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.table, productCommentImageRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.CommentId, data.ImageThumbUrl, data.ImageUrl)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, productCommentImageRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.CommentId, data.ImageThumbUrl, data.ImageUrl)
 	}, ymirProductCommentImageIdKey)
 	return ret, err
 }

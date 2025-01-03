@@ -21,7 +21,7 @@ import (
 var (
 	productCommentFieldNames          = builder.RawFieldNames(&ProductComment{})
 	productCommentRows                = strings.Join(productCommentFieldNames, ",")
-	productCommentRowsExpectAutoSet   = strings.Join(stringx.Remove(productCommentFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
+	productCommentRowsExpectAutoSet   = strings.Join(stringx.Remove(productCommentFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	productCommentRowsWithPlaceHolder = strings.Join(stringx.Remove(productCommentFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
 	cacheYmirProductCommentIdPrefix = "cache:ymir:productComment:id:"
@@ -92,8 +92,8 @@ func (m *defaultProductCommentModel) FindOne(ctx context.Context, id int64) (*Pr
 func (m *defaultProductCommentModel) Insert(ctx context.Context, data *ProductComment) (sql.Result, error) {
 	ymirProductCommentIdKey := fmt.Sprintf("%s%v", cacheYmirProductCommentIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, productCommentRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.UserId, data.ProductId, data.Comment, data.LikeNum, data.UnLikeNum, data.Rate, data.IsDeleted, data.Size, data.Color)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, productCommentRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.UserId, data.ProductId, data.Comment, data.LikeNum, data.UnLikeNum, data.Rate, data.IsDeleted, data.Size, data.Color)
 	}, ymirProductCommentIdKey)
 	return ret, err
 }

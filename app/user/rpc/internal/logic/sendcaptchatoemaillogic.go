@@ -9,6 +9,7 @@ import (
 	"ymir.com/app/user/rpc/internal/svc"
 	"ymir.com/app/user/rpc/model"
 	"ymir.com/app/user/rpc/user"
+	"ymir.com/pkg/id"
 	"ymir.com/pkg/util"
 	"ymir.com/pkg/vars"
 
@@ -54,6 +55,7 @@ func (l *SendCaptchaToEmailLogic) SendCaptchaToEmail(in *user.SendCaptchaToEmail
 	}
 
 	var newCaptcha = model.Captcha{
+		Id:         id.SF.GenerateID(),
 		VerifyCode: code,
 		Email: sql.NullString{
 			String: in.Email,

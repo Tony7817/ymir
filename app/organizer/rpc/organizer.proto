@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package organizer;
+option go_package = "./organizer";
+
+message GetOrganizerRequest {
+    optional int64 UserId  = 1;
+    optional string Phonenumber  = 2
+}
+
+message GetorganizerResponse {
+    int64 id = 1;
+}
+
+service organizer {
+    rpc GetOrganizer(GetOrganizerRequest) returns (GetorganizerResponse);
+}

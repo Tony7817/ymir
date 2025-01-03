@@ -20,7 +20,7 @@ import (
 var (
 	userGoogleFieldNames          = builder.RawFieldNames(&UserGoogle{})
 	userGoogleRows                = strings.Join(userGoogleFieldNames, ",")
-	userGoogleRowsExpectAutoSet   = strings.Join(stringx.Remove(userGoogleFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
+	userGoogleRowsExpectAutoSet   = strings.Join(stringx.Remove(userGoogleFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	userGoogleRowsWithPlaceHolder = strings.Join(stringx.Remove(userGoogleFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
 	cacheYmirUserGoogleIdPrefix           = "cache:ymir:userGoogle:id:"
@@ -135,8 +135,8 @@ func (m *defaultUserGoogleModel) Insert(ctx context.Context, data *UserGoogle) (
 	ymirUserGoogleIdKey := fmt.Sprintf("%s%v", cacheYmirUserGoogleIdPrefix, data.Id)
 	ymirUserGoogleUserIdKey := fmt.Sprintf("%s%v", cacheYmirUserGoogleUserIdPrefix, data.UserId)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?)", m.table, userGoogleRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.UserId, data.GoogleUserId)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.table, userGoogleRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.UserId, data.GoogleUserId)
 	}, ymirUserGoogleGoogleUserIdKey, ymirUserGoogleIdKey, ymirUserGoogleUserIdKey)
 	return ret, err
 }

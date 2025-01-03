@@ -21,7 +21,7 @@ import (
 var (
 	userFieldNames          = builder.RawFieldNames(&User{})
 	userRows                = strings.Join(userFieldNames, ",")
-	userRowsExpectAutoSet   = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
+	userRowsExpectAutoSet   = strings.Join(stringx.Remove(userFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	userRowsWithPlaceHolder = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
 	cacheYmirUserIdPrefix          = "cache:ymir:user:id:"
@@ -141,8 +141,8 @@ func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, 
 	ymirUserIdKey := fmt.Sprintf("%s%v", cacheYmirUserIdPrefix, data.Id)
 	ymirUserPhoneNumberKey := fmt.Sprintf("%s%v", cacheYmirUserPhoneNumberPrefix, data.PhoneNumber)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Username, data.Email, data.PhoneNumber, data.AvatarUrl, data.Type)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.Username, data.Email, data.PhoneNumber, data.AvatarUrl, data.Type)
 	}, ymirUserEmailKey, ymirUserIdKey, ymirUserPhoneNumberKey)
 	return ret, err
 }

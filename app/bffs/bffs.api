@@ -1,0 +1,54 @@
+type (
+	StarListRequest {
+		Keyword  *string `json:"keyword,optional"`
+		Page     int64   `json:"page"`
+		PageSize int64   `json:"page_size"`
+	}
+	StarListItem {
+		Id       string `json:"id"`
+		Name     string `json:"name"`
+		CoverUrl string `json:"cover_url"`
+	}
+	StarListResponse {
+		ToTal int64          `json:"total"`
+		Stars []StarListItem `json:"stars"`
+	}
+	StarDetailRequest {
+		Id string `path:"id"`
+	}
+	// TODO: add likes add favorites
+	StarDetailResponse {
+		Id          string              `json:"id"`
+		Name        string              `json:"name"`
+		Description string              `json:"description"`
+		Rate        string              `json:"rate"`
+		RateCount   int64               `json:"rate_count"`
+		CoverUrl    string              `json:"cover_url"`
+		AvatarUrl   string              `json:"avatar_url"`
+		PosterUrl   string              `json:"poster_url"`
+		Products    ProductListResponse `json:"products"`
+	}
+	ProductListResponse {
+		Total    int64             `json:"total"`
+		Products []ProductListItem `json:"products"`
+	}
+	ProductListItem {
+		Id          string  `json:"id"`
+		CoverUrl    string  `json:"cover_url"`
+		Description string  `json:"description"`
+		Price       float64 `json:"price"`
+		Unit        string  `json:"unit"`
+	}
+)
+
+@server (
+	group:      star
+	jwt:        Auth
+	prefix:     /api/internal
+	middleware: auth
+)
+service bffs {
+	@handler StarList
+	post /star/list (StarListRequest) returns (StarListResponse)
+}
+

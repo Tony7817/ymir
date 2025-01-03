@@ -20,7 +20,7 @@ import (
 var (
 	productColorDetailFieldNames          = builder.RawFieldNames(&ProductColorDetail{})
 	productColorDetailRows                = strings.Join(productColorDetailFieldNames, ",")
-	productColorDetailRowsExpectAutoSet   = strings.Join(stringx.Remove(productColorDetailFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
+	productColorDetailRowsExpectAutoSet   = strings.Join(stringx.Remove(productColorDetailFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	productColorDetailRowsWithPlaceHolder = strings.Join(stringx.Remove(productColorDetailFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
 	cacheYmirProductColorDetailIdPrefix = "cache:ymir:productColorDetail:id:"
@@ -88,8 +88,8 @@ func (m *defaultProductColorDetailModel) FindOne(ctx context.Context, id int64) 
 func (m *defaultProductColorDetailModel) Insert(ctx context.Context, data *ProductColorDetail) (sql.Result, error) {
 	ymirProductColorDetailIdKey := fmt.Sprintf("%s%v", cacheYmirProductColorDetailIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, productColorDetailRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.ProductId, data.Color, data.Images, data.DetailImages, data.Price, data.Unit, data.AvailableSize, data.CoverUrl)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, productColorDetailRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.ProductId, data.Color, data.Images, data.DetailImages, data.Price, data.Unit, data.AvailableSize, data.CoverUrl)
 	}, ymirProductColorDetailIdKey)
 	return ret, err
 }

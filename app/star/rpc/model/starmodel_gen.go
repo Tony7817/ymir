@@ -21,7 +21,7 @@ import (
 var (
 	starFieldNames          = builder.RawFieldNames(&Star{})
 	starRows                = strings.Join(starFieldNames, ",")
-	starRowsExpectAutoSet   = strings.Join(stringx.Remove(starFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
+	starRowsExpectAutoSet   = strings.Join(stringx.Remove(starFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	starRowsWithPlaceHolder = strings.Join(stringx.Remove(starFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
 	cacheYmirStarIdPrefix = "cache:ymir:star:id:"
@@ -90,8 +90,8 @@ func (m *defaultStarModel) FindOne(ctx context.Context, id int64) (*Star, error)
 func (m *defaultStarModel) Insert(ctx context.Context, data *Star) (sql.Result, error) {
 	ymirStarIdKey := fmt.Sprintf("%s%v", cacheYmirStarIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, starRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Name, data.Rate, data.RateCount, data.AvatarUrl, data.Description, data.CoverUrl, data.PosterUrl)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, starRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.Name, data.Rate, data.RateCount, data.AvatarUrl, data.Description, data.CoverUrl, data.PosterUrl)
 	}, ymirStarIdKey)
 	return ret, err
 }

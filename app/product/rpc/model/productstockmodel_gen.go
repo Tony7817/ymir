@@ -20,7 +20,7 @@ import (
 var (
 	productStockFieldNames          = builder.RawFieldNames(&ProductStock{})
 	productStockRows                = strings.Join(productStockFieldNames, ",")
-	productStockRowsExpectAutoSet   = strings.Join(stringx.Remove(productStockFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
+	productStockRowsExpectAutoSet   = strings.Join(stringx.Remove(productStockFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	productStockRowsWithPlaceHolder = strings.Join(stringx.Remove(productStockFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
 	cacheYmirProductStockIdPrefix                   = "cache:ymir:productStock:id:"
@@ -113,8 +113,8 @@ func (m *defaultProductStockModel) Insert(ctx context.Context, data *ProductStoc
 	ymirProductStockIdKey := fmt.Sprintf("%s%v", cacheYmirProductStockIdPrefix, data.Id)
 	ymirProductStockProductIdColorIdSizeKey := fmt.Sprintf("%s%v:%v:%v", cacheYmirProductStockProductIdColorIdSizePrefix, data.ProductId, data.ColorId, data.Size)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, productStockRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.ProductId, data.ColorId, data.InStock, data.Size)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, productStockRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.ProductId, data.ColorId, data.InStock, data.Size)
 	}, ymirProductStockIdKey, ymirProductStockProductIdColorIdSizeKey)
 	return ret, err
 }
