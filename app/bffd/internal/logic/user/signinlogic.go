@@ -6,7 +6,7 @@ import (
 
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
-	"ymir.com/app/user/rpc/model"
+	"ymir.com/app/user/model"
 	"ymir.com/app/user/rpc/user"
 	"ymir.com/pkg/util"
 	"ymir.com/pkg/xerr"
@@ -52,7 +52,7 @@ func (l *SigninLogic) Signin(req *types.SigninRequest) (resp *types.SigninRespon
 	}
 
 	if respb.User == nil {
-		return nil, errors.Wrap(xerr.NewErrCode(xerr.DataNoExistError), "user not exist")
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.UserNotExistedError), "user not exist")
 	}
 
 	if respb.User.Type == model.UserTypeGoogle {
@@ -71,17 +71,13 @@ func (l *SigninLogic) Signin(req *types.SigninRequest) (resp *types.SigninRespon
 	}
 
 	var nowDate = time.Now().Unix()
-	uIdEncoded, err := l.svcCtx.Hash.EncodedId(respb.User.Id)
-	if err != nil {
-		return nil, err
-	}
-	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, uIdEncoded)
+	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, respb.User.Id)
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.SigninResponse{
-		UserId:      uIdEncoded,
+		UserId:      respb.User.Id,
 		Username:    respb.User.Username,
 		AccessToken: token,
 		AvatarUrl:   respb.User.AvatarUrl,

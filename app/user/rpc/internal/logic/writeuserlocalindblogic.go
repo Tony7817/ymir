@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
+	"ymir.com/app/user/model"
 	"ymir.com/app/user/rpc/internal/svc"
-	"ymir.com/app/user/rpc/model"
 	"ymir.com/app/user/rpc/user"
 	"ymir.com/pkg/xerr"
 

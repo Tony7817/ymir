@@ -6,21 +6,13 @@ StarRPC:
   Etcd:
     Hosts:
       - 127.0.0.1:2379
-    Key: ymir.star.rpc
-ProductRPC:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: ymir.product.rpc
+    Key: ymir.star.admin.rpc
+
 UserRPC:
   Etcd:
     Hosts:
       - 127.0.0.1:2379
-    Key: ymir.user.rpc
-OrganizerRPC:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
+    Key: ymir.user.admin.rpc
 
 Auth:
   AccessSecret: 8812e30a-1327-441c-81f5-a66d6dbabbab

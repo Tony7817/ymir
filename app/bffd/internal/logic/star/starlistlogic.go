@@ -36,12 +36,8 @@ func (l *StarListLogic) StarList(req *types.StarListRequest) (resp *types.StarLi
 
 	var stars []types.StarListItem
 	for i := 0; i < len(starspb.Stars); i++ {
-		idEncoded, err := l.svcCtx.Hash.EncodedId(starspb.Stars[i].Id)
-		if err != nil {
-			return nil, err
-		}
 		stars = append(stars, types.StarListItem{
-			Id:       idEncoded,
+			Id:       starspb.Stars[i].Id,
 			Name:     starspb.Stars[i].Name,
 			CoverUrl: starspb.Stars[i].CoverUrl,
 		})

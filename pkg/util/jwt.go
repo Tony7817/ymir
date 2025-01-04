@@ -5,7 +5,7 @@ import (
 	"ymir.com/pkg/vars"
 )
 
-func GetJwtToken(secret string, nowDate int64, accessExpire int64, userId string) (string, error) {
+func GetJwtToken(secret string, nowDate int64, accessExpire int64, userId int64) (string, error) {
 	var claim = make(jwt.MapClaims)
 	var token = jwt.New(jwt.SigningMethodHS256)
 

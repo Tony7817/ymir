@@ -1,11 +1,20 @@
 type (
+	SigninRequest {
+		Phonenumber string `json:"phone_number"`
+		Captcha     string `json:"captcha"`
+	}
+	SigninResponse {
+		UserId      int64  `json:"user_id"`
+		Phonenumber string `json:"phonenumber"`
+		Token       string `json:"token"`
+	}
 	StarListRequest {
 		Keyword  *string `json:"keyword,optional"`
 		Page     int64   `json:"page"`
 		PageSize int64   `json:"page_size"`
 	}
 	StarListItem {
-		Id       string `json:"id"`
+		Id       int64  `json:"id"`
 		Name     string `json:"name"`
 		CoverUrl string `json:"cover_url"`
 	}
@@ -14,11 +23,11 @@ type (
 		Stars []StarListItem `json:"stars"`
 	}
 	StarDetailRequest {
-		Id string `path:"id"`
+		Id int64 `path:"id"`
 	}
 	// TODO: add likes add favorites
 	StarDetailResponse {
-		Id          string              `json:"id"`
+		Id          int64               `json:"id"`
 		Name        string              `json:"name"`
 		Description string              `json:"description"`
 		Rate        string              `json:"rate"`
@@ -33,7 +42,7 @@ type (
 		Products []ProductListItem `json:"products"`
 	}
 	ProductListItem {
-		Id          string  `json:"id"`
+		Id          int64   `json:"id"`
 		CoverUrl    string  `json:"cover_url"`
 		Description string  `json:"description"`
 		Price       float64 `json:"price"`
@@ -45,10 +54,19 @@ type (
 	group:      star
 	jwt:        Auth
 	prefix:     /api/internal
-	middleware: auth
+	middleware: Auth
 )
 service bffs {
 	@handler StarList
 	post /star/list (StarListRequest) returns (StarListResponse)
+}
+
+@server (
+	group:  auth
+	prefix: /api/internal
+)
+service bffs {
+	@handler Signin
+	post /signin (SigninRequest) returns (SigninResponse)
 }
 

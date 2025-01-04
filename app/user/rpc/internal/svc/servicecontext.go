@@ -1,8 +1,8 @@
 package svc
 
 import (
+	"ymir.com/app/user/model"
 	"ymir.com/app/user/rpc/internal/config"
-	"ymir.com/app/user/rpc/model"
 	"ymir.com/pkg/aliyun"
 
 	"github.com/zeromicro/go-zero/core/stores/redis"

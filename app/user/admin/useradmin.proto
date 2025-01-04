@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package admin;
+option go_package = "./user";
+
+message GetOrganizerRequest {
+  optional int64 UserId = 1;
+  optional string Phonenumber = 3;
+}
+
+message Organizer {
+  int64 Id = 1;
+  string Phonenumber = 3;
+  int64 Role = 4;
+}
+
+message GetOrganizerResponse {
+  Organizer organizer = 1;
+}
+
+service user {
+  rpc GetOrganizer(GetOrganizerRequest) returns (GetOrganizerResponse);
+}

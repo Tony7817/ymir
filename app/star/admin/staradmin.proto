@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package admin;
+option go_package = "./star";
+
+message StarListRequest {
+    string Keyword = 1;
+    int64 Page = 2;
+    int64 PageSize = 3;
+}
+
+message StarListItem {
+  int64 Id = 1;
+  string Name = 2;
+  // for star list
+  string CoverUrl = 3;
+  // for recommend
+  string AvatarUrl = 4;
+}
+
+message StarListResponse {
+    repeated StarListItem Stars = 1;
+    int64 Total = 2;
+}
+
+message StarDetailRequest {
+    int64 Id = 1;
+}
+
+message StarDetailResponse {
+  int64 Id = 1;
+  string Name = 2;
+  string Description = 3;
+  string CoverUrl = 4;
+  string AvatarUrl = 5;
+  string PosterUrl = 6;
+  double Rate = 7;
+  int64 RateCount = 8;
+}
+
+service Star {
+    rpc StarList(StarListRequest) returns (StarListResponse);
+    rpc StarDetail(StarDetailRequest) returns (StarDetailResponse);
+}

@@ -6,6 +6,7 @@ package handler
 import (
 	"net/http"
 
+	auth "ymir.com/app/bffs/internal/handler/auth"
 	star "ymir.com/app/bffs/internal/handler/star"
 	"ymir.com/app/bffs/internal/svc"
 
@@ -14,8 +15,19 @@ import (
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/signin",
+				Handler: auth.SigninHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api/internal"),
+	)
+
+	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.auth},
+			[]rest.Middleware{serverCtx.Auth},
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,

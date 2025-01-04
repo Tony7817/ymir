@@ -8,7 +8,6 @@ import (
 	"ymir.com/app/product/rpc/product"
 	"ymir.com/app/star/rpc/star"
 	"ymir.com/app/user/rpc/user"
-	"ymir.com/pkg/id"
 
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -30,7 +29,6 @@ func NewProductDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pro
 }
 
 func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*types.ProductDetailResponse, error) {
-	var pIdDecoded = l.svcCtx.Hash.DecodedId(req.Id)
 
 	var (
 		p        *product.ProductDetailResponse
@@ -45,7 +43,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 	err := mr.Finish(func() error {
 		var err error
 		p, err = l.svcCtx.ProductRPC.ProductDetail(l.ctx, &product.ProductDetailReqeust{
-			Id: pIdDecoded,
+			Id: req.Id,
 		})
 		if err != nil {
 			return errors.Wrapf(err, "[ProductDetail] failed to get product detail")
@@ -54,7 +52,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 	}, func() error {
 		var err error
 		cl, err = l.svcCtx.ProductRPC.ProductColorList(l.ctx, &product.ProductColorListRequest{
-			ProductId: pIdDecoded,
+			ProductId: req.Id,
 		})
 		if err != nil {
 			return errors.Wrap(err, "[ProductDetail] failed to get product color list")
@@ -63,7 +61,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 	}, func() error {
 		var err error
 		pcmt, err = l.svcCtx.ProductRPC.ProductCommentList(l.ctx, &product.ProductCommentListRequest{
-			ProductId: pIdDecoded,
+			ProductId: req.Id,
 			Page:      1,
 			PageSize:  pcmtSize,
 		})
@@ -124,7 +122,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		}
 	}, func(size string, writer mr.Writer[*types.ProductSize], cancel func(error)) {
 		stock, err := l.svcCtx.ProductRPC.ProductStock(l.ctx, &product.ProductStockRequest{
-			ProductId: pIdDecoded,
+			ProductId: req.Id,
 			ColorId:   pcolor.Id,
 			Size:      size,
 		})
@@ -148,17 +146,8 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		return nil, err
 	}
 
-	pIdEncoded, err := l.svcCtx.Hash.EncodedId(p.Id)
-	if err != nil {
-		return nil, err
-	}
-	sIdEncoded, err := l.svcCtx.Hash.EncodedId(s.Id)
-	if err != nil {
-		return nil, err
-	}
-
 	var color = types.ProductColor{
-		Id:            pIdEncoded,
+		Id:            p.Id,
 		ColorName:     pcolor.Color,
 		Images:        pcolor.Images,
 		Detail_Images: pcolor.DetailImages,
@@ -169,12 +158,8 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 
 	var clres = make([]types.ProductColorListItem, len(cl.Colors))
 	for i := 0; i < len(cl.Colors); i++ {
-		cIdEncoded, err := id.Hash.EncodedId(cl.Colors[i].ColorId)
-		if err != nil {
-			return nil, err
-		}
 		clres[i] = types.ProductColorListItem{
-			ColorId:  cIdEncoded,
+			ColorId:  cl.Colors[i].ColorId,
 			CoverUrl: cl.Colors[i].CoverUrl,
 		}
 	}
@@ -185,7 +170,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 	}
 
 	var res = &types.ProductDetailResponse{
-		Id:          pIdEncoded,
+		Id:          p.Id,
 		Description: p.Description,
 		Rate:        p.Rate,
 		RateCount:   p.ReteCount,
@@ -195,7 +180,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		Detail:      &p.Detail,
 		StarAvatar:  s.AvatarUrl,
 		StarName:    s.Name,
-		StarId:      sIdEncoded,
+		StarId:      s.Id,
 		StarRate:    s.Rate,
 		Comments:    pcmtRes,
 	}
@@ -216,13 +201,8 @@ func (l *ProductDetailLogic) buildProductCommentUserInfo(pcmts []*product.Produc
 			cancel(errors.Wrapf(err, "[ProductDetail] failed to get user info"))
 			return
 		}
-		pcmtIdEncoded, err := id.Hash.EncodedId(pcmt.Id)
-		if err != nil {
-			cancel(errors.Wrapf(err, "[ProductDetail] failed to encode product comment id"))
-			return
-		}
 		writer.Write(types.ProductComment{
-			Id:          pcmtIdEncoded,
+			Id:          pcmt.Id,
 			UserName:    user.User.Username,
 			UserAvatar:  user.User.AvatarUrl,
 			Rate:        pcmt.Rate,

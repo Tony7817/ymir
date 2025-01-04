@@ -31,10 +31,9 @@ func (l *AddProductAmountInCartLogic) AddProductAmountInCart(req *types.AddProdu
 		return nil, err
 	}
 
-	var pIdDecoded = l.svcCtx.Hash.DecodedId(req.ProductId)
 
 	_, err = l.svcCtx.ProductRPC.AddProductAmountInCart(l.ctx, &product.AddProductAmountInCartRequest{
-		ProductId: pIdDecoded,
+		ProductId: req.ProductId,
 		UserId:    uIdDecoded,
 	})
 	if err != nil {

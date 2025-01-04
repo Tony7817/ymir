@@ -36,12 +36,8 @@ func (l *RecommendStarListLogic) RecommendStarList(req *types.RecommendStarListR
 
 	var stars []types.RecommendStarListItem
 	for i := 0; i < len(starspb.Stars); i++ {
-		idEncoded, err := l.svcCtx.Hash.EncodedId(starspb.Stars[i].Id)
-		if err != nil {
-			return nil, err
-		}
 		stars = append(stars, types.RecommendStarListItem{
-			StarId:     idEncoded,
+			StarId:     starspb.Stars[i].Id,
 			StarAvatar: starspb.Stars[i].AvatarUrl,
 			StarName:   starspb.Stars[i].Name,
 		})

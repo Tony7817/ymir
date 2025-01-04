@@ -145,6 +145,7 @@ type contextKey string
 
 const RequestContextKey contextKey = "Request"
 const UserIdKey = "UserId"
+const OrganizerKey = "Organizer"
 
 // product
 func CacheProductInCartKey(userId int64) string {

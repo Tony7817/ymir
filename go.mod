@@ -75,7 +75,6 @@ require (
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/redis/go-redis/v9 v9.7.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
-	github.com/speps/go-hashids v2.0.0+incompatible
 	go.etcd.io/etcd/api/v3 v3.5.15 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.15 // indirect
 	go.etcd.io/etcd/client/v3 v3.5.15 // indirect

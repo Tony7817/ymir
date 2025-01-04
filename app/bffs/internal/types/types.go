@@ -4,7 +4,7 @@
 package types
 
 type ProductListItem struct {
-	Id          string  `json:"id"`
+	Id          int64   `json:"id"`
 	CoverUrl    string  `json:"cover_url"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
@@ -16,12 +16,23 @@ type ProductListResponse struct {
 	Products []ProductListItem `json:"products"`
 }
 
+type SigninRequest struct {
+	Phonenumber string `json:"phone_number"`
+	Captcha     string `json:"captcha"`
+}
+
+type SigninResponse struct {
+	UserId      int64  `json:"user_id"`
+	Phonenumber string `json:"phonenumber"`
+	Token       string `json:"token"`
+}
+
 type StarDetailRequest struct {
-	Id string `path:"id"`
+	Id int64 `path:"id"`
 }
 
 type StarDetailResponse struct {
-	Id          string              `json:"id"`
+	Id          int64               `json:"id"`
 	Name        string              `json:"name"`
 	Description string              `json:"description"`
 	Rate        string              `json:"rate"`
@@ -33,7 +44,7 @@ type StarDetailResponse struct {
 }
 
 type StarListItem struct {
-	Id       string `json:"id"`
+	Id       int64  `json:"id"`
 	Name     string `json:"name"`
 	CoverUrl string `json:"cover_url"`
 }

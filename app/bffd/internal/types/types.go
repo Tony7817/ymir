@@ -4,7 +4,7 @@
 package types
 
 type AddProductAmountInCartRequest struct {
-	ProductId string `json:"product_id"`
+	ProductId int64  `json:"product_id"`
 	Color     string `json:"color"`
 }
 
@@ -12,17 +12,17 @@ type AddProductAmountInCartResponse struct {
 }
 
 type AddProductToCartRequest struct {
-	ProductId string `json:"product_id"`
-	ColorId   string `json:"color_id"`
+	ProductId int64  `json:"product_id"`
+	ColorId   int64  `json:"color_id"`
 	Size      string `json:"size"`
 }
 
 type AddProductToCartResponse struct {
-	ProductCartId string `json:"product_cart_id"`
+	ProductCartId int64 `json:"product_cart_id"`
 }
 
 type DecreaseProductAmountInCartRequest struct {
-	ProductId string `json:"product_id"`
+	ProductId int64  `json:"product_id"`
 	Color     string `json:"color"`
 }
 
@@ -51,9 +51,9 @@ type LikeCommmentRequest struct {
 }
 
 type ProductCartListItem struct {
-	ProductId   string  `json:"product_id"`
-	StarId      string  `json:"star_id"`
-	ColorId     string  `json:"color_id"`
+	ProductId   int64   `json:"product_id"`
+	StarId      int64   `json:"star_id"`
+	ColorId     int64   `json:"color_id"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Unit        string  `json:"unit"`
@@ -74,7 +74,7 @@ type ProductCartListResponse struct {
 }
 
 type ProductColor struct {
-	Id            string        `json:"id"`
+	Id            int64         `json:"id"`
 	ColorName     string        `json:"color_name"`
 	Images        []string      `json:"images"`
 	Detail_Images []string      `json:"detail_images"`
@@ -84,12 +84,12 @@ type ProductColor struct {
 }
 
 type ProductColorListItem struct {
-	ColorId  string `json:"color_id"`
+	ColorId  int64  `json:"color_id"`
 	CoverUrl string `json:"cover_url"`
 }
 
 type ProductComment struct {
-	Id          string   `json:"id"`
+	Id          int64    `json:"id"`
 	UserName    string   `json:"user_name"`
 	UserAvatar  string   `json:"user_avatar"`
 	Rate        float64  `json:"rate"`
@@ -103,9 +103,9 @@ type ProductComment struct {
 }
 
 type ProductCommentRequest struct {
-	ProductId string `json:"product_id"`
-	Page      int64  `json:"page"`
-	PageSize  int64  `json:"page_size"`
+	ProductId int64 `json:"product_id"`
+	Page      int64 `json:"page"`
+	PageSize  int64 `json:"page_size"`
 }
 
 type ProductCommentResponse struct {
@@ -114,11 +114,11 @@ type ProductCommentResponse struct {
 }
 
 type ProductDetailRequest struct {
-	Id string `path:"productId"`
+	Id int64 `path:"productId"`
 }
 
 type ProductDetailResponse struct {
-	Id          string                 `json:"id"`
+	Id          int64                  `json:"id"`
 	Description string                 `json:"description"`
 	Rate        float64                `json:"rate"`
 	RateCount   int64                  `json:"rate_count"`
@@ -128,13 +128,13 @@ type ProductDetailResponse struct {
 	Detail      *string                `json:"detail"`
 	StarAvatar  string                 `json:"star_avatar"`
 	StarName    string                 `json:"star_name"`
-	StarId      string                 `json:"star_id"`
+	StarId      int64                  `json:"star_id"`
 	StarRate    float64                `json:"star_rate"`
 	Comments    ProductCommentResponse `json:"comments"`
 }
 
 type ProductListItem struct {
-	Id          string  `json:"id"`
+	Id          int64   `json:"id"`
 	CoverUrl    string  `json:"cover_url"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
@@ -142,7 +142,7 @@ type ProductListItem struct {
 }
 
 type ProductListRequest struct {
-	StarId   *string `json:"star_id,optional"`
+	StarId   *int64  `json:"star_id,optional"`
 	Keyword  *string `json:"keyword,optional"`
 	Page     int64   `json:"page"`
 	PageSize int64   `json:"page_size"`
@@ -159,7 +159,7 @@ type ProductSize struct {
 }
 
 type RecommendStarListItem struct {
-	StarId     string `json:"star_id"`
+	StarId     int64  `json:"star_id"`
 	StarAvatar string `json:"star_avatar"`
 	StarName   string `json:"star_name"`
 }
@@ -172,8 +172,8 @@ type RecommendStarListResponse struct {
 }
 
 type RemoveProductFromCartRequest struct {
-	ProductId string `json:"product_id"`
-	ColorId   string `json:"color_id"`
+	ProductId int64 `json:"product_id"`
+	ColorId   int64 `json:"color_id"`
 }
 
 type RemoveProductFromCartResponse struct {
@@ -204,7 +204,7 @@ type SigninRequest struct {
 }
 
 type SigninResponse struct {
-	UserId      string `json:"user_id"`
+	UserId      int64  `json:"user_id"`
 	Username    string `json:"name"`
 	AccessToken string `json:"access_token"`
 	AvatarUrl   string `json:"avatar_url"`
@@ -221,15 +221,15 @@ type SignupRequest struct {
 }
 
 type SignupResponse struct {
-	UserId string `json:"user_id"`
+	UserId int64 `json:"user_id"`
 }
 
 type StarDetailRequest struct {
-	Id string `path:"id"`
+	Id int64 `path:"id"`
 }
 
 type StarDetailResponse struct {
-	Id          string              `json:"id"`
+	Id          int64               `json:"id"`
 	Name        string              `json:"name"`
 	Description string              `json:"description"`
 	CoverUrl    string              `json:"cover_url"`
@@ -239,7 +239,7 @@ type StarDetailResponse struct {
 }
 
 type StarListItem struct {
-	Id       string `json:"id"`
+	Id       int64  `json:"id"`
 	Name     string `json:"name"`
 	CoverUrl string `json:"cover_url"`
 }
@@ -259,7 +259,7 @@ type UserDetailRequest struct {
 }
 
 type UserDetailResponse struct {
-	Id          string  `json:"id"`
+	Id          int64   `json:"id"`
 	Phonenumber *string `json:"phone_number"`
 	Email       *string `json:"email"`
 	Username    string  `json:"username"`

@@ -8,8 +8,6 @@ import (
 	"ymir.com/app/product/rpc/product"
 	"ymir.com/pkg/id"
 	"ymir.com/pkg/util"
-	"ymir.com/pkg/vars"
-	"ymir.com/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,19 +27,17 @@ func NewCartListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CartList
 }
 
 func (l *CartListLogic) CartList(req *types.ProductCartListRequest) (resp *types.ProductCartListResponse, err error) {
-	userIdRaw, ok := l.ctx.Value(vars.UserIdKey).(string)
-	if !ok {
-		return nil, xerr.NewErrCode(xerr.UnauthorizedError)
+	uId, err := id.GetDecodedUserId(l.ctx)
+	if err != nil {
+		return nil, err
 	}
-
-	var uIdDoceded = l.svcCtx.Hash.DecodedId(userIdRaw)
 
 	if req.PageSize > 10 {
 		req.PageSize = 10
 	}
 
 	respb, err := l.svcCtx.ProductRPC.ProductsInCartList(l.ctx, &product.ProductsInCartListRequest{
-		UserId:   uIdDoceded,
+		UserId:   uId,
 		Page:     req.Page,
 		PageSize: req.PageSize,
 	})
@@ -53,22 +49,10 @@ func (l *CartListLogic) CartList(req *types.ProductCartListRequest) (resp *types
 		products = make([]types.ProductCartListItem, 0)
 	)
 	for i := 0; i < len(respb.Products); i++ {
-		pIdEncoded, err := l.svcCtx.Hash.EncodedId(respb.Products[i].ProductId)
-		if err != nil {
-			return nil, err
-		}
-		sIdEncoded, err := id.Hash.EncodedId(respb.Products[i].StarId)
-		if err != nil {
-			return nil, err
-		}
-		cIdEncoded, err := id.Hash.EncodedId(respb.Products[i].ColorId)
-		if err != nil {
-			return nil, err
-		}
 		products = append(products, types.ProductCartListItem{
-			ProductId:   pIdEncoded,
-			StarId:      sIdEncoded,
-			ColorId:     cIdEncoded,
+			ProductId:   respb.Products[i].ProductId,
+			StarId:      respb.Products[i].StarId,
+			ColorId:     respb.Products[i].ColorId,
 			Description: respb.Products[i].Description,
 			Price:       respb.Products[i].Price,
 			Unit:        respb.Products[i].Unit,

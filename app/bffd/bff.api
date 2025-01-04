@@ -10,15 +10,15 @@ type (
 		Stars []StarListItem `json:"stars"`
 	}
 	StarListItem {
-		Id       string `json:"id"`
+		Id       int64  `json:"id"`
 		Name     string `json:"name"`
 		CoverUrl string `json:"cover_url"`
 	}
 	StarDetailRequest {
-		Id string `path:"id"`
+		Id int64 `path:"id"`
 	}
 	StarDetailResponse {
-		Id          string              `json:"id"`
+		Id          int64               `json:"id"`
 		Name        string              `json:"name"`
 		Description string              `json:"description"`
 		CoverUrl    string              `json:"cover_url"`
@@ -31,13 +31,13 @@ type (
 		CommentId string `json:"comment_id"`
 	}
 	ProductListRequest {
-		StarId   *string `json:"star_id,optional"`
+		StarId   *int64  `json:"star_id,optional"`
 		Keyword  *string `json:"keyword,optional"`
 		Page     int64   `json:"page"`
 		PageSize int64   `json:"page_size"`
 	}
 	ProductListItem {
-		Id          string  `json:"id"`
+		Id          int64   `json:"id"`
 		CoverUrl    string  `json:"cover_url"`
 		Description string  `json:"description"`
 		Price       float64 `json:"price"`
@@ -48,14 +48,14 @@ type (
 		Products []ProductListItem `json:"products"`
 	}
 	ProductDetailRequest {
-		Id string `path:"productId"`
+		Id int64 `path:"productId"`
 	}
 	ProductColorListItem {
-		ColorId  string `json:"color_id"`
+		ColorId  int64  `json:"color_id"`
 		CoverUrl string `json:"cover_url"`
 	}
 	ProductComment {
-		Id          string   `json:"id"`
+		Id          int64    `json:"id"`
 		UserName    string   `json:"user_name"`
 		UserAvatar  string   `json:"user_avatar"`
 		Rate        float64  `json:"rate"`
@@ -68,7 +68,7 @@ type (
 		Color       string   `json:"color"`
 	}
 	ProductDetailResponse {
-		Id          string                 `json:"id"`
+		Id          int64                  `json:"id"`
 		Description string                 `json:"description"`
 		Rate        float64                `json:"rate"`
 		RateCount   int64                  `json:"rate_count"`
@@ -78,21 +78,21 @@ type (
 		Detail      *string                `json:"detail"`
 		StarAvatar  string                 `json:"star_avatar"`
 		StarName    string                 `json:"star_name"`
-		StarId      string                 `json:"star_id"`
+		StarId      int64                  `json:"star_id"`
 		StarRate    float64                `json:"star_rate"`
 		Comments    ProductCommentResponse `json:"comments"`
 	}
 	ProductCommentRequest {
-		ProductId string `json:"product_id"`
-		Page      int64  `json:"page"`
-		PageSize  int64  `json:"page_size"`
+		ProductId int64 `json:"product_id"`
+		Page      int64 `json:"page"`
+		PageSize  int64 `json:"page_size"`
 	}
 	ProductCommentResponse {
 		Comments []ProductComment `json:"comments"`
 		Total    int64            `json:"total"`
 	}
 	ProductColor {
-		Id            string        `json:"id"`
+		Id            int64         `json:"id"`
 		ColorName     string        `json:"color_name"`
 		Images        []string      `json:"images"`
 		Detail_Images []string      `json:"detail_images"`
@@ -109,9 +109,9 @@ type (
 		PageSize int64 `json:"page_size"`
 	}
 	ProductCartListItem {
-		ProductId   string  `json:"product_id"`
-		StarId      string  `json:"star_id"`
-		ColorId     string  `json:"color_id"`
+		ProductId   int64   `json:"product_id"`
+		StarId      int64   `json:"star_id"`
+		ColorId     int64   `json:"color_id"`
 		Description string  `json:"description"`
 		Price       float64 `json:"price"`
 		Unit        string  `json:"unit"`
@@ -125,26 +125,26 @@ type (
 		Total    int64                 `json:"total"`
 	}
 	AddProductAmountInCartRequest {
-		ProductId string `json:"product_id"`
+		ProductId int64  `json:"product_id"`
 		Color     string `json:"color"`
 	}
 	AddProductAmountInCartResponse  {}
 	DecreaseProductAmountInCartRequest {
-		ProductId string `json:"product_id"`
+		ProductId int64  `json:"product_id"`
 		Color     string `json:"color"`
 	}
 	DecreaseProductAmountInCartResponse  {}
 	AddProductToCartRequest {
-		ProductId string `json:"product_id"`
-		ColorId   string `json:"color_id"`
+		ProductId int64  `json:"product_id"`
+		ColorId   int64  `json:"color_id"`
 		Size      string `json:"size"`
 	}
 	AddProductToCartResponse {
-		ProductCartId string `json:"product_cart_id"`
+		ProductCartId int64 `json:"product_cart_id"`
 	}
 	RemoveProductFromCartRequest {
-		ProductId string `json:"product_id"`
-		ColorId   string `json:"color_id"`
+		ProductId int64 `json:"product_id"`
+		ColorId   int64 `json:"color_id"`
 	}
 	RemoveProductFromCartResponse  {}
 	// -------------
@@ -154,7 +154,7 @@ type (
 		Recommends []RecommendStarListItem `json:"recommends"`
 	}
 	RecommendStarListItem {
-		StarId     string `json:"star_id"`
+		StarId     int64  `json:"star_id"`
 		StarAvatar string `json:"star_avatar"`
 		StarName   string `json:"star_name"`
 	}
@@ -170,7 +170,7 @@ type (
 		Token string `json:"token"`
 	}
 	SigninResponse {
-		UserId      string `json:"user_id"`
+		UserId      int64  `json:"user_id"`
 		Username    string `json:"name"`
 		AccessToken string `json:"access_token"`
 		AvatarUrl   string `json:"avatar_url"`
@@ -181,7 +181,7 @@ type (
 		Password    string  `json:"password"`
 	}
 	SignupResponse {
-		UserId string `json:"user_id"`
+		UserId int64 `json:"user_id"`
 	}
 	SendSignupCaptchaRequest {
 		Phonenumber *string `json:"phone_number,optional"`
@@ -211,7 +211,7 @@ type (
 	}
 	UserDetailRequest  {}
 	UserDetailResponse {
-		Id          string  `json:"id"`
+		Id          int64   `json:"id"`
 		Phonenumber *string `json:"phone_number"`
 		Email       *string `json:"email"`
 		Username    string  `json:"username"`

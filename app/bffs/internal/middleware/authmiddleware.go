@@ -1,19 +1,50 @@
 package middleware
 
-import "net/http"
+import (
+	"context"
+	"net/http"
+
+	"ymir.com/app/bffs/internal/config"
+	"ymir.com/app/user/admin/user"
+	"ymir.com/app/user/admin/userclient"
+	"ymir.com/pkg/vars"
+
+	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/zrpc"
+)
 
 type AuthMiddleware struct {
+	UserRPC userclient.User
 }
 
-func NewAuthMiddleware() *AuthMiddleware {
-	return &AuthMiddleware{}
+type OrganizerKey string
+
+func NewAuthMiddleware(c config.Config) *AuthMiddleware {
+	return &AuthMiddleware{
+		UserRPC: userclient.NewUser(zrpc.MustNewClient(c.UserRPC)),
+	}
 }
 
 func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO generate middleware implement function, delete after code implementation
+		uId, ok := r.Context().Value(vars.UserIdKey).(int64)
+		if !ok {
+			http.Error(w, "Not Authorized", http.StatusUnauthorized)
+			return
+		}
 
-		// Passthrough to next handler if need
+		respb, err := m.UserRPC.GetOrganizer(r.Context(), &user.GetOrganizerRequest{
+			UserId: &uId,
+		})
+		if err != nil {
+			logx.Errorf("[AuthMiddleware] GetOrganizer failed: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		const key OrganizerKey = vars.OrganizerKey
+		var ctx = context.WithValue(r.Context(), key, respb.Organizer)
+		r = r.WithContext(ctx)
+
 		next(w, r)
 	}
 }

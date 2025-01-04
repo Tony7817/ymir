@@ -31,10 +31,8 @@ func (l *DecreaseProductAmountInCartLogic) DecreaseProductAmountInCart(req *type
 		return nil, err
 	}
 
-	var pIdDecoded = l.svcCtx.Hash.DecodedId(req.ProductId)
-
 	_, err = l.svcCtx.ProductRPC.DecreaseProductAmountInCart(l.ctx, &product.DecreaseProductAmountInCartRequest{
-		ProductId: pIdDecoded,
+		ProductId: req.ProductId,
 		UserId:    uIdDecoded,
 		Color:     req.Color,
 	})

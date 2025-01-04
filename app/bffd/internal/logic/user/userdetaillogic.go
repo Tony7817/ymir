@@ -41,13 +41,8 @@ func (l *UserDetailLogic) UserDetail(req *types.UserDetailRequest) (*types.UserD
 		return nil, err
 	}
 
-	uIdEncoded, err := id.Hash.EncodedId(respb.User.Id)
-	if err != nil {
-		return nil, err
-	}
-
 	return &types.UserDetailResponse{
-		Id:          uIdEncoded,
+		Id:          respb.User.Id,
 		Phonenumber: &respb.User.Phonenumber,
 		Email:       &respb.User.Email,
 		Username:    respb.User.Username,

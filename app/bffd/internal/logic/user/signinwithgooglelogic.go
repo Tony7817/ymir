@@ -8,7 +8,6 @@ import (
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/user/rpc/user"
 	"ymir.com/pkg/google"
-	"ymir.com/pkg/id"
 	"ymir.com/pkg/util"
 	"ymir.com/pkg/xerr"
 
@@ -51,7 +50,7 @@ func (l *SigninWithGoogleLogic) SigninWithGoogle(req *types.SigninWithGoogleRequ
 
 func (l *SigninWithGoogleLogic) Signin(ugoogle *user.UserGoogleInfo) (resp *types.SigninResponse, err error) {
 	respb, err := l.svcCtx.UserRPC.GetUserInfo(l.ctx, &user.GetUserInfoRequest{
-		UserId:      &ugoogle.UserId,
+		UserId: &ugoogle.UserId,
 	})
 	if err != nil {
 		return nil, err
@@ -61,17 +60,13 @@ func (l *SigninWithGoogleLogic) Signin(ugoogle *user.UserGoogleInfo) (resp *type
 	}
 
 	var nowDate = time.Now().Unix()
-	uIdEncoded, err := id.Hash.EncodedId(ugoogle.Id)
-	if err != nil {
-		return nil, err
-	}
-	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, uIdEncoded)
+	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, ugoogle.Id)
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.SigninResponse{
-		UserId:      uIdEncoded,
+		UserId:      ugoogle.Id,
 		Username:    respb.User.Username,
 		AccessToken: token,
 		AvatarUrl:   respb.User.AvatarUrl,
@@ -90,24 +85,20 @@ func (l *SigninWithGoogleLogic) SignupAndSignin(usr *google.User) (resp *types.S
 	}
 
 	respbUser, err := l.svcCtx.UserRPC.GetUserInfo(l.ctx, &user.GetUserInfoRequest{
-		UserId:      &respbInsert.UserId,
+		UserId: &respbInsert.UserId,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	var nowDate = time.Now().Unix()
-	uIdEncoded, err := id.Hash.EncodedId(respbUser.User.Id)
-	if err != nil {
-		return nil, err
-	}
-	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, uIdEncoded)
+	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, respbUser.User.Id)
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.SigninResponse{
-		UserId:      uIdEncoded,
+		UserId:      respbUser.User.Id,
 		Username:    respbUser.User.Username,
 		AccessToken: token,
 		AvatarUrl:   respbUser.User.AvatarUrl,

@@ -3,7 +3,6 @@ package product
 import (
 	"context"
 
-	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
@@ -37,12 +36,8 @@ func (l *ProductListLogic) ProductList(req *types.ProductListRequest) (*types.Pr
 
 	var ps []types.ProductListItem
 	for i := 0; i < len(respb.Products); i++ {
-		idEncoded, err := l.svcCtx.Hash.EncodedId(respb.Products[i].Id)
-		if err != nil {
-			return nil, errors.Wrapf(err, "[ProductList] failed to encode product id : %d", respb.Products[i].Id)
-		}
 		ps = append(ps, types.ProductListItem{
-			Id:          idEncoded,
+			Id:          respb.Products[i].Id,
 			CoverUrl:    respb.Products[i].Coverurl,
 			Description: respb.Products[i].Description,
 			Price:       respb.Products[i].Price,

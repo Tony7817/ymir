@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 
-	"ymir.com/app/organizer/rpc/internal/config"
-	"ymir.com/app/organizer/rpc/internal/server"
-	"ymir.com/app/organizer/rpc/internal/svc"
-	"ymir.com/app/organizer/rpc/organizer"
+	"ymir.com/app/user/admin/internal/config"
+	"ymir.com/app/user/admin/internal/server"
+	"ymir.com/app/user/admin/internal/svc"
+	"ymir.com/app/user/admin/user"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-var configFile = flag.String("f", "etc/organizer.yaml", "the config file")
+var configFile = flag.String("f", "etc/useradmin.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -26,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		organizer.RegisterOrganizerServer(grpcServer, server.NewOrganizerServer(ctx))
+		user.RegisterUserServer(grpcServer, server.NewUserServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

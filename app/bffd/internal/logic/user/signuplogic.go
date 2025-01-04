@@ -58,7 +58,6 @@ func (l *SignupLogic) Signup(req *types.SignupRequest) (*types.SignupResponse, e
 		return nil, err
 	}
 
-	var userId int64
 	// sign up
 	respbWriteUser, err := l.svcCtx.UserRPC.WriteUserLocalInDB(l.ctx, &user.WriteUserLocalRequest{
 		Email:        req.Email,
@@ -69,13 +68,8 @@ func (l *SignupLogic) Signup(req *types.SignupRequest) (*types.SignupResponse, e
 	if err != nil {
 		return nil, err
 	}
-	userId = respbWriteUser.UserId
-	userIdEncoded, err := l.svcCtx.Hash.EncodedId(userId)
-	if err != nil {
-		return nil, err
-	}
 
 	return &types.SignupResponse{
-		UserId: userIdEncoded,
+		UserId: respbWriteUser.UserId,
 	}, nil
 }

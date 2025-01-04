@@ -38,6 +38,7 @@ const NotAuthorizedError uint32 = 201005
 const ErrorInvalidEmail uint32 = 201006
 const ErrorSignedupInGoogle uint32 = 201007
 const ErrorWrongPassword uint32 = 201008
+const UserNotExistedError uint32 = 201009
 
 //订单服务
 
