@@ -7,11 +7,11 @@ import (
 
 type Config struct {
 	rest.RestConf
-	OrganizerRPC zrpc.RpcClientConf
-	ProductRPC   zrpc.RpcClientConf
-	StarRPC      zrpc.RpcClientConf
-	UserRPC      zrpc.RpcClientConf
-	Auth         JwtAuth
+	ProductAdminRPC zrpc.RpcClientConf
+	ProductRPC      zrpc.RpcClientConf
+	StarAdminRPC    zrpc.RpcClientConf
+	UserAdminRPC    zrpc.RpcClientConf
+	Auth            JwtAuth
 }
 
 type JwtAuth struct {

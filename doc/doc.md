@@ -32,6 +32,8 @@
 - [ ] 鉴权重复代码移到middleware中
 - [ ] 给所有接口增加中间件，检查timestamp
 - [ ] 增加数量的时候前端做debonce，方式点击太快，后端增加amount参数。
+- [ ] 哪些接口可以设计为ETag, 是否需要？
+- [ ] decompose product list from star detail.
 
 # 架构
 ## 商品图片

@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
+	"ymir.com/app/product/model"
 	"ymir.com/app/product/rpc/internal/svc"
-	"ymir.com/app/product/rpc/model"
 	"ymir.com/app/product/rpc/product"
 
 	"github.com/zeromicro/go-zero/core/logx"

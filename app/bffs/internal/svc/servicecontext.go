@@ -5,25 +5,28 @@ import (
 	"github.com/zeromicro/go-zero/zrpc"
 	"ymir.com/app/bffs/internal/config"
 	"ymir.com/app/bffs/internal/middleware"
+	productadminclient "ymir.com/app/product/admin/productclient"
+	"ymir.com/app/product/rpc/productclient"
 	"ymir.com/app/star/admin/starclient"
 	useradminclient "ymir.com/app/user/admin/userclient"
-	"ymir.com/app/user/rpc/userclient"
 )
 
 type ServiceContext struct {
-	Config       config.Config
-	StarRPC      starclient.Star
-	UserAdminRPC useradminclient.User
-	UserRPC      userclient.User
-	Auth         rest.Middleware
+	Config          config.Config
+	StarAdminRPC    starclient.Star
+	UserAdminRPC    useradminclient.User
+	ProductAdminRPC productadminclient.Product
+	ProductRPC      productclient.Product
+	Auth            rest.Middleware
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config:       c,
-		StarRPC:      starclient.NewStar(zrpc.MustNewClient(c.StarRPC)),
-		UserAdminRPC: useradminclient.NewUser(zrpc.MustNewClient(c.UserRPC)),
-		UserRPC:      userclient.NewUser(zrpc.MustNewClient(c.UserRPC)),
-		Auth:         middleware.NewAuthMiddleware(c).Handle,
+		Config:          c,
+		StarAdminRPC:    starclient.NewStar(zrpc.MustNewClient(c.StarAdminRPC)),
+		UserAdminRPC:    useradminclient.NewUser(zrpc.MustNewClient(c.UserAdminRPC)),
+		ProductRPC:      productclient.NewProduct(zrpc.MustNewClient(c.ProductRPC)),
+		ProductAdminRPC: productadminclient.NewProduct(zrpc.MustNewClient(c.ProductAdminRPC)),
+		Auth:            middleware.NewAuthMiddleware(c).Handle,
 	}
 }

@@ -29,6 +29,7 @@ const (
 	User_DeleteCaptcha_FullMethodName            = "/user.user/DeleteCaptcha"
 	User_WriteUserLocalInDB_FullMethodName       = "/user.user/WriteUserLocalInDB"
 	User_WriteUserGoogleInDB_FullMethodName      = "/user.user/WriteUserGoogleInDB"
+	User_GetOssStsToken_FullMethodName           = "/user.user/GetOssStsToken"
 )
 
 // UserClient is the client API for User service.
@@ -45,6 +46,7 @@ type UserClient interface {
 	DeleteCaptcha(ctx context.Context, in *DeleteCaptchaRequest, opts ...grpc.CallOption) (*DeleteCaptchaResponse, error)
 	WriteUserLocalInDB(ctx context.Context, in *WriteUserLocalRequest, opts ...grpc.CallOption) (*WriteUserLocalResponse, error)
 	WriteUserGoogleInDB(ctx context.Context, in *WriteUserGoogleRequest, opts ...grpc.CallOption) (*WriteUserGoogleResponse, error)
+	GetOssStsToken(ctx context.Context, in *GetOssStsTokenRequest, opts ...grpc.CallOption) (*GetOssStsTokenResponse, error)
 }
 
 type userClient struct {
@@ -155,6 +157,16 @@ func (c *userClient) WriteUserGoogleInDB(ctx context.Context, in *WriteUserGoogl
 	return out, nil
 }
 
+func (c *userClient) GetOssStsToken(ctx context.Context, in *GetOssStsTokenRequest, opts ...grpc.CallOption) (*GetOssStsTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetOssStsTokenResponse)
+	err := c.cc.Invoke(ctx, User_GetOssStsToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility.
@@ -169,6 +181,7 @@ type UserServer interface {
 	DeleteCaptcha(context.Context, *DeleteCaptchaRequest) (*DeleteCaptchaResponse, error)
 	WriteUserLocalInDB(context.Context, *WriteUserLocalRequest) (*WriteUserLocalResponse, error)
 	WriteUserGoogleInDB(context.Context, *WriteUserGoogleRequest) (*WriteUserGoogleResponse, error)
+	GetOssStsToken(context.Context, *GetOssStsTokenRequest) (*GetOssStsTokenResponse, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -208,6 +221,9 @@ func (UnimplementedUserServer) WriteUserLocalInDB(context.Context, *WriteUserLoc
 }
 func (UnimplementedUserServer) WriteUserGoogleInDB(context.Context, *WriteUserGoogleRequest) (*WriteUserGoogleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WriteUserGoogleInDB not implemented")
+}
+func (UnimplementedUserServer) GetOssStsToken(context.Context, *GetOssStsTokenRequest) (*GetOssStsTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOssStsToken not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 func (UnimplementedUserServer) testEmbeddedByValue()              {}
@@ -410,6 +426,24 @@ func _User_WriteUserGoogleInDB_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetOssStsToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOssStsTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetOssStsToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetOssStsToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetOssStsToken(ctx, req.(*GetOssStsTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -456,6 +490,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "WriteUserGoogleInDB",
 			Handler:    _User_WriteUserGoogleInDB_Handler,
+		},
+		{
+			MethodName: "GetOssStsToken",
+			Handler:    _User_GetOssStsToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"ymir.com/app/product/rpc/internal/svc"
-	"ymir.com/app/product/rpc/model"
+	"ymir.com/app/product/model"
 	"ymir.com/app/product/rpc/product"
 	"ymir.com/pkg/cache"
 	"ymir.com/pkg/vars"

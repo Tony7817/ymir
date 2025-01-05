@@ -9,7 +9,6 @@ import (
 	"ymir.com/app/user/rpc/internal/common"
 	"ymir.com/app/user/rpc/internal/svc"
 	"ymir.com/app/user/rpc/user"
-	"ymir.com/pkg/id"
 	"ymir.com/pkg/util"
 	"ymir.com/pkg/vars"
 
@@ -54,7 +53,6 @@ func (l *SendCaptchaToPhonenumberLogic) SendCaptchaToPhonenumber(in *user.SendCa
 	}
 
 	var newCaptcha = model.Captcha{
-		Id:         id.SF.GenerateID(),
 		VerifyCode: code,
 		PhoneNumber: sql.NullString{
 			String: in.Phonenumber,

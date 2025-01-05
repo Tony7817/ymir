@@ -50,9 +50,9 @@ func (l *CartListLogic) CartList(req *types.ProductCartListRequest) (resp *types
 	)
 	for i := 0; i < len(respb.Products); i++ {
 		products = append(products, types.ProductCartListItem{
-			ProductId:   respb.Products[i].ProductId,
-			StarId:      respb.Products[i].StarId,
-			ColorId:     respb.Products[i].ColorId,
+			ProductId:   id.EncodeId(respb.Products[i].ProductId),
+			StarId:      id.EncodeId(respb.Products[i].StarId),
+			ColorId:     id.EncodeId(respb.Products[i].ColorId),
 			Description: respb.Products[i].Description,
 			Price:       respb.Products[i].Price,
 			Unit:        respb.Products[i].Unit,

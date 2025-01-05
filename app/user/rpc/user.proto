@@ -116,6 +116,16 @@ message DeleteCaptchaRequest {
 message DeleteCaptchaResponse {
 }
 
+message GetOssStsTokenRequest {
+  int64 UserId = 1;
+}
+
+message GetOssStsTokenResponse {
+  string AccessKeyId = 1;
+  string AccessKeySecret = 2;
+  string Expiration = 3;
+  string SecurityToken  = 4;
+}
 
 service user {
   rpc GetUserInfo(GetUserInfoRequest) returns (GetUserInfoResponse);
@@ -128,4 +138,5 @@ service user {
   rpc DeleteCaptcha(DeleteCaptchaRequest) returns (DeleteCaptchaResponse);
   rpc WriteUserLocalInDB(WriteUserLocalRequest) returns (WriteUserLocalResponse);
   rpc WriteUserGoogleInDB(WriteUserGoogleRequest) returns (WriteUserGoogleResponse);
+  rpc GetOssStsToken(GetOssStsTokenRequest) returns (GetOssStsTokenResponse);
 }

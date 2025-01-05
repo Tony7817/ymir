@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"google.golang.org/grpc/status"
 	"ymir.com/pkg/xerr"
@@ -36,5 +37,6 @@ func HttpResult(r *http.Request, w http.ResponseWriter, resp any, err error) {
 			}
 		}
 		httpx.WriteJson(w, http.StatusBadRequest, Error(errcode, errmsg))
+		logx.Errorf("[err]: %+v", err)
 	}
 }

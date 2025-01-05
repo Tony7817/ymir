@@ -30,18 +30,26 @@ func (l *AddProductToCartLogic) AddProductToCart(req *types.AddProductToCartRequ
 	if err != nil {
 		return nil, err
 	}
+	pId, err := id.DecodeId(req.ProductId)
+	if err != nil {
+		return nil, err
+	}
+	cId, err := id.DecodeId(req.ColorId)
+	if err != nil {
+		return nil, err
+	}
 
 	respb, err := l.svcCtx.ProductRPC.AddProductToCart(l.ctx, &product.AddProductToCartRequest{
-		ProductId: req.ProductId,
+		ProductId: pId,
 		UserId:    uIdDecoded,
 		Size:      req.Size,
-		ColorId:   req.ColorId,
+		ColorId:   cId,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.AddProductToCartResponse{
-		ProductCartId: respb.ProductCartId,
+		ProductCartId: id.EncodeId(respb.ProductCartId),
 	}, nil
 }

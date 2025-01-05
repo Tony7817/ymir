@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package admin;
+option go_package = "./product";
+
+message ProductCountRequest {
+    optional int64 StarId = 1;
+}
+
+message ProductCountResponse {
+    int64 Count = 1;
+}
+
+service Product {
+    rpc ProductCount(ProductCountRequest) returns (ProductCountResponse);
+}

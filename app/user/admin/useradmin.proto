@@ -10,6 +10,7 @@ message GetOrganizerRequest {
 
 message Organizer {
   int64 Id = 1;
+  string Name = 2;
   string Phonenumber = 3;
   int64 Role = 4;
 }

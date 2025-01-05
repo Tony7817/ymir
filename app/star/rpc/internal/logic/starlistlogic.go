@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 
+	"ymir.com/app/star/model"
 	"ymir.com/app/star/rpc/internal/svc"
-	"ymir.com/app/star/rpc/model"
 	"ymir.com/app/star/rpc/star"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -31,7 +31,7 @@ func (l *StarListLogic) StarList(in *star.StarListRequest) (*star.StarListRespon
 	}
 
 	var offset = (in.Page - 1) * in.PageSize
-	var stars []*model.Star
+	var stars []model.Star
 	var total int64
 	err := mr.Finish(func() error {
 		var err error

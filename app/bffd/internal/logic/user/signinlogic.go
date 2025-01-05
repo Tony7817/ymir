@@ -8,6 +8,7 @@ import (
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/user/model"
 	"ymir.com/app/user/rpc/user"
+	"ymir.com/pkg/id"
 	"ymir.com/pkg/util"
 	"ymir.com/pkg/xerr"
 
@@ -77,7 +78,7 @@ func (l *SigninLogic) Signin(req *types.SigninRequest) (resp *types.SigninRespon
 	}
 
 	return &types.SigninResponse{
-		UserId:      respb.User.Id,
+		UserId:      id.EncodeId(respb.User.Id),
 		Username:    respb.User.Username,
 		AccessToken: token,
 		AvatarUrl:   respb.User.AvatarUrl,

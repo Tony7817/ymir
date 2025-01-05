@@ -141,9 +141,10 @@ func GetCaptchaEmailTemplate(captcha string) string {
 }
 
 // context key
-type contextKey string
+type ContextKey string
 
-const RequestContextKey contextKey = "Request"
+const RequestContextKey ContextKey = "Request"
+
 const UserIdKey = "UserId"
 const OrganizerKey = "Organizer"
 

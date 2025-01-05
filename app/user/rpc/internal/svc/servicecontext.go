@@ -20,21 +20,27 @@ type ServiceContext struct {
 	Redis *redis.Redis
 
 	// aliyun
-	EmailClient *aliyun.ClientWrapper
+	AliyunEmailClient *aliyun.EmailClient
+	AliyunOssClient   *aliyun.OssClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	client, err := aliyun.NewClientWrapper()
+	emailClient, err := aliyun.NewClientWrapper()
+	if err != nil {
+		panic(err)
+	}
+	ossClient, err := aliyun.NewOssClient()
 	if err != nil {
 		panic(err)
 	}
 	return &ServiceContext{
-		Config:          c,
-		UserModel:       model.NewUserModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
-		CaptchaModel:    model.NewCaptchaModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
-		UserGoogleModel: model.NewUserGoogleModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
-		UserLocalModel:  model.NewUserLocalModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
-		Redis:           redis.New(c.BizRedis.Host, redis.WithPass(c.BizRedis.Pass)),
-		EmailClient:     client,
+		Config:            c,
+		UserModel:         model.NewUserModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
+		CaptchaModel:      model.NewCaptchaModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
+		UserGoogleModel:   model.NewUserGoogleModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
+		UserLocalModel:    model.NewUserLocalModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
+		Redis:             redis.New(c.BizRedis.Host, redis.WithPass(c.BizRedis.Pass)),
+		AliyunEmailClient: emailClient,
+		AliyunOssClient:   ossClient,
 	}
 }

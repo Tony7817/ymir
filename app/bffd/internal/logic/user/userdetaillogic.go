@@ -42,7 +42,7 @@ func (l *UserDetailLogic) UserDetail(req *types.UserDetailRequest) (*types.UserD
 	}
 
 	return &types.UserDetailResponse{
-		Id:          respb.User.Id,
+		Id:          id.EncodeId(respb.User.Id),
 		Phonenumber: &respb.User.Phonenumber,
 		Email:       &respb.User.Email,
 		Username:    respb.User.Username,

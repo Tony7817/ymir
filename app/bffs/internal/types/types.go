@@ -4,7 +4,7 @@
 package types
 
 type ProductListItem struct {
-	Id          int64   `json:"id"`
+	Id          string  `json:"id"`
 	CoverUrl    string  `json:"cover_url"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
@@ -22,17 +22,18 @@ type SigninRequest struct {
 }
 
 type SigninResponse struct {
-	UserId      int64  `json:"user_id"`
+	UserId      string `json:"user_id"`
+	Name        string `json:"name"`
 	Phonenumber string `json:"phonenumber"`
-	Token       string `json:"token"`
+	AccessToken string `json:"access_token"`
 }
 
 type StarDetailRequest struct {
-	Id int64 `path:"id"`
+	Id string `path:"id"`
 }
 
 type StarDetailResponse struct {
-	Id          int64               `json:"id"`
+	Id          string              `json:"id"`
 	Name        string              `json:"name"`
 	Description string              `json:"description"`
 	Rate        string              `json:"rate"`
@@ -44,9 +45,13 @@ type StarDetailResponse struct {
 }
 
 type StarListItem struct {
-	Id       int64  `json:"id"`
-	Name     string `json:"name"`
-	CoverUrl string `json:"cover_url"`
+	Id           string  `json:"id"`
+	Name         string  `json:"name"`
+	AvatarUrl    string  `json:"avatar_url"`
+	Description  string  `json:"description"`
+	ProductTotal int64   `json:"product_total"`
+	Rate         float64 `json:"rate"`
+	RateCount    int64   `json:"rate_count"`
 }
 
 type StarListRequest struct {

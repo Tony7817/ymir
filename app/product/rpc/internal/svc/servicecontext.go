@@ -5,8 +5,8 @@ import (
 
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"ymir.com/app/product/model"
 	"ymir.com/app/product/rpc/internal/config"
-	"ymir.com/app/product/rpc/model"
 )
 
 const localCacheExpire = time.Duration(time.Second * 60)

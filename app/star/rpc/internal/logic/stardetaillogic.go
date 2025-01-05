@@ -25,6 +25,7 @@ func NewStarDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *StarDe
 }
 
 func (l *StarDetailLogic) StarDetail(in *star.StarDetailRequest) (*star.StarDetailResponse, error) {
+	l.Logger.Infof("star id:%v", in.Id)
 	s, err := l.svcCtx.StarModel.FindOne(l.ctx, in.Id)
 	if err != nil {
 		return nil, errors.Wrapf(err, "[StarDetail] find star by id failed, err: %+v", err)

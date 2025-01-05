@@ -6,6 +6,7 @@ import (
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/star/rpc/star"
+	"ymir.com/pkg/id"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -37,7 +38,7 @@ func (l *RecommendStarListLogic) RecommendStarList(req *types.RecommendStarListR
 	var stars []types.RecommendStarListItem
 	for i := 0; i < len(starspb.Stars); i++ {
 		stars = append(stars, types.RecommendStarListItem{
-			StarId:     starspb.Stars[i].Id,
+			StarId:     id.EncodeId(starspb.Stars[i].Id),
 			StarAvatar: starspb.Stars[i].AvatarUrl,
 			StarName:   starspb.Stars[i].Name,
 		})

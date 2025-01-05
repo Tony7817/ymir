@@ -24,7 +24,19 @@ func NewStarDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *StarDe
 }
 
 func (l *StarDetailLogic) StarDetail(in *star.StarDetailRequest) (*star.StarDetailResponse, error) {
-	// todo: add your logic here and delete this line
+	s, err := l.svcCtx.StarModel.FindOne(l.ctx, in.Id)
+	if err != nil {
+		return nil, err
+	}
 
-	return &star.StarDetailResponse{}, nil
+	return &star.StarDetailResponse{
+		Id:          s.Id,
+		Name:        s.Name,
+		Description: s.Description.String,
+		CoverUrl:    s.CoverUrl,
+		AvatarUrl:   s.AvatarUrl,
+		PosterUrl:   s.PosterUrl,
+		Rate:        s.Rate.Float64,
+		RateCount:   s.RateCount,
+	}, nil
 }

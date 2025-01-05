@@ -8,6 +8,7 @@ import (
 	"ymir.com/app/product/rpc/product"
 	"ymir.com/app/star/rpc/star"
 	"ymir.com/app/user/rpc/user"
+	"ymir.com/pkg/id"
 
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -36,14 +37,18 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		pcmt     *product.ProductCommentListResponse
 		pcmtSize int64 = 10
 	)
+	pId, err := id.DecodeId(req.Id)
+	if err != nil {
+		return nil, err
+	}
 
 	// find product basic info by pId
 	// find product color list by pId
 	// find product comments by pId
-	err := mr.Finish(func() error {
+	err = mr.Finish(func() error {
 		var err error
 		p, err = l.svcCtx.ProductRPC.ProductDetail(l.ctx, &product.ProductDetailReqeust{
-			Id: req.Id,
+			Id: pId,
 		})
 		if err != nil {
 			return errors.Wrapf(err, "[ProductDetail] failed to get product detail")
@@ -52,7 +57,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 	}, func() error {
 		var err error
 		cl, err = l.svcCtx.ProductRPC.ProductColorList(l.ctx, &product.ProductColorListRequest{
-			ProductId: req.Id,
+			ProductId: pId,
 		})
 		if err != nil {
 			return errors.Wrap(err, "[ProductDetail] failed to get product color list")
@@ -61,7 +66,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 	}, func() error {
 		var err error
 		pcmt, err = l.svcCtx.ProductRPC.ProductCommentList(l.ctx, &product.ProductCommentListRequest{
-			ProductId: req.Id,
+			ProductId: pId,
 			Page:      1,
 			PageSize:  pcmtSize,
 		})
@@ -122,7 +127,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		}
 	}, func(size string, writer mr.Writer[*types.ProductSize], cancel func(error)) {
 		stock, err := l.svcCtx.ProductRPC.ProductStock(l.ctx, &product.ProductStockRequest{
-			ProductId: req.Id,
+			ProductId: pId,
 			ColorId:   pcolor.Id,
 			Size:      size,
 		})
@@ -147,7 +152,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 	}
 
 	var color = types.ProductColor{
-		Id:            p.Id,
+		Id:            id.EncodeId(p.Id),
 		ColorName:     pcolor.Color,
 		Images:        pcolor.Images,
 		Detail_Images: pcolor.DetailImages,
@@ -159,7 +164,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 	var clres = make([]types.ProductColorListItem, len(cl.Colors))
 	for i := 0; i < len(cl.Colors); i++ {
 		clres[i] = types.ProductColorListItem{
-			ColorId:  cl.Colors[i].ColorId,
+			ColorId:  id.EncodeId(cl.Colors[i].ColorId),
 			CoverUrl: cl.Colors[i].CoverUrl,
 		}
 	}
@@ -170,7 +175,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 	}
 
 	var res = &types.ProductDetailResponse{
-		Id:          p.Id,
+		Id:          id.EncodeId(p.Id),
 		Description: p.Description,
 		Rate:        p.Rate,
 		RateCount:   p.ReteCount,
@@ -180,7 +185,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		Detail:      &p.Detail,
 		StarAvatar:  s.AvatarUrl,
 		StarName:    s.Name,
-		StarId:      s.Id,
+		StarId:      id.EncodeId(s.Id),
 		StarRate:    s.Rate,
 		Comments:    pcmtRes,
 	}
@@ -202,7 +207,7 @@ func (l *ProductDetailLogic) buildProductCommentUserInfo(pcmts []*product.Produc
 			return
 		}
 		writer.Write(types.ProductComment{
-			Id:          pcmt.Id,
+			Id:          id.EncodeId(pcmt.Id),
 			UserName:    user.User.Username,
 			UserAvatar:  user.User.AvatarUrl,
 			Rate:        pcmt.Rate,

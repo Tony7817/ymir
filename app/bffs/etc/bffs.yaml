@@ -2,18 +2,30 @@ Name: bffs
 Host: 0.0.0.0
 Port: 8889
 
-StarRPC:
+StarAdminRPC:
   Etcd:
     Hosts:
       - 127.0.0.1:2379
     Key: ymir.star.admin.rpc
 
-UserRPC:
+UserAdminRPC:
   Etcd:
     Hosts:
       - 127.0.0.1:2379
     Key: ymir.user.admin.rpc
 
+ProductRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: ymir.product.rpc
+
+ProductAdminRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: ymir.product.admin.rpc
+  
 Auth:
   AccessSecret: 8812e30a-1327-441c-81f5-a66d6dbabbab
   AccessExpire: 604800

@@ -30,10 +30,15 @@ func (l *RemoveProductFromCartLogic) RemoveProductFromCart(req *types.RemoveProd
 	if err != nil {
 		return nil, err
 	}
+	pId, err := id.DecodeId(req.ProductId)
+	if err != nil {
+		return nil, err
+	}
+	cId, err := id.DecodeId(req.ColorId)
 	_, err = l.svcCtx.ProductRPC.RemoveProductFromCart(l.ctx, &product.RemoveProductFromCartRequest{
-		ProductId: req.ProductId,
+		ProductId: pId,
 		UserId:    uIdDecoded,
-		ColorId:   req.ColorId,
+		ColorId:   cId,
 	})
 	if err != nil {
 		return nil, err

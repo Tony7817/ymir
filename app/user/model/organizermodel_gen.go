@@ -32,7 +32,7 @@ type (
 	organizerModel interface {
 		Insert(ctx context.Context, data *Organizer) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*Organizer, error)
-		FindOneByPhoneNumber(ctx context.Context, phoneNumber sql.NullString) (*Organizer, error)
+		FindOneByPhoneNumber(ctx context.Context, phoneNumber string) (*Organizer, error)
 		Update(ctx context.Context, data *Organizer) error
 		Delete(ctx context.Context, id int64) error
 	}
@@ -43,11 +43,12 @@ type (
 	}
 
 	Organizer struct {
-		Id          int64          `db:"id"`
-		CreatedAt   time.Time      `db:"created_at"`
-		UpdatedAt   time.Time      `db:"updated_at"`
-		PhoneNumber sql.NullString `db:"phone_number"`
-		Role        int64          `db:"role"`
+		Id          int64     `db:"id"`
+		CreatedAt   time.Time `db:"created_at"`
+		UpdatedAt   time.Time `db:"updated_at"`
+		Name        string    `db:"name"`
+		PhoneNumber string    `db:"phone_number"`
+		Role        int64     `db:"role"`
 	}
 )
 
@@ -90,7 +91,7 @@ func (m *defaultOrganizerModel) FindOne(ctx context.Context, id int64) (*Organiz
 	}
 }
 
-func (m *defaultOrganizerModel) FindOneByPhoneNumber(ctx context.Context, phoneNumber sql.NullString) (*Organizer, error) {
+func (m *defaultOrganizerModel) FindOneByPhoneNumber(ctx context.Context, phoneNumber string) (*Organizer, error) {
 	ymirOrganizerPhoneNumberKey := fmt.Sprintf("%s%v", cacheYmirOrganizerPhoneNumberPrefix, phoneNumber)
 	var resp Organizer
 	err := m.QueryRowIndexCtx(ctx, &resp, ymirOrganizerPhoneNumberKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
@@ -114,8 +115,8 @@ func (m *defaultOrganizerModel) Insert(ctx context.Context, data *Organizer) (sq
 	ymirOrganizerIdKey := fmt.Sprintf("%s%v", cacheYmirOrganizerIdPrefix, data.Id)
 	ymirOrganizerPhoneNumberKey := fmt.Sprintf("%s%v", cacheYmirOrganizerPhoneNumberPrefix, data.PhoneNumber)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.table, organizerRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Id, data.PhoneNumber, data.Role)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, organizerRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.Name, data.PhoneNumber, data.Role)
 	}, ymirOrganizerIdKey, ymirOrganizerPhoneNumberKey)
 	return ret, err
 }
@@ -130,7 +131,7 @@ func (m *defaultOrganizerModel) Update(ctx context.Context, newData *Organizer) 
 	ymirOrganizerPhoneNumberKey := fmt.Sprintf("%s%v", cacheYmirOrganizerPhoneNumberPrefix, data.PhoneNumber)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, organizerRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.PhoneNumber, newData.Role, newData.Id)
+		return conn.ExecCtx(ctx, query, newData.Name, newData.PhoneNumber, newData.Role, newData.Id)
 	}, ymirOrganizerIdKey, ymirOrganizerPhoneNumberKey)
 	return err
 }

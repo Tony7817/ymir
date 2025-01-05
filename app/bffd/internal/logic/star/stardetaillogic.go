@@ -7,6 +7,7 @@ import (
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/product/rpc/product"
 	"ymir.com/app/star/rpc/star"
+	"ymir.com/pkg/id"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
@@ -31,12 +32,16 @@ func (l *StarDetailLogic) StarDetail(req *types.StarDetailRequest) (*types.StarD
 		products   *product.ProductListResponse
 		starDetail *star.StarDetailResponse
 	)
+	sId, err := id.DecodeId(req.Id)
+	if err != nil {
+		return nil, err
+	}
 
-	err := mr.Finish(
+	err = mr.Finish(
 		func() error {
 			var err error
 			if products, err = l.svcCtx.ProductRPC.ProductList(l.ctx, &product.ProductListRequest{
-				StarId:   &req.Id,
+				StarId:   &sId,
 				Keyword:  nil,
 				Page:     1,
 				PageSize: 20,
@@ -48,7 +53,7 @@ func (l *StarDetailLogic) StarDetail(req *types.StarDetailRequest) (*types.StarD
 		func() error {
 			var err error
 			if starDetail, err = l.svcCtx.StarRPC.StarDetail(l.ctx, &star.StarDetailRequest{
-				Id: req.Id,
+				Id: sId,
 			}); err != nil {
 				return err
 			}
@@ -62,7 +67,7 @@ func (l *StarDetailLogic) StarDetail(req *types.StarDetailRequest) (*types.StarD
 	var ps []types.ProductListItem
 	for i := 0; i < len(products.Products); i++ {
 		ps = append(ps, types.ProductListItem{
-			Id:          products.Products[i].Id,
+			Id:          id.EncodeId(products.Products[i].Id),
 			CoverUrl:    products.Products[i].Coverurl,
 			Description: products.Products[i].Description,
 			Price:       products.Products[i].Price,
@@ -71,7 +76,7 @@ func (l *StarDetailLogic) StarDetail(req *types.StarDetailRequest) (*types.StarD
 	}
 
 	var res = &types.StarDetailResponse{
-		Id:          starDetail.Id,
+		Id:          id.EncodeId(starDetail.Id),
 		Name:        starDetail.Name,
 		Description: starDetail.Description,
 		CoverUrl:    starDetail.CoverUrl,

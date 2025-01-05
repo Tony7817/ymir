@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 
+	"ymir.com/app/product/model"
 	"ymir.com/app/product/rpc/internal/svc"
-	"ymir.com/app/product/rpc/model"
 	"ymir.com/app/product/rpc/product"
 
 	"github.com/pkg/errors"

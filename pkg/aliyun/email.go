@@ -3,18 +3,19 @@ package aliyun
 import (
 	"os"
 
+	"ymir.com/pkg/vars"
+
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	dm "github.com/alibabacloud-go/dm-20151123/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/pkg/errors"
-	"ymir.com/pkg/vars"
 )
 
-type ClientWrapper struct {
-	Client *dm.Client
+type EmailClient struct {
+	Email *dm.Client
 }
 
-func NewClientWrapper() (clientWrapper *ClientWrapper, err error) {
+func NewClientWrapper() (clientWrapper *EmailClient, err error) {
 	// 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。以下代码示例仅供参考。
 	// 建议使用更安全的 STS 方式，更多鉴权访问方式请参见：https://help.aliyun.com/document_detail/378661.html。
 	config := &openapi.Config{
@@ -25,14 +26,17 @@ func NewClientWrapper() (clientWrapper *ClientWrapper, err error) {
 	}
 	// Endpoint 请参考 https://api.aliyun.com/product/Dm
 	config.Endpoint = tea.String("dm.us-east-1.aliyuncs.com")
-	client, err := dm.NewClient(config)
-	return &ClientWrapper{
-		Client: client,
+	email, err := dm.NewClient(config)
+	if err != nil {
+		return nil, err
+	}
+	return &EmailClient{
+		Email: email,
 	}, err
 }
 
-func (c *ClientWrapper) SendNoReplyEmail(destination string, subject string, htmlBody string) (err error) {
-	resp, err := c.Client.SingleSendMail(&dm.SingleSendMailRequest{
+func (c *EmailClient) SendNoReplyEmail(destination string, subject string, htmlBody string) (err error) {
+	resp, err := c.Email.SingleSendMail(&dm.SingleSendMailRequest{
 		AccountName:    tea.String(vars.EmailNoReplySenderName),
 		AddressType:    tea.Int32(1),
 		ReplyToAddress: tea.Bool(false),

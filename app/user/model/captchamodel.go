@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"ymir.com/pkg/id"
 	"ymir.com/pkg/vars"
 
 	"github.com/pkg/errors"
@@ -23,12 +24,13 @@ type (
 		FindOneNoCache(ctx context.Context, id int64) (*Captcha, error)
 		FindCaptchaByEmail(email string) (*Captcha, error)
 		FindCaptchaByPhonenumber(phonenumber string) (*Captcha, error)
-		InsertCaptchaToDbAndCache(captcha Captcha) (sql.Result, error)
+		InsertCaptchaToDbAndCache(captcha Captcha) (int64, error)
 		SoftDelete(id int64, key string) (sql.Result, error)
 	}
 
 	customCaptchaModel struct {
 		*defaultCaptchaModel
+		sf *id.Snowflake
 	}
 )
 
@@ -36,6 +38,7 @@ type (
 func NewCaptchaModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) CaptchaModel {
 	return &customCaptchaModel{
 		defaultCaptchaModel: newCaptchaModel(conn, c, opts...),
+		sf:                  id.NewSnowFlake(),
 	}
 }
 
@@ -109,17 +112,19 @@ func (m *customCaptchaModel) FindCaptchaByPhonenumber(phonenumber string) (*Capt
 	return &captcha, nil
 }
 
-func (m *customCaptchaModel) InsertCaptchaToDbAndCache(captcha Captcha) (sql.Result, error) {
+func (m *customCaptchaModel) InsertCaptchaToDbAndCache(captcha Captcha) (int64, error) {
 	var cacheKey string
 	if captcha.Email.Valid {
 		cacheKey = vars.GetCaptchaEmailCacheKey(captcha.Email.String)
 	} else {
 		cacheKey = vars.GetCaptchaPhonenumberCacheKey(captcha.PhoneNumber.String)
 	}
+	var id = m.sf.GenerateID()
+	captcha.Id = id
 
-	ret, err := m.Insert(context.Background(), &captcha)
+	_, err := m.Insert(context.Background(), &captcha)
 	if err != nil {
-		return nil, errors.Wrapf(err, "[InsertCaptchaToDbAndCache] insert captcha to db failed, catpcha:%+v", captcha)
+		return 0, errors.Wrapf(err, "[InsertCaptchaToDbAndCache] insert captcha to db failed, catpcha:%+v", captcha)
 	}
 
 	threading.GoSafe(func() {
@@ -128,7 +133,7 @@ func (m *customCaptchaModel) InsertCaptchaToDbAndCache(captcha Captcha) (sql.Res
 		}
 	})
 
-	return ret, nil
+	return id, nil
 }
 
 func (m *customCaptchaModel) FindOneNoCache(ctx context.Context, id int64) (*Captcha, error) {

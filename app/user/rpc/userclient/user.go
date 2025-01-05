@@ -19,6 +19,8 @@ type (
 	GetCaptchaByEmailRequest         = user.GetCaptchaByEmailRequest
 	GetCaptchaByPhonenumberRequest   = user.GetCaptchaByPhonenumberRequest
 	GetCaptchaResponse               = user.GetCaptchaResponse
+	GetOssStsTokenRequest            = user.GetOssStsTokenRequest
+	GetOssStsTokenResponse           = user.GetOssStsTokenResponse
 	GetUserGoogleRequest             = user.GetUserGoogleRequest
 	GetUserGoogleResponse            = user.GetUserGoogleResponse
 	GetUserInfoRequest               = user.GetUserInfoRequest
@@ -48,6 +50,7 @@ type (
 		DeleteCaptcha(ctx context.Context, in *DeleteCaptchaRequest, opts ...grpc.CallOption) (*DeleteCaptchaResponse, error)
 		WriteUserLocalInDB(ctx context.Context, in *WriteUserLocalRequest, opts ...grpc.CallOption) (*WriteUserLocalResponse, error)
 		WriteUserGoogleInDB(ctx context.Context, in *WriteUserGoogleRequest, opts ...grpc.CallOption) (*WriteUserGoogleResponse, error)
+		GetOssStsToken(ctx context.Context, in *GetOssStsTokenRequest, opts ...grpc.CallOption) (*GetOssStsTokenResponse, error)
 	}
 
 	defaultUser struct {
@@ -109,4 +112,9 @@ func (m *defaultUser) WriteUserLocalInDB(ctx context.Context, in *WriteUserLocal
 func (m *defaultUser) WriteUserGoogleInDB(ctx context.Context, in *WriteUserGoogleRequest, opts ...grpc.CallOption) (*WriteUserGoogleResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.WriteUserGoogleInDB(ctx, in, opts...)
+}
+
+func (m *defaultUser) GetOssStsToken(ctx context.Context, in *GetOssStsTokenRequest, opts ...grpc.CallOption) (*GetOssStsTokenResponse, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.GetOssStsToken(ctx, in, opts...)
 }

@@ -21,6 +21,7 @@ type (
 
 	customUserModel struct {
 		*defaultUserModel
+		sf *id.Snowflake
 	}
 )
 
@@ -28,28 +29,26 @@ type (
 func NewUserModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) UserModel {
 	return &customUserModel{
 		defaultUserModel: newUserModel(conn, c, opts...),
+		sf:               id.NewSnowFlake(),
 	}
 }
 
 func (m *customUserModel) InsertIntoUserAndUserGoogle(ctx context.Context, user *User, userGoogle *UserGoogle) (int64, error) {
 	var userId int64
 	err := m.CachedConn.TransactCtx(ctx, func(ctx context.Context, s sqlx.Session) error {
-		ret, err := s.ExecCtx(ctx, "insert into `user` (id, username, email, phone_number, avatar_url, type) values (?,?,?,?,?,?)", id.SF.GenerateID(), user.Username, user.Email, user.PhoneNumber, user.AvatarUrl, UserTypeGoogle)
+		var uId = m.sf.GenerateID()
+		_, err := s.ExecCtx(ctx, "insert into `user` (id, username, email, phone_number, avatar_url, type) values (?,?,?,?,?,?)", uId, user.Username, user.Email, user.PhoneNumber, user.AvatarUrl, UserTypeGoogle)
 		if err != nil {
 			return err
 		}
 
-		lastInsertId, err := ret.LastInsertId()
+		var ugId = m.sf.GenerateID()
+		_, err = s.ExecCtx(ctx, "insert into user_google (id, user_id, google_user_id) values (?,?,?)", ugId, uId, userGoogle.GoogleUserId)
 		if err != nil {
 			return err
 		}
 
-		_, err = s.ExecCtx(ctx, "insert into user_google (id, user_id, google_user_id) values (?,?,?)", id.SF.GenerateID(), lastInsertId, userGoogle.GoogleUserId)
-		if err != nil {
-			return err
-		}
-
-		userId = lastInsertId
+		userId = uId
 
 		return nil
 	})
@@ -63,22 +62,18 @@ func (m *customUserModel) InsertIntoUserAndUserGoogle(ctx context.Context, user 
 func (m *customUserModel) InsertIntoUserAndUserLocal(ctx context.Context, user *User, userLocal *UserLocal) (int64, error) {
 	var userId int64
 	err := m.CachedConn.TransactCtx(ctx, func(ctx context.Context, s sqlx.Session) error {
-		ret, err := s.ExecCtx(ctx, "insert into `user` (id, username, email, phone_number, avatar_url, type) values (?,?,?,?,?,?)", id.SF.GenerateID(), user.Username, user.Email, user.PhoneNumber, user.AvatarUrl, UserTypeLocal)
+		var uId = m.sf.GenerateID()
+	_, err := s.ExecCtx(ctx, "insert into `user` (id, username, email, phone_number, avatar_url, type) values (?,?,?,?,?,?)", uId, user.Username, user.Email, user.PhoneNumber, user.AvatarUrl, UserTypeLocal)
 		if err != nil {
 			return err
 		}
 
-		lastInsertId, err := ret.LastInsertId()
+		_, err = s.ExecCtx(ctx, "insert into user_local (id, user_id, password_hash, is_activated) values (?,?,?,?)", m.sf.GenerateID(), uId, userLocal.PasswordHash, userLocal.IsActivated)
 		if err != nil {
 			return err
 		}
 
-		_, err = s.ExecCtx(ctx, "insert into user_local (id, user_id, password_hash, is_activated) values (?,?,?,?)", id.SF.GenerateID(), lastInsertId, userLocal.PasswordHash, userLocal.IsActivated)
-		if err != nil {
-			return err
-		}
-
-		userId = lastInsertId
+		userId = uId
 		return nil
 	})
 	if err != nil {

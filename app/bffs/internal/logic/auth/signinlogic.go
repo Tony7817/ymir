@@ -7,6 +7,7 @@ import (
 	"ymir.com/app/bffs/internal/svc"
 	"ymir.com/app/bffs/internal/types"
 	useradmin "ymir.com/app/user/admin/user"
+	"ymir.com/pkg/id"
 	"ymir.com/pkg/util"
 	"ymir.com/pkg/xerr"
 
@@ -52,8 +53,9 @@ func (l *SigninLogic) Signin(req *types.SigninRequest) (*types.SigninResponse, e
 	}
 
 	return &types.SigninResponse{
-		UserId:      respbOrg.Organizer.Id,
+		UserId:      id.EncodeId(respbOrg.Organizer.Id),
+		Name:        respbOrg.Organizer.Name,
 		Phonenumber: respbOrg.Organizer.Phonenumber,
-		Token:       token,
+		AccessToken: token,
 	}, nil
 }

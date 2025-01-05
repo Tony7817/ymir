@@ -72,3 +72,8 @@ func (s *UserServer) WriteUserGoogleInDB(ctx context.Context, in *user.WriteUser
 	l := logic.NewWriteUserGoogleInDBLogic(ctx, s.svcCtx)
 	return l.WriteUserGoogleInDB(in)
 }
+
+func (s *UserServer) GetOssStsToken(ctx context.Context, in *user.GetOssStsTokenRequest) (*user.GetOssStsTokenResponse, error) {
+	l := logic.NewGetOssStsTokenLogic(ctx, s.svcCtx)
+	return l.GetOssStsToken(in)
+}

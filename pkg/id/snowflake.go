@@ -25,11 +25,8 @@ const (
 	machineIDShift = sequenceBits
 )
 
-var (
-	SF *Snowflake
-)
 
-func init() {
+func NewSnowFlake() *Snowflake {
 	var marchineIdRaw = os.Getenv("MACHINE_ID")
 	if marchineIdRaw == "" {
 		panic("MACHINE_ID is not set")
@@ -38,12 +35,13 @@ func init() {
 	if err != nil {
 		panic("MACHINE_ID is not a number")
 	}
-	SF = &Snowflake{
+	return &Snowflake{
 		machineID: mId,
 		lastTime:  0,
 		sequence:  0,
 	}
 }
+
 
 type Snowflake struct {
 	machineID int64

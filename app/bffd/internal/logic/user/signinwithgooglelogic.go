@@ -8,6 +8,7 @@ import (
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/user/rpc/user"
 	"ymir.com/pkg/google"
+	"ymir.com/pkg/id"
 	"ymir.com/pkg/util"
 	"ymir.com/pkg/xerr"
 
@@ -66,7 +67,7 @@ func (l *SigninWithGoogleLogic) Signin(ugoogle *user.UserGoogleInfo) (resp *type
 	}
 
 	return &types.SigninResponse{
-		UserId:      ugoogle.Id,
+		UserId:      id.EncodeId(ugoogle.Id),
 		Username:    respb.User.Username,
 		AccessToken: token,
 		AvatarUrl:   respb.User.AvatarUrl,
@@ -98,7 +99,7 @@ func (l *SigninWithGoogleLogic) SignupAndSignin(usr *google.User) (resp *types.S
 	}
 
 	return &types.SigninResponse{
-		UserId:      respbUser.User.Id,
+		UserId:      id.EncodeId(respbUser.User.Id),
 		Username:    respbUser.User.Username,
 		AccessToken: token,
 		AvatarUrl:   respbUser.User.AvatarUrl,

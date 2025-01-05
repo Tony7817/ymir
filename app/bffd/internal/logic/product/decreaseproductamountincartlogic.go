@@ -31,8 +31,12 @@ func (l *DecreaseProductAmountInCartLogic) DecreaseProductAmountInCart(req *type
 		return nil, err
 	}
 
+	pId, err := id.DecodeId(req.ProductId)
+	if err != nil {
+		return nil, err
+	}
 	_, err = l.svcCtx.ProductRPC.DecreaseProductAmountInCart(l.ctx, &product.DecreaseProductAmountInCartRequest{
-		ProductId: req.ProductId,
+		ProductId: pId,
 		UserId:    uIdDecoded,
 		Color:     req.Color,
 	})

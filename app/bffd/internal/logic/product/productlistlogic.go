@@ -7,6 +7,7 @@ import (
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/product/rpc/product"
+	"ymir.com/pkg/id"
 )
 
 type ProductListLogic struct {
@@ -37,7 +38,7 @@ func (l *ProductListLogic) ProductList(req *types.ProductListRequest) (*types.Pr
 	var ps []types.ProductListItem
 	for i := 0; i < len(respb.Products); i++ {
 		ps = append(ps, types.ProductListItem{
-			Id:          respb.Products[i].Id,
+			Id:          id.EncodeId(respb.Products[i].Id),
 			CoverUrl:    respb.Products[i].Coverurl,
 			Description: respb.Products[i].Description,
 			Price:       respb.Products[i].Price,

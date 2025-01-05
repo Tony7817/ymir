@@ -14,7 +14,7 @@ type (
 	// and implement the added methods in customStarModel.
 	StarModel interface {
 		starModel
-		FindStarList(ctx context.Context, offset, limit int64) ([]*Star, error)
+		FindStarList(ctx context.Context, offset, limit int64) ([]Star, error)
 		CountStarTotal(ctx context.Context) (int64, error)
 	}
 
@@ -30,9 +30,12 @@ func NewStarModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) St
 	}
 }
 
-func (m *customStarModel) FindStarList(ctx context.Context, offset, limit int64) ([]*Star, error) {
-	var stars []*Star
-	err := m.QueryRowsNoCacheCtx(ctx, &stars, "SELECT * FROM `star` LIMIT ?,?", offset, limit)
+func (m *customStarModel) FindStarList(ctx context.Context, offset, limit int64) ([]Star, error) {
+	if limit > 20 {
+		limit = 20
+	}
+	var stars []Star
+	err := m.QueryRowsNoCacheCtx(ctx, &stars, "select * from `star` limit ?,?", offset, limit)
 	if err != nil {
 		return nil, err
 	}

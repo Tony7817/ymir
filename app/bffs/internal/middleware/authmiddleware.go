@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"ymir.com/app/bffs/internal/config"
@@ -21,14 +22,15 @@ type OrganizerKey string
 
 func NewAuthMiddleware(c config.Config) *AuthMiddleware {
 	return &AuthMiddleware{
-		UserRPC: userclient.NewUser(zrpc.MustNewClient(c.UserRPC)),
+		UserRPC: userclient.NewUser(zrpc.MustNewClient(c.UserAdminRPC)),
 	}
 }
 
 func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		uId, ok := r.Context().Value(vars.UserIdKey).(int64)
-		if !ok {
+		uId, err := r.Context().Value(vars.UserIdKey).(json.Number).Int64()
+		if err != nil {
+			logx.Errorf("[AuthMiddleware] parse user id failed: %+v", err)
 			http.Error(w, "Not Authorized", http.StatusUnauthorized)
 			return
 		}
@@ -41,7 +43,7 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
-		const key OrganizerKey = vars.OrganizerKey
+		const key vars.ContextKey = vars.OrganizerKey
 		var ctx = context.WithValue(r.Context(), key, respb.Organizer)
 		r = r.WithContext(ctx)
 

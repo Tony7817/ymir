@@ -6,6 +6,12 @@ import (
 	"time"
 )
 
+var SF *Snowflake
+
+func init() {
+	SF = NewSnowFlake()
+}
+
 func TestSnowFlake(t *testing.T) {
 	id := SF.GenerateID()
 	t.Log(id)

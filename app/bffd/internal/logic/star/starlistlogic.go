@@ -6,6 +6,7 @@ import (
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/star/rpc/star"
+	"ymir.com/pkg/id"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -37,7 +38,7 @@ func (l *StarListLogic) StarList(req *types.StarListRequest) (resp *types.StarLi
 	var stars []types.StarListItem
 	for i := 0; i < len(starspb.Stars); i++ {
 		stars = append(stars, types.StarListItem{
-			Id:       starspb.Stars[i].Id,
+			Id:       id.EncodeId(starspb.Stars[i].Id),
 			Name:     starspb.Stars[i].Name,
 			CoverUrl: starspb.Stars[i].CoverUrl,
 		})

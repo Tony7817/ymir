@@ -33,10 +33,7 @@ func (l *GetOrganizerLogic) GetOrganizer(in *user.GetOrganizerRequest) (*user.Ge
 		err error
 	)
 	if in.Phonenumber != nil {
-		o, err = l.svcCtx.OrganizerModel.FindOneByPhoneNumber(l.ctx, sql.NullString{
-			String: *in.Phonenumber,
-			Valid:  true,
-		})
+		o, err = l.svcCtx.OrganizerModel.FindOneByPhoneNumber(l.ctx, *in.Phonenumber)
 	} else if in.UserId != nil {
 		o, err = l.svcCtx.OrganizerModel.FindOne(l.ctx, *in.UserId)
 	} else {
@@ -54,7 +51,8 @@ func (l *GetOrganizerLogic) GetOrganizer(in *user.GetOrganizerRequest) (*user.Ge
 	return &user.GetOrganizerResponse{
 		Organizer: &user.Organizer{
 			Id:          o.Id,
-			Phonenumber: o.PhoneNumber.String,
+			Name:        o.Name,
+			Phonenumber: o.PhoneNumber,
 			Role:        o.Role,
 		},
 	}, nil

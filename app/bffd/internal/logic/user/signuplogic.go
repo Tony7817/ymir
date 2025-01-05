@@ -6,6 +6,7 @@ import (
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/user/rpc/user"
+	"ymir.com/pkg/id"
 	"ymir.com/pkg/util"
 	"ymir.com/pkg/xerr"
 
@@ -70,6 +71,6 @@ func (l *SignupLogic) Signup(req *types.SignupRequest) (*types.SignupResponse, e
 	}
 
 	return &types.SignupResponse{
-		UserId: respbWriteUser.UserId,
+		UserId: id.EncodeId(respbWriteUser.UserId),
 	}, nil
 }

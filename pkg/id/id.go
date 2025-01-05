@@ -2,7 +2,10 @@ package id
 
 import (
 	"context"
+	"encoding/json"
+	"strconv"
 
+	"github.com/pkg/errors"
 	"ymir.com/pkg/vars"
 	"ymir.com/pkg/xerr"
 )
@@ -46,10 +49,22 @@ import (
 // }
 
 func GetDecodedUserId(ctx context.Context) (int64, error) {
-	userId, ok := ctx.Value(vars.UserIdKey).(int64)
-	if !ok {
-		return -1, xerr.NewErrCode(xerr.UnauthorizedError)
+	userId, err := ctx.Value(vars.UserIdKey).(json.Number).Int64()
+	if err != nil {
+		return -1, errors.Wrap(xerr.NewErrCode(xerr.UnauthorizedError), "empty id")
 	}
 
 	return userId, nil
+}
+
+func EncodeId(id int64) string {
+	return strconv.FormatInt(id, 10)
+}
+
+func DecodeId(id string) (int64, error) {
+	res, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return 0, xerr.NewErrCode(xerr.ReuqestParamError)
+	}
+	return res, nil
 }
