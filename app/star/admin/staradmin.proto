@@ -38,7 +38,34 @@ message StarDetailResponse {
   int64 RateCount = 8;
 }
 
+message UpdateStarReqeust {
+    int64 Id = 1;
+    optional string Name = 2;
+    optional string Description = 3;
+    optional string CoverUrl = 4;
+    optional string AvatarUrl = 5;
+    optional string PosterUrl = 6;
+}
+
+message UpdateStarResponse {
+    int64 Id = 1;
+}
+
+message CreateStarRequest {
+    string Name = 1;
+    optional string Description = 2;
+    string CoverUrl = 3;
+    string AvatarUrl = 4;
+    string PosterUrl = 5;
+}
+
+message CreateStarResponse {
+    int64 Id = 1;
+}
+
 service Star {
     rpc StarList(StarListRequest) returns (StarListResponse);
     rpc StarDetail(StarDetailRequest) returns (StarDetailResponse);
+    rpc UpdateStar(UpdateStarReqeust) returns (UpdateStarResponse);
+    rpc CreateStar(CreateStarRequest) returns (CreateStarResponse);
 }

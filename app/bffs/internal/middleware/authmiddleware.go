@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
 	"ymir.com/app/bffs/internal/config"
 	"ymir.com/app/user/admin/user"
 	"ymir.com/app/user/admin/userclient"
+	"ymir.com/pkg/id"
 	"ymir.com/pkg/vars"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -28,10 +28,10 @@ func NewAuthMiddleware(c config.Config) *AuthMiddleware {
 
 func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		uId, err := r.Context().Value(vars.UserIdKey).(json.Number).Int64()
+		uId, err := id.GetDecodedUserId(r.Context())
 		if err != nil {
-			logx.Errorf("[AuthMiddleware] parse user id failed: %+v", err)
-			http.Error(w, "Not Authorized", http.StatusUnauthorized)
+			logx.Errorf("[AuthMiddleware] GetDecodedUserId failed: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 

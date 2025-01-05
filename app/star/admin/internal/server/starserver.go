@@ -32,3 +32,13 @@ func (s *StarServer) StarDetail(ctx context.Context, in *star.StarDetailRequest)
 	l := logic.NewStarDetailLogic(ctx, s.svcCtx)
 	return l.StarDetail(in)
 }
+
+func (s *StarServer) UpdateStar(ctx context.Context, in *star.UpdateStarReqeust) (*star.UpdateStarResponse, error) {
+	l := logic.NewUpdateStarLogic(ctx, s.svcCtx)
+	return l.UpdateStar(in)
+}
+
+func (s *StarServer) CreateStar(ctx context.Context, in *star.CreateStarRequest) (*star.CreateStarResponse, error) {
+	l := logic.NewCreateStarLogic(ctx, s.svcCtx)
+	return l.CreateStar(in)
+}

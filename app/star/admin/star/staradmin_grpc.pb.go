@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Star_StarList_FullMethodName   = "/admin.Star/StarList"
 	Star_StarDetail_FullMethodName = "/admin.Star/StarDetail"
+	Star_UpdateStar_FullMethodName = "/admin.Star/UpdateStar"
+	Star_CreateStar_FullMethodName = "/admin.Star/CreateStar"
 )
 
 // StarClient is the client API for Star service.
@@ -29,6 +31,8 @@ const (
 type StarClient interface {
 	StarList(ctx context.Context, in *StarListRequest, opts ...grpc.CallOption) (*StarListResponse, error)
 	StarDetail(ctx context.Context, in *StarDetailRequest, opts ...grpc.CallOption) (*StarDetailResponse, error)
+	UpdateStar(ctx context.Context, in *UpdateStarReqeust, opts ...grpc.CallOption) (*UpdateStarResponse, error)
+	CreateStar(ctx context.Context, in *CreateStarRequest, opts ...grpc.CallOption) (*CreateStarResponse, error)
 }
 
 type starClient struct {
@@ -59,12 +63,34 @@ func (c *starClient) StarDetail(ctx context.Context, in *StarDetailRequest, opts
 	return out, nil
 }
 
+func (c *starClient) UpdateStar(ctx context.Context, in *UpdateStarReqeust, opts ...grpc.CallOption) (*UpdateStarResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateStarResponse)
+	err := c.cc.Invoke(ctx, Star_UpdateStar_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *starClient) CreateStar(ctx context.Context, in *CreateStarRequest, opts ...grpc.CallOption) (*CreateStarResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateStarResponse)
+	err := c.cc.Invoke(ctx, Star_CreateStar_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StarServer is the server API for Star service.
 // All implementations must embed UnimplementedStarServer
 // for forward compatibility.
 type StarServer interface {
 	StarList(context.Context, *StarListRequest) (*StarListResponse, error)
 	StarDetail(context.Context, *StarDetailRequest) (*StarDetailResponse, error)
+	UpdateStar(context.Context, *UpdateStarReqeust) (*UpdateStarResponse, error)
+	CreateStar(context.Context, *CreateStarRequest) (*CreateStarResponse, error)
 	mustEmbedUnimplementedStarServer()
 }
 
@@ -80,6 +106,12 @@ func (UnimplementedStarServer) StarList(context.Context, *StarListRequest) (*Sta
 }
 func (UnimplementedStarServer) StarDetail(context.Context, *StarDetailRequest) (*StarDetailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StarDetail not implemented")
+}
+func (UnimplementedStarServer) UpdateStar(context.Context, *UpdateStarReqeust) (*UpdateStarResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateStar not implemented")
+}
+func (UnimplementedStarServer) CreateStar(context.Context, *CreateStarRequest) (*CreateStarResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateStar not implemented")
 }
 func (UnimplementedStarServer) mustEmbedUnimplementedStarServer() {}
 func (UnimplementedStarServer) testEmbeddedByValue()              {}
@@ -138,6 +170,42 @@ func _Star_StarDetail_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Star_UpdateStar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateStarReqeust)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StarServer).UpdateStar(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Star_UpdateStar_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StarServer).UpdateStar(ctx, req.(*UpdateStarReqeust))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Star_CreateStar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateStarRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StarServer).CreateStar(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Star_CreateStar_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StarServer).CreateStar(ctx, req.(*CreateStarRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Star_ServiceDesc is the grpc.ServiceDesc for Star service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +220,14 @@ var Star_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StarDetail",
 			Handler:    _Star_StarDetail_Handler,
+		},
+		{
+			MethodName: "UpdateStar",
+			Handler:    _Star_UpdateStar_Handler,
+		},
+		{
+			MethodName: "CreateStar",
+			Handler:    _Star_CreateStar_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

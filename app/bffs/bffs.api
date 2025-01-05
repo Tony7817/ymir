@@ -53,6 +53,27 @@ type (
 		Price       float64 `json:"price"`
 		Unit        string  `json:"unit"`
 	}
+	UpdateStarRequest {
+		StarId      string  `json:"star_id"`
+		Name        *string `json:"name,optional"`
+		Description *string `json:"description,optional"`
+		CoverUrl    *string `json:"cover_url,optional"`
+		AvatarUrl   *string `json:"avatar_url,optional"`
+		PosterUrl   *string `json:"poster_url,optional"`
+	}
+	UpdateStarResponse {
+		StarId string `json:"star_id"`
+	}
+	CreteStarRequest {
+		Name        string  `json:"name"`
+		Description *string `json:"description,optional"`
+		CoverUrl    string  `json:"cover_url"`
+		AvatarUrl   string  `json:"avatar_url"`
+		PosterUrl   string  `json:"poster_url"`
+	}
+	CreateStarResponse {
+		StarId string `json:"star_id"`
+	}
 )
 
 @server (
@@ -67,6 +88,12 @@ service bffs {
 
 	@handler StarDetail
 	post /star/:id (StarDetailRequest) returns (StarDetailResponse)
+
+	@handler UpdateStar
+	post /star/:id/update (UpdateStarRequest) returns (UpdateStarResponse)
+
+	@handler CreateStar
+	post /star/create (CreteStarRequest) returns (CreateStarResponse)
 }
 
 @server (

@@ -14,15 +14,21 @@ import (
 )
 
 type (
+	CreateStarRequest  = star.CreateStarRequest
+	CreateStarResponse = star.CreateStarResponse
 	StarDetailRequest  = star.StarDetailRequest
 	StarDetailResponse = star.StarDetailResponse
 	StarListItem       = star.StarListItem
 	StarListRequest    = star.StarListRequest
 	StarListResponse   = star.StarListResponse
+	UpdateStarReqeust  = star.UpdateStarReqeust
+	UpdateStarResponse = star.UpdateStarResponse
 
 	Star interface {
 		StarList(ctx context.Context, in *StarListRequest, opts ...grpc.CallOption) (*StarListResponse, error)
 		StarDetail(ctx context.Context, in *StarDetailRequest, opts ...grpc.CallOption) (*StarDetailResponse, error)
+		UpdateStar(ctx context.Context, in *UpdateStarReqeust, opts ...grpc.CallOption) (*UpdateStarResponse, error)
+		CreateStar(ctx context.Context, in *CreateStarRequest, opts ...grpc.CallOption) (*CreateStarResponse, error)
 	}
 
 	defaultStar struct {
@@ -44,4 +50,14 @@ func (m *defaultStar) StarList(ctx context.Context, in *StarListRequest, opts ..
 func (m *defaultStar) StarDetail(ctx context.Context, in *StarDetailRequest, opts ...grpc.CallOption) (*StarDetailResponse, error) {
 	client := star.NewStarClient(m.cli.Conn())
 	return client.StarDetail(ctx, in, opts...)
+}
+
+func (m *defaultStar) UpdateStar(ctx context.Context, in *UpdateStarReqeust, opts ...grpc.CallOption) (*UpdateStarResponse, error) {
+	client := star.NewStarClient(m.cli.Conn())
+	return client.UpdateStar(ctx, in, opts...)
+}
+
+func (m *defaultStar) CreateStar(ctx context.Context, in *CreateStarRequest, opts ...grpc.CallOption) (*CreateStarResponse, error) {
+	client := star.NewStarClient(m.cli.Conn())
+	return client.CreateStar(ctx, in, opts...)
 }

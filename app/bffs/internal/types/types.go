@@ -3,6 +3,18 @@
 
 package types
 
+type CreateStarResponse struct {
+	StarId string `json:"star_id"`
+}
+
+type CreteStarRequest struct {
+	Name        string  `json:"name"`
+	Description *string `json:"description,optional"`
+	CoverUrl    string  `json:"cover_url"`
+	AvatarUrl   string  `json:"avatar_url"`
+	PosterUrl   string  `json:"poster_url"`
+}
+
 type ProductListItem struct {
 	Id          string  `json:"id"`
 	CoverUrl    string  `json:"cover_url"`
@@ -63,4 +75,17 @@ type StarListRequest struct {
 type StarListResponse struct {
 	ToTal int64          `json:"total"`
 	Stars []StarListItem `json:"stars"`
+}
+
+type UpdateStarRequest struct {
+	StarId      string  `json:"star_id"`
+	Name        *string `json:"name,optional"`
+	Description *string `json:"description,optional"`
+	CoverUrl    *string `json:"cover_url,optional"`
+	AvatarUrl   *string `json:"avatar_url,optional"`
+	PosterUrl   *string `json:"poster_url,optional"`
+}
+
+type UpdateStarResponse struct {
+	StarId string `json:"star_id"`
 }

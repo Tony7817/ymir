@@ -27,7 +27,7 @@ ProductAdminRPC:
     Key: ymir.product.admin.rpc
   
 Auth:
-  AccessSecret: 8812e30a-1327-441c-81f5-a66d6dbabbab
+  AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
   AccessExpire: 604800
 
 BizRedis:

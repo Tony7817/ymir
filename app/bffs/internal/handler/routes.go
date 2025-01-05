@@ -36,6 +36,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodPost,
+					Path:    "/star/:id/update",
+					Handler: star.UpdateStarHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/star/create",
+					Handler: star.CreateStarHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
 					Path:    "/star/list",
 					Handler: star.StarListHandler(serverCtx),
 				},

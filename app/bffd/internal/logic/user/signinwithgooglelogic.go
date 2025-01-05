@@ -61,7 +61,7 @@ func (l *SigninWithGoogleLogic) Signin(ugoogle *user.UserGoogleInfo) (resp *type
 	}
 
 	var nowDate = time.Now().Unix()
-	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, ugoogle.Id)
+	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, respb.User.Id)
 	if err != nil {
 		return nil, err
 	}
