@@ -19,7 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Product_ProductCount_FullMethodName = "/admin.Product/ProductCount"
+	Product_ProductCount_FullMethodName            = "/admin.Product/ProductCount"
+	Product_ProductList_FullMethodName             = "/admin.Product/ProductList"
+	Product_CreateProduct_FullMethodName           = "/admin.Product/CreateProduct"
+	Product_CreateProductColor_FullMethodName      = "/admin.Product/CreateProductColor"
+	Product_UpdateProductColor_FullMethodName      = "/admin.Product/UpdateProductColor"
+	Product_CreateProductColorStock_FullMethodName = "/admin.Product/CreateProductColorStock"
 )
 
 // ProductClient is the client API for Product service.
@@ -27,6 +32,11 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProductClient interface {
 	ProductCount(ctx context.Context, in *ProductCountRequest, opts ...grpc.CallOption) (*ProductCountResponse, error)
+	ProductList(ctx context.Context, in *ProductListRequest, opts ...grpc.CallOption) (*ProductListResponse, error)
+	CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*CreateProductResponse, error)
+	CreateProductColor(ctx context.Context, in *CreateProductColorRequeset, opts ...grpc.CallOption) (*CreateProductColorResponse, error)
+	UpdateProductColor(ctx context.Context, in *UpdateProductColorRequest, opts ...grpc.CallOption) (*UpdateProductColorResponse, error)
+	CreateProductColorStock(ctx context.Context, in *CreateProductColorStockRequest, opts ...grpc.CallOption) (*CreateProductColorStockResponse, error)
 }
 
 type productClient struct {
@@ -47,11 +57,66 @@ func (c *productClient) ProductCount(ctx context.Context, in *ProductCountReques
 	return out, nil
 }
 
+func (c *productClient) ProductList(ctx context.Context, in *ProductListRequest, opts ...grpc.CallOption) (*ProductListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ProductListResponse)
+	err := c.cc.Invoke(ctx, Product_ProductList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productClient) CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*CreateProductResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateProductResponse)
+	err := c.cc.Invoke(ctx, Product_CreateProduct_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productClient) CreateProductColor(ctx context.Context, in *CreateProductColorRequeset, opts ...grpc.CallOption) (*CreateProductColorResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateProductColorResponse)
+	err := c.cc.Invoke(ctx, Product_CreateProductColor_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productClient) UpdateProductColor(ctx context.Context, in *UpdateProductColorRequest, opts ...grpc.CallOption) (*UpdateProductColorResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateProductColorResponse)
+	err := c.cc.Invoke(ctx, Product_UpdateProductColor_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productClient) CreateProductColorStock(ctx context.Context, in *CreateProductColorStockRequest, opts ...grpc.CallOption) (*CreateProductColorStockResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateProductColorStockResponse)
+	err := c.cc.Invoke(ctx, Product_CreateProductColorStock_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProductServer is the server API for Product service.
 // All implementations must embed UnimplementedProductServer
 // for forward compatibility.
 type ProductServer interface {
 	ProductCount(context.Context, *ProductCountRequest) (*ProductCountResponse, error)
+	ProductList(context.Context, *ProductListRequest) (*ProductListResponse, error)
+	CreateProduct(context.Context, *CreateProductRequest) (*CreateProductResponse, error)
+	CreateProductColor(context.Context, *CreateProductColorRequeset) (*CreateProductColorResponse, error)
+	UpdateProductColor(context.Context, *UpdateProductColorRequest) (*UpdateProductColorResponse, error)
+	CreateProductColorStock(context.Context, *CreateProductColorStockRequest) (*CreateProductColorStockResponse, error)
 	mustEmbedUnimplementedProductServer()
 }
 
@@ -64,6 +129,21 @@ type UnimplementedProductServer struct{}
 
 func (UnimplementedProductServer) ProductCount(context.Context, *ProductCountRequest) (*ProductCountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProductCount not implemented")
+}
+func (UnimplementedProductServer) ProductList(context.Context, *ProductListRequest) (*ProductListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProductList not implemented")
+}
+func (UnimplementedProductServer) CreateProduct(context.Context, *CreateProductRequest) (*CreateProductResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateProduct not implemented")
+}
+func (UnimplementedProductServer) CreateProductColor(context.Context, *CreateProductColorRequeset) (*CreateProductColorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateProductColor not implemented")
+}
+func (UnimplementedProductServer) UpdateProductColor(context.Context, *UpdateProductColorRequest) (*UpdateProductColorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateProductColor not implemented")
+}
+func (UnimplementedProductServer) CreateProductColorStock(context.Context, *CreateProductColorStockRequest) (*CreateProductColorStockResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateProductColorStock not implemented")
 }
 func (UnimplementedProductServer) mustEmbedUnimplementedProductServer() {}
 func (UnimplementedProductServer) testEmbeddedByValue()                 {}
@@ -104,6 +184,96 @@ func _Product_ProductCount_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Product_ProductList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProductListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServer).ProductList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Product_ProductList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServer).ProductList(ctx, req.(*ProductListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Product_CreateProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateProductRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServer).CreateProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Product_CreateProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServer).CreateProduct(ctx, req.(*CreateProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Product_CreateProductColor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateProductColorRequeset)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServer).CreateProductColor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Product_CreateProductColor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServer).CreateProductColor(ctx, req.(*CreateProductColorRequeset))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Product_UpdateProductColor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateProductColorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServer).UpdateProductColor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Product_UpdateProductColor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServer).UpdateProductColor(ctx, req.(*UpdateProductColorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Product_CreateProductColorStock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateProductColorStockRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServer).CreateProductColorStock(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Product_CreateProductColorStock_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServer).CreateProductColorStock(ctx, req.(*CreateProductColorStockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Product_ServiceDesc is the grpc.ServiceDesc for Product service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +284,26 @@ var Product_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ProductCount",
 			Handler:    _Product_ProductCount_Handler,
+		},
+		{
+			MethodName: "ProductList",
+			Handler:    _Product_ProductList_Handler,
+		},
+		{
+			MethodName: "CreateProduct",
+			Handler:    _Product_CreateProduct_Handler,
+		},
+		{
+			MethodName: "CreateProductColor",
+			Handler:    _Product_CreateProductColor_Handler,
+		},
+		{
+			MethodName: "UpdateProductColor",
+			Handler:    _Product_UpdateProductColor_Handler,
+		},
+		{
+			MethodName: "CreateProductColorStock",
+			Handler:    _Product_CreateProductColorStock_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

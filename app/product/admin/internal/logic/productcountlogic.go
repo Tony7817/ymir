@@ -24,7 +24,12 @@ func NewProductCountLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Prod
 }
 
 func (l *ProductCountLogic) ProductCount(in *product.ProductCountRequest) (*product.ProductCountResponse, error) {
-	// todo: add your logic here and delete this line
+	total, err := l.svcCtx.ProductModel.CountTotalProduct(l.ctx, in.StarId)
+	if err != nil {
+		return nil, err
+	}
 
-	return &product.ProductCountResponse{}, nil
+	return &product.ProductCountResponse{
+		Count: total,
+	}, nil
 }

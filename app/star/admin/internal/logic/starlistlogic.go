@@ -55,6 +55,7 @@ func (l *StarListLogic) StarList(in *star.StarListRequest) (*star.StarListRespon
 		stars = append(stars, &star.StarListItem{
 			Id:          sl[i].Id,
 			Name:        sl[i].Name,
+			CreatedAt:   sl[i].CreatedAt.Unix(),
 			Description: sl[i].Description.String,
 			AvatarUrl:   sl[i].AvatarUrl,
 			Rate:        sl[i].Rate.Float64,

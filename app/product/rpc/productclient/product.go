@@ -20,7 +20,7 @@ type (
 	AddProductToCartResponse           = product.AddProductToCartResponse
 	DecreaseProductAmountInCartRequest = product.DecreaseProductAmountInCartRequest
 	ProducrtsInCartListResponse        = product.ProducrtsInCartListResponse
-	ProductColorListItem               = product.ProductColorListItem
+	ProductColor                       = product.ProductColor
 	ProductColorListRequest            = product.ProductColorListRequest
 	ProductColorListResponse           = product.ProductColorListResponse
 	ProductColorRequest                = product.ProductColorRequest

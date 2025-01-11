@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/cache"
@@ -40,15 +41,18 @@ type (
 	}
 
 	ProductColorDetail struct {
-		Id            int64   `db:"id"`
-		ProductId     int64   `db:"product_id"`
-		Color         string  `db:"color"`
-		Images        string  `db:"images"`
-		DetailImages  string  `db:"detail_images"`
-		Price         float64 `db:"price"`
-		Unit          string  `db:"unit"`
-		AvailableSize string  `db:"available_size"`
-		CoverUrl      string  `db:"cover_url"`
+		Id            int64         `db:"id"`
+		CreatedAt     time.Time     `db:"created_at"`
+		UpdatedAt     time.Time     `db:"updated_at"`
+		ProductId     int64         `db:"product_id"`
+		Color         string        `db:"color"`
+		Images        string        `db:"images"`
+		DetailImages  string        `db:"detail_images"`
+		Price         float64       `db:"price"`
+		Unit          string        `db:"unit"`
+		SoldNum       sql.NullInt64 `db:"sold_num"`
+		AvailableSize string        `db:"available_size"`
+		CoverUrl      string        `db:"cover_url"`
 	}
 )
 
@@ -88,8 +92,8 @@ func (m *defaultProductColorDetailModel) FindOne(ctx context.Context, id int64) 
 func (m *defaultProductColorDetailModel) Insert(ctx context.Context, data *ProductColorDetail) (sql.Result, error) {
 	ymirProductColorDetailIdKey := fmt.Sprintf("%s%v", cacheYmirProductColorDetailIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, productColorDetailRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Id, data.ProductId, data.Color, data.Images, data.DetailImages, data.Price, data.Unit, data.AvailableSize, data.CoverUrl)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, productColorDetailRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.ProductId, data.Color, data.Images, data.DetailImages, data.Price, data.Unit, data.SoldNum, data.AvailableSize, data.CoverUrl)
 	}, ymirProductColorDetailIdKey)
 	return ret, err
 }
@@ -98,7 +102,7 @@ func (m *defaultProductColorDetailModel) Update(ctx context.Context, data *Produ
 	ymirProductColorDetailIdKey := fmt.Sprintf("%s%v", cacheYmirProductColorDetailIdPrefix, data.Id)
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, productColorDetailRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.ProductId, data.Color, data.Images, data.DetailImages, data.Price, data.Unit, data.AvailableSize, data.CoverUrl, data.Id)
+		return conn.ExecCtx(ctx, query, data.ProductId, data.Color, data.Images, data.DetailImages, data.Price, data.Unit, data.SoldNum, data.AvailableSize, data.CoverUrl, data.Id)
 	}, ymirProductColorDetailIdKey)
 	return err
 }

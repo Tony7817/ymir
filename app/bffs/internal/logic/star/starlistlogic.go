@@ -53,6 +53,7 @@ func (l *StarListLogic) StarList(req *types.StarListRequest) (*types.StarListRes
 		var star = types.StarListItem{
 			Id:           id.EncodeId(item.Id),
 			Name:         item.Name,
+			CreatedAt:    item.CreatedAt,
 			AvatarUrl:    item.AvatarUrl,
 			Description:  item.Description,
 			ProductTotal: pb.Count,

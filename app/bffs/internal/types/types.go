@@ -3,6 +3,19 @@
 
 package types
 
+type CreateProductRequest struct {
+	StarId       string         `json:"star_id"`
+	Description  string         `json:"description"`
+	Name         string         `json:"name"`
+	Detail       *string        `json:"detail,optional"`
+	Color        []ProductColor `json:"color"`
+	DefaultColor ProductColor   `json:"default_color"`
+}
+
+type CreateProductResponse struct {
+	ProductId string `json:"product_id"`
+}
+
 type CreateStarResponse struct {
 	StarId string `json:"star_id"`
 }
@@ -15,12 +28,41 @@ type CreteStarRequest struct {
 	PosterUrl   string  `json:"poster_url"`
 }
 
+type ProductColor struct {
+	ColorName       string             `json:"color_name"`
+	CoverUrl        string             `json:"cover_url"`
+	ImagesUrl       string             `json:"images_url"`
+	DetailImagesUrl string             `json:"detail_images_url"`
+	Price           float64            `json:"price"`
+	Unit            string             `json:"unit"`
+	Sizes           []ProductColorSize `json:"sizes"`
+}
+
+type ProductColorSize struct {
+	Size    string `json:"size"`
+	InStock int64  `json:"in_stock"`
+}
+
+type ProductListColorItem struct {
+	CoverUrl string  `json:"cover_url"`
+	Price    float64 `json:"price"`
+	Unit     string  `json:"unit"`
+}
+
 type ProductListItem struct {
-	Id          string  `json:"id"`
-	CoverUrl    string  `json:"cover_url"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	Unit        string  `json:"unit"`
+	Id           string               `json:"id"`
+	Description  string               `json:"description"`
+	Name         string               `json:"name"`
+	Rate         float64              `json:"rate"`
+	RateCount    int64                `json:"rate_count"`
+	SoldNum      int64                `json:"sold_num"`
+	DefaultColor ProductListColorItem `json:"default_color"`
+}
+
+type ProductListRequest struct {
+	StarId   *string `json:"star_id,optional"`
+	Page     int64   `json:"page"`
+	PageSize int64   `json:"page_size"`
 }
 
 type ProductListResponse struct {
@@ -59,6 +101,7 @@ type StarDetailResponse struct {
 type StarListItem struct {
 	Id           string  `json:"id"`
 	Name         string  `json:"name"`
+	CreatedAt    int64   `json:"created_at"`
 	AvatarUrl    string  `json:"avatar_url"`
 	Description  string  `json:"description"`
 	ProductTotal int64   `json:"product_total"`

@@ -89,6 +89,7 @@ type ProductColor struct {
 	Images        []string      `json:"images"`
 	Detail_Images []string      `json:"detail_images"`
 	Price         float64       `json:"price"`
+	CoverUrl      string        `json:"cover_url"`
 	Unit          string        `json:"unit"`
 	Size          []ProductSize `json:"size"`
 }
@@ -128,19 +129,19 @@ type ProductDetailRequest struct {
 }
 
 type ProductDetailResponse struct {
-	Id          string                 `json:"id"`
-	Description string                 `json:"description"`
-	Rate        float64                `json:"rate"`
-	RateCount   int64                  `json:"rate_count"`
-	Color       ProductColor           `json:"color"`
-	ColorList   []ProductColorListItem `json:"color_list"`
-	SoldNum     int64                  `json:"sold_num"`
-	Detail      *string                `json:"detail"`
-	StarAvatar  string                 `json:"star_avatar"`
-	StarName    string                 `json:"star_name"`
-	StarId      string                 `json:"star_id"`
-	StarRate    float64                `json:"star_rate"`
-	Comments    ProductCommentResponse `json:"comments"`
+	Id           string                 `json:"id"`
+	Description  string                 `json:"description"`
+	Rate         float64                `json:"rate"`
+	RateCount    int64                  `json:"rate_count"`
+	DefaultColor ProductColor           `json:"default_color"`
+	Colors       []ProductColor         `json:"colors"`
+	SoldNum      int64                  `json:"sold_num"`
+	Detail       *string                `json:"detail"`
+	StarAvatar   string                 `json:"star_avatar"`
+	StarName     string                 `json:"star_name"`
+	StarId       string                 `json:"star_id"`
+	StarRate     float64                `json:"star_rate"`
+	Comments     ProductCommentResponse `json:"comments"`
 }
 
 type ProductListItem struct {

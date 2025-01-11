@@ -5,10 +5,9 @@ import (
 	"database/sql"
 	"strconv"
 
-	"ymir.com/app/product/rpc/internal/svc"
 	"ymir.com/app/product/model"
+	"ymir.com/app/product/rpc/internal/svc"
 	"ymir.com/app/product/rpc/product"
-	"ymir.com/pkg/cache"
 	"ymir.com/pkg/vars"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -123,7 +122,7 @@ func (l *ProductCommentListLogic) buildProductCommentImages(pcmts []model.Produc
 }
 
 func (l *ProductCommentListLogic) cacheImageList(commentId int64) ([]int64, error) {
-	idsRaw, err := l.svcCtx.Redis.LrangeCtx(l.ctx, cache.CacheKeyProductCommentList(commentId), 0, -1)
+	idsRaw, err := l.svcCtx.Redis.LrangeCtx(l.ctx, model.CacheKeyProductCommentList(commentId), 0, -1)
 	if err != nil {
 		return nil, err
 	}
@@ -176,12 +175,12 @@ func (l *ProductCommentListLogic) findImagesAndSetCache(commentId int64) ([]mode
 	threading.GoSafe(func() {
 		for i := 0; i < len(images); i++ {
 			// don't use RpushCtx. The execution can't be done before context timeout.
-			_, err = l.svcCtx.Redis.Rpush(cache.CacheKeyProductCommentList(commentId), images[i].Id)
+			_, err = l.svcCtx.Redis.Rpush(model.CacheKeyProductCommentList(commentId), images[i].Id)
 			if err != nil {
 				logx.Errorf("[ProductCommentListLogic] failed to set cache product comment images, err: %v", err)
 			}
 		}
-		err = l.svcCtx.Redis.Expire(cache.CacheKeyProductCommentList(commentId), vars.CacheExpireIn1W)
+		err = l.svcCtx.Redis.Expire(model.CacheKeyProductCommentList(commentId), vars.CacheExpireIn1W)
 		if err != nil {
 			logx.Errorf("[ProductCommentListLogic] failed to set cache expire product comment images, err: %v", err)
 		}

@@ -27,3 +27,28 @@ func (s *ProductServer) ProductCount(ctx context.Context, in *product.ProductCou
 	l := logic.NewProductCountLogic(ctx, s.svcCtx)
 	return l.ProductCount(in)
 }
+
+func (s *ProductServer) ProductList(ctx context.Context, in *product.ProductListRequest) (*product.ProductListResponse, error) {
+	l := logic.NewProductListLogic(ctx, s.svcCtx)
+	return l.ProductList(in)
+}
+
+func (s *ProductServer) CreateProduct(ctx context.Context, in *product.CreateProductRequest) (*product.CreateProductResponse, error) {
+	l := logic.NewCreateProductLogic(ctx, s.svcCtx)
+	return l.CreateProduct(in)
+}
+
+func (s *ProductServer) CreateProductColor(ctx context.Context, in *product.CreateProductColorRequeset) (*product.CreateProductColorResponse, error) {
+	l := logic.NewCreateProductColorLogic(ctx, s.svcCtx)
+	return l.CreateProductColor(in)
+}
+
+func (s *ProductServer) UpdateProductColor(ctx context.Context, in *product.UpdateProductColorRequest) (*product.UpdateProductColorResponse, error) {
+	l := logic.NewUpdateProductColorLogic(ctx, s.svcCtx)
+	return l.UpdateProductColor(in)
+}
+
+func (s *ProductServer) CreateProductColorStock(ctx context.Context, in *product.CreateProductColorStockRequest) (*product.CreateProductColorStockResponse, error) {
+	l := logic.NewCreateProductColorStockLogic(ctx, s.svcCtx)
+	return l.CreateProductColorStock(in)
+}

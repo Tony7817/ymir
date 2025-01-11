@@ -7,6 +7,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/zeromicro/go-zero/core/threading"
+	"ymir.com/pkg/id"
+	"ymir.com/pkg/util"
 )
 
 var _ ProductModel = (*customProductModel)(nil)
@@ -19,10 +22,12 @@ type (
 		FindProductList(ctx context.Context, starId *int64, offset, limit int64) ([]*Product, error)
 		CountTotalProduct(ctx context.Context, starId *int64) (int64, error)
 		CheckProductBelongToStar(ctx context.Context, productId, starId int64) (bool, error)
+		SFInsert(ctx context.Context, product *Product) (int64, error)
 	}
 
 	customProductModel struct {
 		*defaultProductModel
+		sf *id.Snowflake
 	}
 )
 
@@ -30,6 +35,7 @@ type (
 func NewProductModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) ProductModel {
 	return &customProductModel{
 		defaultProductModel: newProductModel(conn, c, opts...),
+		sf:                  id.NewSnowFlake(),
 	}
 }
 
@@ -58,7 +64,7 @@ func (m *customProductModel) FindProductList(ctx context.Context, starId *int64,
 	}
 	cond += " limit ?,?"
 
-	var query = fmt.Sprintf("SELECT * FROM `product` %s", cond)
+	var query = fmt.Sprintf("select * from `product` %s", cond)
 	err := m.QueryRowsNoCacheCtx(ctx, &ps, query, offset, limit)
 	if err != nil {
 		return nil, errors.Wrapf(err, "[FindProductList]query products list failed")
@@ -87,4 +93,20 @@ func (m *customProductModel) CountTotalProduct(ctx context.Context, starId *int6
 	}
 
 	return count, nil
+}
+
+func (m *customProductModel) SFInsert(ctx context.Context, product *Product) (int64, error) {
+	product.Id = m.sf.GenerateID()
+	_, err := m.Insert(ctx, product)
+	if err != nil {
+		return 0, err
+	}
+
+	threading.GoSafe(func() {
+		_ = util.Retry("del cache", 3, 3, func() error {
+			return m.CachedConn.DelCache(ProductCountCacheKey(&product.StarId))
+		})
+	})
+
+	return product.Id, nil
 }

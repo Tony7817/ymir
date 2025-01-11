@@ -42,6 +42,10 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			logx.Errorf("[AuthMiddleware] GetOrganizer failed: %v", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
+		if respb.Organizer == nil {
+			logx.Errorf("[AuthMiddleware] GetOrganizer failed: %v", err)
+			http.Error(w, "Not Authorized", http.StatusUnauthorized)
+		}
 
 		const key vars.ContextKey = vars.OrganizerKey
 		var ctx = context.WithValue(r.Context(), key, respb.Organizer)

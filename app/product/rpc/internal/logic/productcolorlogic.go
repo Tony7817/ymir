@@ -31,13 +31,16 @@ func (l *ProductColorLogic) ProductColor(in *product.ProductColorRequest) (*prod
 	}
 
 	return &product.ProductColorResponse{
-		Id:             color.Id,
-		ProductId:      color.ProductId,
-		Color:          color.Color,
-		Images:         strings.Split(color.Images, ","),
-		DetailImages:   strings.Split(color.DetailImages, ","),
-		Price:          color.Price,
-		Unit:           color.Unit,
-		AvaliableSizes: strings.Split(color.AvailableSize, ","),
+		Color: &product.ProductColor{
+			Id:             color.Id,
+			ProductId:      color.ProductId,
+			Name:           color.Color,
+			Images:         strings.Split(color.Images, ","),
+			DetailImages:   strings.Split(color.DetailImages, ","),
+			CoverUrl:       color.CoverUrl,
+			Price:          color.Price,
+			Unit:           color.Unit,
+			AvaliableSizes: strings.Split(color.AvailableSize, ","),
+		},
 	}, nil
 }

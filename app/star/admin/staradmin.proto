@@ -16,6 +16,7 @@ message StarListItem {
   string Description = 4;
   double Rate = 6;
   int64 RateCount = 7;
+  int64 CreatedAt = 8;
 }
 
 message StarListResponse {
@@ -36,6 +37,7 @@ message StarDetailResponse {
   string PosterUrl = 6;
   double Rate = 7;
   int64 RateCount = 8;
+  int64 CreatedAt = 9;
 }
 
 message UpdateStarReqeust {

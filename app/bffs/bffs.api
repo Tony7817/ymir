@@ -17,6 +17,7 @@ type (
 	StarListItem {
 		Id           string  `json:"id"`
 		Name         string  `json:"name"`
+		CreatedAt    int64   `json:"created_at"`
 		AvatarUrl    string  `json:"avatar_url"`
 		Description  string  `json:"description"`
 		ProductTotal int64   `json:"product_total"`
@@ -42,16 +43,28 @@ type (
 		PosterUrl   string              `json:"poster_url"`
 		Products    ProductListResponse `json:"products"`
 	}
+	ProductListRequest {
+		StarId   *string `json:"star_id,optional"`
+		Page     int64   `json:"page"`
+		PageSize int64   `json:"page_size"`
+	}
 	ProductListResponse {
 		Total    int64             `json:"total"`
 		Products []ProductListItem `json:"products"`
 	}
+	ProductListColorItem {
+		CoverUrl string  `json:"cover_url"`
+		Price    float64 `json:"price"`
+		Unit     string  `json:"unit"`
+	}
 	ProductListItem {
-		Id          string  `json:"id"`
-		CoverUrl    string  `json:"cover_url"`
-		Description string  `json:"description"`
-		Price       float64 `json:"price"`
-		Unit        string  `json:"unit"`
+		Id           string               `json:"id"`
+		Description  string               `json:"description"`
+		Name         string               `json:"name"`
+		Rate         float64              `json:"rate"`
+		RateCount    int64                `json:"rate_count"`
+		SoldNum      int64                `json:"sold_num"`
+		DefaultColor ProductListColorItem `json:"default_color"`
 	}
 	UpdateStarRequest {
 		StarId      string  `json:"star_id"`
@@ -74,6 +87,30 @@ type (
 	CreateStarResponse {
 		StarId string `json:"star_id"`
 	}
+	ProductColorSize {
+		Size    string `json:"size"`
+		InStock int64  `json:"in_stock"`
+	}
+	ProductColor {
+		ColorName       string             `json:"color_name"`
+		CoverUrl        string             `json:"cover_url"`
+		ImagesUrl       string             `json:"images_url"`
+		DetailImagesUrl string             `json:"detail_images_url"`
+		Price           float64            `json:"price"`
+		Unit            string             `json:"unit"`
+		Sizes           []ProductColorSize `json:"sizes"`
+	}
+	CreateProductRequest {
+		StarId       string         `json:"star_id"`
+		Description  string         `json:"description"`
+		Name         string         `json:"name"`
+		Detail       *string        `json:"detail,optional"`
+		Color        []ProductColor `json:"color"`
+		DefaultColor ProductColor   `json:"default_color"`
+	}
+	CreateProductResponse {
+		ProductId string `json:"product_id"`
+	}
 )
 
 @server (
@@ -94,6 +131,12 @@ service bffs {
 
 	@handler CreateStar
 	post /star/create (CreteStarRequest) returns (CreateStarResponse)
+
+	@handler ProductList
+	post /product/list (ProductListRequest) returns (ProductListResponse)
+
+	@handler CreateProduct
+	post /product/create (CreateProductRequest) returns (CreateProductResponse)
 }
 
 @server (

@@ -14,11 +14,28 @@ import (
 )
 
 type (
-	ProductCountRequest  = product.ProductCountRequest
-	ProductCountResponse = product.ProductCountResponse
+	CreateProductColorRequeset      = product.CreateProductColorRequeset
+	CreateProductColorResponse      = product.CreateProductColorResponse
+	CreateProductColorStockRequest  = product.CreateProductColorStockRequest
+	CreateProductColorStockResponse = product.CreateProductColorStockResponse
+	CreateProductRequest            = product.CreateProductRequest
+	CreateProductResponse           = product.CreateProductResponse
+	ProductCountRequest             = product.ProductCountRequest
+	ProductCountResponse            = product.ProductCountResponse
+	ProductListColorItem            = product.ProductListColorItem
+	ProductListItem                 = product.ProductListItem
+	ProductListRequest              = product.ProductListRequest
+	ProductListResponse             = product.ProductListResponse
+	UpdateProductColorRequest       = product.UpdateProductColorRequest
+	UpdateProductColorResponse      = product.UpdateProductColorResponse
 
 	Product interface {
 		ProductCount(ctx context.Context, in *ProductCountRequest, opts ...grpc.CallOption) (*ProductCountResponse, error)
+		ProductList(ctx context.Context, in *ProductListRequest, opts ...grpc.CallOption) (*ProductListResponse, error)
+		CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*CreateProductResponse, error)
+		CreateProductColor(ctx context.Context, in *CreateProductColorRequeset, opts ...grpc.CallOption) (*CreateProductColorResponse, error)
+		UpdateProductColor(ctx context.Context, in *UpdateProductColorRequest, opts ...grpc.CallOption) (*UpdateProductColorResponse, error)
+		CreateProductColorStock(ctx context.Context, in *CreateProductColorStockRequest, opts ...grpc.CallOption) (*CreateProductColorStockResponse, error)
 	}
 
 	defaultProduct struct {
@@ -35,4 +52,29 @@ func NewProduct(cli zrpc.Client) Product {
 func (m *defaultProduct) ProductCount(ctx context.Context, in *ProductCountRequest, opts ...grpc.CallOption) (*ProductCountResponse, error) {
 	client := product.NewProductClient(m.cli.Conn())
 	return client.ProductCount(ctx, in, opts...)
+}
+
+func (m *defaultProduct) ProductList(ctx context.Context, in *ProductListRequest, opts ...grpc.CallOption) (*ProductListResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.ProductList(ctx, in, opts...)
+}
+
+func (m *defaultProduct) CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*CreateProductResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.CreateProduct(ctx, in, opts...)
+}
+
+func (m *defaultProduct) CreateProductColor(ctx context.Context, in *CreateProductColorRequeset, opts ...grpc.CallOption) (*CreateProductColorResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.CreateProductColor(ctx, in, opts...)
+}
+
+func (m *defaultProduct) UpdateProductColor(ctx context.Context, in *UpdateProductColorRequest, opts ...grpc.CallOption) (*UpdateProductColorResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.UpdateProductColor(ctx, in, opts...)
+}
+
+func (m *defaultProduct) CreateProductColorStock(ctx context.Context, in *CreateProductColorStockRequest, opts ...grpc.CallOption) (*CreateProductColorStockResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.CreateProductColorStock(ctx, in, opts...)
 }

@@ -33,7 +33,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 
 	var (
 		p        *product.ProductDetailResponse
-		cl       *product.ProductColorListResponse
+		respbCs  *product.ProductColorListResponse
 		pcmt     *product.ProductCommentListResponse
 		pcmtSize int64 = 10
 	)
@@ -56,7 +56,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		return nil
 	}, func() error {
 		var err error
-		cl, err = l.svcCtx.ProductRPC.ProductColorList(l.ctx, &product.ProductColorListRequest{
+		respbCs, err = l.svcCtx.ProductRPC.ProductColorList(l.ctx, &product.ProductColorListRequest{
 			ProductId: pId,
 		})
 		if err != nil {
@@ -122,13 +122,13 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 
 	// find sizes by productId and colorId
 	sizes, err := mr.MapReduce(func(source chan<- string) {
-		for _, size := range pcolor.AvaliableSizes {
+		for _, size := range pcolor.Color.AvaliableSizes {
 			source <- size
 		}
 	}, func(size string, writer mr.Writer[*types.ProductSize], cancel func(error)) {
 		stock, err := l.svcCtx.ProductRPC.ProductStock(l.ctx, &product.ProductStockRequest{
 			ProductId: pId,
-			ColorId:   pcolor.Id,
+			ColorId:   pcolor.Color.Id,
 			Size:      size,
 		})
 		if err != nil {
@@ -153,19 +153,26 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 
 	var color = types.ProductColor{
 		Id:            id.EncodeId(p.Id),
-		ColorName:     pcolor.Color,
-		Images:        pcolor.Images,
-		Detail_Images: pcolor.DetailImages,
-		Price:         pcolor.Price,
-		Unit:          pcolor.Unit,
+		ColorName:     pcolor.Color.Name,
+		Images:        pcolor.Color.Images,
+		Detail_Images: pcolor.Color.DetailImages,
+		Price:         pcolor.Color.Price,
+		CoverUrl:      pcolor.Color.CoverUrl,
+		Unit:          pcolor.Color.Unit,
 		Size:          sizes,
 	}
 
-	var clres = make([]types.ProductColorListItem, len(cl.Colors))
-	for i := 0; i < len(cl.Colors); i++ {
-		clres[i] = types.ProductColorListItem{
-			ColorId:  id.EncodeId(cl.Colors[i].ColorId),
-			CoverUrl: cl.Colors[i].CoverUrl,
+	var clres = make([]types.ProductColor, len(respbCs.Colors))
+	for i := 0; i < len(respbCs.Colors); i++ {
+		clres[i] = types.ProductColor{
+			Id:            id.EncodeId(respbCs.Colors[i].Id),
+			ColorName:     respbCs.Colors[i].Name,
+			Images:        respbCs.Colors[i].Images,
+			Detail_Images: respbCs.Colors[i].DetailImages,
+			Price:         respbCs.Colors[i].Price,
+			CoverUrl:      respbCs.Colors[i].CoverUrl,
+			Unit:          respbCs.Colors[i].Unit,
+			Size:          sizes,
 		}
 	}
 
@@ -175,19 +182,19 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 	}
 
 	var res = &types.ProductDetailResponse{
-		Id:          id.EncodeId(p.Id),
-		Description: p.Description,
-		Rate:        p.Rate,
-		RateCount:   p.ReteCount,
-		Color:       color,
-		ColorList:   clres,
-		SoldNum:     p.SoldNum,
-		Detail:      &p.Detail,
-		StarAvatar:  s.AvatarUrl,
-		StarName:    s.Name,
-		StarId:      id.EncodeId(s.Id),
-		StarRate:    s.Rate,
-		Comments:    pcmtRes,
+		Id:           id.EncodeId(p.Id),
+		Description:  p.Description,
+		Rate:         p.Rate,
+		RateCount:    p.ReteCount,
+		DefaultColor: color,
+		Colors:       clres,
+		SoldNum:      p.SoldNum,
+		Detail:       &p.Detail,
+		StarAvatar:   s.AvatarUrl,
+		StarName:     s.Name,
+		StarId:       id.EncodeId(s.Id),
+		StarRate:     s.Rate,
+		Comments:     pcmtRes,
 	}
 
 	return res, nil

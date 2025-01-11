@@ -42,28 +42,28 @@ message ProductColorRequest {
   int64 ColorId = 1;
 }
 
-message ProductColorResponse {
+message ProductColor {
   int64 Id = 1;
   int64 ProductId = 2;
-  string Color = 3;
+  string Name = 3;
   repeated string Images = 4;
   repeated string DetailImages = 5;
   double price = 6;
   string Unit = 7;
-  repeated string AvaliableSizes = 8;
+  string CoverUrl = 8;
+  repeated string AvaliableSizes = 9;
+}
+
+message ProductColorResponse {
+  ProductColor Color = 1;
 }
 
 message ProductColorListRequest {
   int64 ProductId = 1;
 }
 
-message ProductColorListItem {
-  int64 ColorId = 1;
-  string CoverUrl = 2;
-}
-
 message ProductColorListResponse {
-  repeated ProductColorListItem Colors = 1;
+  repeated ProductColor Colors = 1;
 }
 
 message ProductStockRequest {

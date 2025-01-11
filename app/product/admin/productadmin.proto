@@ -11,6 +11,93 @@ message ProductCountResponse {
     int64 Count = 1;
 }
 
+message ProductListRequest {
+    optional int64 StarId = 1;
+    int64 Page = 2;
+    int64 PageSize = 3;
+}
+
+message ProductListColorItem {
+    string CoverUrl = 1;
+    double Price = 2;
+    string Unit = 3;
+}
+
+message ProductListItem {
+    int64 Id = 1;
+    string Description = 3;
+    string Name = 4;
+    int64 CreatedAt = 5;
+    double Rate = 6;
+    int64 RateCount = 7;
+    ProductListColorItem DefaultColor = 8;
+}
+
+message ProductListResponse {
+    repeated ProductListItem Products = 1;
+    int64 Total = 2;
+}
+
+message CreateProductRequest {
+    int64 StarId = 1;
+    string Name = 2;
+    string Description = 3;
+    optional string Detail = 6;
+    int64 DefaultColorId = 7;
+}
+
+message CreateProductResponse {
+    int64 Id = 1;
+}
+
+message CreateProductColorRequeset {
+    int64 ProductId = 1;
+    string ColorName = 2;
+    string CoverUrl = 3;
+    string ImageUrl = 4;
+    string DetailImagesUrl = 5;
+    double Price = 6;
+    string Unit = 7;
+    string Size = 8;
+    int64 InStock = 9;
+}
+
+message CreateProductColorResponse {
+    int64 Id = 1;
+}
+
+message UpdateProductColorRequest {
+    int64 Id = 1;
+    optional string ColorName = 2;
+    optional string CoverUrl = 3;
+    optional string ImageUrl = 4;
+    optional string DetailImagesUrl = 5;
+    optional double Price = 6;
+    optional string Unit = 7;
+    optional string Size = 8;
+    optional int64 ProductId = 9;
+}
+
+message UpdateProductColorResponse {
+    int64 Id = 1;
+}
+
+message CreateProductColorStockRequest {
+    int64 ProductId = 1;
+    int64 ColorId = 2;
+    int64 InStock = 3;   
+    string Size = 4;
+}
+
+message CreateProductColorStockResponse {
+    int64 Id = 1;
+}
+
 service Product {
     rpc ProductCount(ProductCountRequest) returns (ProductCountResponse);
+    rpc ProductList(ProductListRequest) returns (ProductListResponse);
+    rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+    rpc CreateProductColor(CreateProductColorRequeset) returns (CreateProductColorResponse);
+    rpc UpdateProductColor(UpdateProductColorRequest) returns (UpdateProductColorResponse);
+    rpc CreateProductColorStock(CreateProductColorStockRequest) returns (CreateProductColorStockResponse);
 }
