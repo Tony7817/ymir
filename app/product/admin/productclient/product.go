@@ -20,6 +20,8 @@ type (
 	CreateProductColorStockResponse = product.CreateProductColorStockResponse
 	CreateProductRequest            = product.CreateProductRequest
 	CreateProductResponse           = product.CreateProductResponse
+	DeleteProductRequest            = product.DeleteProductRequest
+	DeleteProductResponse           = product.DeleteProductResponse
 	ProductCountRequest             = product.ProductCountRequest
 	ProductCountResponse            = product.ProductCountResponse
 	ProductListColorItem            = product.ProductListColorItem
@@ -36,6 +38,7 @@ type (
 		CreateProductColor(ctx context.Context, in *CreateProductColorRequeset, opts ...grpc.CallOption) (*CreateProductColorResponse, error)
 		UpdateProductColor(ctx context.Context, in *UpdateProductColorRequest, opts ...grpc.CallOption) (*UpdateProductColorResponse, error)
 		CreateProductColorStock(ctx context.Context, in *CreateProductColorStockRequest, opts ...grpc.CallOption) (*CreateProductColorStockResponse, error)
+		DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*DeleteProductResponse, error)
 	}
 
 	defaultProduct struct {
@@ -77,4 +80,9 @@ func (m *defaultProduct) UpdateProductColor(ctx context.Context, in *UpdateProdu
 func (m *defaultProduct) CreateProductColorStock(ctx context.Context, in *CreateProductColorStockRequest, opts ...grpc.CallOption) (*CreateProductColorStockResponse, error) {
 	client := product.NewProductClient(m.cli.Conn())
 	return client.CreateProductColorStock(ctx, in, opts...)
+}
+
+func (m *defaultProduct) DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*DeleteProductResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.DeleteProduct(ctx, in, opts...)
 }

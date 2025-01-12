@@ -28,6 +28,14 @@ type CreteStarRequest struct {
 	PosterUrl   string  `json:"poster_url"`
 }
 
+type DeleteProductRequest struct {
+	ProductId string `path:"productId"`
+}
+
+type DeleteProductResponse struct {
+	ProductId string `json:"product_id"`
+}
+
 type ProductColor struct {
 	ColorName       string             `json:"color_name"`
 	CoverUrl        string             `json:"cover_url"`

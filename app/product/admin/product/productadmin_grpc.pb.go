@@ -25,6 +25,7 @@ const (
 	Product_CreateProductColor_FullMethodName      = "/admin.Product/CreateProductColor"
 	Product_UpdateProductColor_FullMethodName      = "/admin.Product/UpdateProductColor"
 	Product_CreateProductColorStock_FullMethodName = "/admin.Product/CreateProductColorStock"
+	Product_DeleteProduct_FullMethodName           = "/admin.Product/DeleteProduct"
 )
 
 // ProductClient is the client API for Product service.
@@ -37,6 +38,7 @@ type ProductClient interface {
 	CreateProductColor(ctx context.Context, in *CreateProductColorRequeset, opts ...grpc.CallOption) (*CreateProductColorResponse, error)
 	UpdateProductColor(ctx context.Context, in *UpdateProductColorRequest, opts ...grpc.CallOption) (*UpdateProductColorResponse, error)
 	CreateProductColorStock(ctx context.Context, in *CreateProductColorStockRequest, opts ...grpc.CallOption) (*CreateProductColorStockResponse, error)
+	DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*DeleteProductResponse, error)
 }
 
 type productClient struct {
@@ -107,6 +109,16 @@ func (c *productClient) CreateProductColorStock(ctx context.Context, in *CreateP
 	return out, nil
 }
 
+func (c *productClient) DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*DeleteProductResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteProductResponse)
+	err := c.cc.Invoke(ctx, Product_DeleteProduct_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProductServer is the server API for Product service.
 // All implementations must embed UnimplementedProductServer
 // for forward compatibility.
@@ -117,6 +129,7 @@ type ProductServer interface {
 	CreateProductColor(context.Context, *CreateProductColorRequeset) (*CreateProductColorResponse, error)
 	UpdateProductColor(context.Context, *UpdateProductColorRequest) (*UpdateProductColorResponse, error)
 	CreateProductColorStock(context.Context, *CreateProductColorStockRequest) (*CreateProductColorStockResponse, error)
+	DeleteProduct(context.Context, *DeleteProductRequest) (*DeleteProductResponse, error)
 	mustEmbedUnimplementedProductServer()
 }
 
@@ -144,6 +157,9 @@ func (UnimplementedProductServer) UpdateProductColor(context.Context, *UpdatePro
 }
 func (UnimplementedProductServer) CreateProductColorStock(context.Context, *CreateProductColorStockRequest) (*CreateProductColorStockResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateProductColorStock not implemented")
+}
+func (UnimplementedProductServer) DeleteProduct(context.Context, *DeleteProductRequest) (*DeleteProductResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteProduct not implemented")
 }
 func (UnimplementedProductServer) mustEmbedUnimplementedProductServer() {}
 func (UnimplementedProductServer) testEmbeddedByValue()                 {}
@@ -274,6 +290,24 @@ func _Product_CreateProductColorStock_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Product_DeleteProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteProductRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServer).DeleteProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Product_DeleteProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServer).DeleteProduct(ctx, req.(*DeleteProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Product_ServiceDesc is the grpc.ServiceDesc for Product service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +338,10 @@ var Product_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateProductColorStock",
 			Handler:    _Product_CreateProductColorStock_Handler,
+		},
+		{
+			MethodName: "DeleteProduct",
+			Handler:    _Product_DeleteProduct_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

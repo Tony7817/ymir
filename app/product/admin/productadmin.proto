@@ -93,6 +93,22 @@ message CreateProductColorStockResponse {
     int64 Id = 1;
 }
 
+message DeleteProductRequest {
+    int64 ProductId = 1;
+}
+
+message DeleteProductResponse {
+    int64 ProductId = 1;
+}
+
+message DeleteProductColorRequest {
+    int64 ColorId = 1;
+}
+
+message DeleteProductColorResposne {
+    int64 ColorId = 1;
+}
+
 service Product {
     rpc ProductCount(ProductCountRequest) returns (ProductCountResponse);
     rpc ProductList(ProductListRequest) returns (ProductListResponse);
@@ -100,4 +116,5 @@ service Product {
     rpc CreateProductColor(CreateProductColorRequeset) returns (CreateProductColorResponse);
     rpc UpdateProductColor(UpdateProductColorRequest) returns (UpdateProductColorResponse);
     rpc CreateProductColorStock(CreateProductColorStockRequest) returns (CreateProductColorStockResponse);
+    rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
 }

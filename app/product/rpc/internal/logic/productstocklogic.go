@@ -2,6 +2,8 @@ package logic
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"ymir.com/app/product/rpc/internal/svc"
 	"ymir.com/app/product/rpc/product"
@@ -25,8 +27,13 @@ func NewProductStockLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Prod
 
 func (l *ProductStockLogic) ProductStock(in *product.ProductStockRequest) (*product.ProductStockResponse, error) {
 	s, err := l.svcCtx.ProductStockModel.FindOneByProductIdColorIdSize(l.ctx, in.ProductId, in.ColorId, in.Size)
-	if err != nil {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
+	}
+	if errors.Is(err, sql.ErrNoRows) {
+		return &product.ProductStockResponse{
+			Stock: 0,
+		}, nil
 	}
 
 	return &product.ProductStockResponse{

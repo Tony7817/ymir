@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"github.com/zeromicro/go-zero/core/mr"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/threading"
@@ -23,6 +24,7 @@ type (
 		CountTotalProduct(ctx context.Context, starId *int64) (int64, error)
 		CheckProductBelongToStar(ctx context.Context, productId, starId int64) (bool, error)
 		SFInsert(ctx context.Context, product *Product) (int64, error)
+		DeleteProduct(ctx context.Context, pId int64) error
 	}
 
 	customProductModel struct {
@@ -41,7 +43,7 @@ func NewProductModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option)
 
 func (m *customProductModel) CheckProductBelongToStar(ctx context.Context, productId, starId int64) (bool, error) {
 	var count int64
-	var cacheKey = fmt.Sprintf("cache:starId:of:product:%d", productId)
+	var cacheKey = CacheKeyProductBelongToStar(productId)
 	err := m.QueryRowCtx(ctx, &count, cacheKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
 		return conn.QueryRowCtx(ctx, &count, "select count(*) from product where id = ? and star_id = ?", productId, starId)
 	})
@@ -74,12 +76,7 @@ func (m *customProductModel) FindProductList(ctx context.Context, starId *int64,
 }
 
 func (m *customProductModel) CountTotalProduct(ctx context.Context, starId *int64) (int64, error) {
-	var cacheKey string
-	if starId != nil {
-		cacheKey = fmt.Sprintf("cache:total:product:star:%d", *starId)
-	} else {
-		cacheKey = "cache:total:product"
-	}
+	var cacheKey = CacheKeyProductCount(starId)
 	var count int64
 	var cond = " where 1=1"
 	if starId != nil {
@@ -104,9 +101,48 @@ func (m *customProductModel) SFInsert(ctx context.Context, product *Product) (in
 
 	threading.GoSafe(func() {
 		_ = util.Retry("del cache", 3, 3, func() error {
-			return m.CachedConn.DelCache(ProductCountCacheKey(&product.StarId))
+			return m.CachedConn.DelCache(CacheKeyProductCount(&product.StarId))
 		})
 	})
 
 	return product.Id, nil
+}
+
+func (m *customProductModel) DeleteProduct(ctx context.Context, pId int64) error {
+	err := m.TransactCtx(ctx, func(ctx context.Context, s sqlx.Session) error {
+		_, err := s.ExecCtx(ctx, "delete from product_stock where product_id = ?", pId)
+		if err != nil {
+			return err
+		}
+
+		_, err = s.ExecCtx(ctx, "delete from product_color_detail where product_id = ?", pId)
+		if err != nil {
+			return err
+		}
+
+		_, err = s.ExecCtx(ctx, "delete from product where id = ?", pId)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return errors.Wrap(err, "[DeleteProduct] delete product failed")
+	}
+
+	threading.GoSafe(func() {
+		_ = mr.Finish(func() error {
+			_ = m.DelCache(CacheKeyProductCount(&pId))
+			return nil
+		}, func() error {
+			_ = m.DelCache(CacheKeyProductColorList(pId))
+			return nil
+		}, func() error {
+			_ = m.DelCache(CacheKeyProduct(pId))
+			return nil
+		})
+	})
+
+	return nil
 }

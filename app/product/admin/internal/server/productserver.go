@@ -52,3 +52,8 @@ func (s *ProductServer) CreateProductColorStock(ctx context.Context, in *product
 	l := logic.NewCreateProductColorStockLogic(ctx, s.svcCtx)
 	return l.CreateProductColorStock(in)
 }
+
+func (s *ProductServer) DeleteProduct(ctx context.Context, in *product.DeleteProductRequest) (*product.DeleteProductResponse, error) {
+	l := logic.NewDeleteProductLogic(ctx, s.svcCtx)
+	return l.DeleteProduct(in)
+}

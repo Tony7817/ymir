@@ -111,6 +111,12 @@ type (
 	CreateProductResponse {
 		ProductId string `json:"product_id"`
 	}
+	DeleteProductRequest {
+		ProductId string `path:"productId"`
+	}
+	DeleteProductResponse {
+		ProductId string `json:"product_id"`
+	}
 )
 
 @server (
@@ -137,6 +143,9 @@ service bffs {
 
 	@handler CreateProduct
 	post /product/create (CreateProductRequest) returns (CreateProductResponse)
+
+	@handler DeleteProduct
+	post /product/:productId/delete (DeleteProductRequest) returns (DeleteProductResponse)
 }
 
 @server (
