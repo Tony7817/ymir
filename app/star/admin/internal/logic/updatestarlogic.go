@@ -26,26 +26,21 @@ func NewUpdateStarLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Update
 }
 
 func (l *UpdateStarLogic) UpdateStar(in *star.UpdateStarReqeust) (*star.UpdateStarResponse, error) {
-	var starInfo = model.Star{Id: in.Id}
-	if in.Name != nil {
-		starInfo.Name = *in.Name
-	}
-	if in.AvatarUrl != nil {
-		starInfo.AvatarUrl = *in.AvatarUrl
-	}
-	if in.CoverUrl != nil {
-		starInfo.CoverUrl = *in.CoverUrl
-	}
+	var desc sql.NullString
 	if in.Description != nil {
-		starInfo.Description = sql.NullString{
-			String: *in.Description,
-			Valid:  true,
-		}
+		desc.String = *in.Description
+		desc.Valid = true
 	}
-	if in.PosterUrl != nil {
-		starInfo.PosterUrl = *in.PosterUrl
+	var starInfo = model.StarPartial{
+		Id:          in.Id,
+		Name:        in.Name,
+		AvatarUrl:   in.AvatarUrl,
+		CoverUrl:    in.CoverUrl,
+		Description: &desc,
+		PosterUrl:   in.PosterUrl,
 	}
-	if err := l.svcCtx.StarModel.Update(l.ctx, &starInfo); err != nil {
+	_, err := l.svcCtx.StarModel.UpdatePartial(l.ctx, &starInfo)
+	if err != nil {
 		return nil, err
 	}
 
