@@ -3,18 +3,18 @@ package id
 import (
 	"context"
 	"encoding/json"
-	"strconv"
 
 	"github.com/pkg/errors"
+	"github.com/speps/go-hashids"
 	"ymir.com/pkg/vars"
 	"ymir.com/pkg/xerr"
 )
 
-// var Hash *HashID
+var hash *hashids.HashID
 
-// func init() {
-// 	Hash = NewHashID()
-// }
+func init() {
+	hash = NewHashIds()
+}
 
 // type HashID struct {
 // 	hash *hashids.HashID
@@ -26,14 +26,14 @@ import (
 // 	}
 // }
 
-// func NewHashIds() *hashids.HashID {
-// 	var hd = hashids.NewData()
-// 	hd.Salt = "123poiasdmnmb"
-// 	hd.MinLength = 8
-// 	hd.Alphabet = "qwertyuiopasdfghjklzxcvbnm"
-// 	h, _ := hashids.NewWithData(hd)
-// 	return h
-// }
+func NewHashIds() *hashids.HashID {
+	var hd = hashids.NewData()
+	hd.Salt = "123poiasdmnmb"
+	hd.MinLength = 8
+	hd.Alphabet = "qwertyuiopasdfghjklzxcvbnm"
+	h, _ := hashids.NewWithData(hd)
+	return h
+}
 
 // func (h *HashID) EncodedId(id int64) (string, error) {
 // 	encodedId, err := h.hash.EncodeInt64([]int64{id})
@@ -58,13 +58,11 @@ func GetDecodedUserId(ctx context.Context) (int64, error) {
 }
 
 func EncodeId(id int64) string {
-	return strconv.FormatInt(id, 10)
+	ide, _ := hash.EncodeInt64([]int64{id})
+	return ide
 }
 
 func DecodeId(id string) (int64, error) {
-	res, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		return 0, xerr.NewErrCode(xerr.ReuqestParamError)
-	}
-	return res, nil
+	res := hash.DecodeInt64(id)
+	return res[0], nil
 }
