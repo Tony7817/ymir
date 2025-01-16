@@ -70,7 +70,7 @@ func (l *ProductListLogic) colorOfProducts(ps []*model.Product) ([]*product.Prod
 			source <- p
 		}
 	}, func(p *model.Product, writer mr.Writer[*product.ProductListItem], cancel func(error)) {
-		color, err := l.svcCtx.ProductColorModel.FindOne(l.ctx, p.DefaultColorId)
+		color, err := l.svcCtx.ProductColorModel.FindOneByProductIdIsDefault(l.ctx, p.Id, 1)
 		if err != nil {
 			cancel(errors.Wrapf(err, "[colorOfProducts] failed to find color of product"))
 			return
@@ -79,13 +79,13 @@ func (l *ProductListLogic) colorOfProducts(ps []*model.Product) ([]*product.Prod
 			Id:          p.Id,
 			Description: p.Description,
 			Name:        p.Name,
+			Rate:      p.Rate,
+			RateCount: p.RateCount,
 			DefaultColor: &product.ProductListColorItem{
 				CoverUrl: color.CoverUrl,
 				Price:    color.Price,
 				Unit:     color.Unit,
 			},
-			Rate:      p.Rate,
-			RateCount: p.RateCount,
 		})
 	}, func(pipe <-chan *product.ProductListItem, writer mr.Writer[[]*product.ProductListItem], cancel func(error)) {
 		var items []*product.ProductListItem

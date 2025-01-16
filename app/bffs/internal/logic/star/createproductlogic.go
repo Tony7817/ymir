@@ -29,94 +29,55 @@ func NewCreateProductLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cre
 }
 
 func (l *CreateProductLogic) CreateProduct(req *types.CreateProductRequest) (*types.CreateProductResponse, error) {
-	if req.Name == "" || req.Description == "" || !isSizesEmpty(req.Color) {
+	if req.Name == "" || req.Description == "" || !isSizesAdnColorInvalid(req.Color) {
 		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
 	}
 
-	var (
-		respbColor *product.CreateProductColorResponse
-	)
-
-	respbColor, err := l.svcCtx.ProductAdminRPC.CreateProductColor(l.ctx, &product.CreateProductColorRequeset{
-		ColorName:       req.DefaultColor.ColorName,
-		CoverUrl:        req.DefaultColor.CoverUrl,
-		ImageUrl:        req.DefaultColor.ImagesUrl,
-		DetailImagesUrl: req.DefaultColor.DetailImagesUrl,
-		Price:           req.DefaultColor.Price,
-		Unit:            req.DefaultColor.Unit,
-		Size:            composeSizeStr(req.DefaultColor.Sizes),
-	})
-	if err != nil {
-		return nil, err
-	}
-	var defaultCId = respbColor.Id
-
-	var newPId int64
 	sId, err := id.DecodeId(req.StarId)
 	if err != nil {
 		return nil, err
 	}
+	var newPId int64
 	respbProduct, err := l.svcCtx.ProductAdminRPC.CreateProduct(l.ctx, &product.CreateProductRequest{
-		StarId:         sId,
-		Name:           req.Name,
-		Description:    req.Description,
-		DefaultColorId: defaultCId,
-		Detail:         req.Detail,
+		StarId:      sId,
+		Name:        req.Name,
+		Description: req.Description,
+		Detail:      req.Detail,
 	})
 	if err != nil {
 		return nil, err
 	}
 	newPId = respbProduct.Id
 
-	err = mr.Finish(
-		// add size
-		func() error {
-			return l.createProductColorStock(newPId, defaultCId, req.DefaultColor.Sizes)
-		},
-		func() error {
-			_, err = l.svcCtx.ProductAdminRPC.UpdateProductColor(l.ctx, &product.UpdateProductColorRequest{
-				Id:        defaultCId,
-				ProductId: &newPId,
-			})
-			if err != nil {
-				return err
-			}
-			return nil
-		},
-		func() error {
-			err := mr.MapReduceVoid(func(source chan<- *types.ProductColor) {
-				for _, c := range req.Color {
-					source <- &c
-				}
-			}, func(item *types.ProductColor, writer mr.Writer[int64], cancel func(error)) {
-				respb, err := l.svcCtx.ProductAdminRPC.CreateProductColor(l.ctx, &product.CreateProductColorRequeset{
-					ProductId:       respbProduct.Id,
-					ColorName:       item.ColorName,
-					CoverUrl:        item.CoverUrl,
-					ImageUrl:        item.ImagesUrl,
-					DetailImagesUrl: item.DetailImagesUrl,
-					Price:           item.Price,
-					Unit:            item.Unit,
-					Size:            composeSizeStr(item.Sizes),
-				})
-				if err != nil {
-					cancel(errors.Wrap(err, "failed to create product color"))
-				}
-				err = l.createProductColorStock(newPId, respb.Id, item.Sizes)
-				if err != nil {
-					cancel(err)
-					return
-				}
-				writer.Write(respb.Id)
-			}, func(pipe <-chan int64, cancel func(error)) {
-				for range pipe {
-				}
-			})
-			if err != nil {
-				return err
-			}
-			return nil
+	err = mr.MapReduceVoid(func(source chan<- *types.ProductColor) {
+		for i := 0; i < len(req.Color); i++ {
+			source <- &req.Color[i]
+		}
+	}, func(item *types.ProductColor, writer mr.Writer[int64], cancel func(error)) {
+		respb, err := l.svcCtx.ProductAdminRPC.CreateProductColor(l.ctx, &product.CreateProductColorRequeset{
+			ProductId:       respbProduct.Id,
+			ColorName:       item.ColorName,
+			CoverUrl:        item.CoverUrl,
+			ImageUrl:        item.ImagesUrl,
+			DetailImagesUrl: item.DetailImagesUrl,
+			Price:           item.Price,
+			Unit:            item.Unit,
+			Size:            composeSizeStr(item.Sizes),
+			IsDefault:       item.IsDefault,
 		})
+		if err != nil {
+			cancel(errors.Wrap(err, "failed to create product color"))
+		}
+		err = l.createProductColorStock(newPId, respb.Id, item.Sizes)
+		if err != nil {
+			cancel(err)
+			return
+		}
+		writer.Write(respb.Id)
+	}, func(pipe <-chan int64, cancel func(error)) {
+		for range pipe {
+		}
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -150,11 +111,18 @@ func (l *CreateProductLogic) createProductColorStock(pId int64, cId int64, sizes
 	})
 }
 
-func isSizesEmpty(cs []types.ProductColor) bool {
+func isSizesAdnColorInvalid(cs []types.ProductColor) bool {
+	var flag = 0
 	for i := 0; i < len(cs); i++ {
 		if len(cs[i].Sizes) == 0 {
 			return false
 		}
+		if cs[i].IsDefault {
+			flag++
+		}
+	}
+	if flag != 1 {
+		return false
 	}
 
 	return true

@@ -34,7 +34,6 @@ func (l *CreateProductLogic) CreateProduct(in *product.CreateProductRequest) (*p
 
 	id, err := l.svcCtx.ProductModel.SFInsert(l.ctx, &model.Product{
 		StarId:         in.StarId,
-		DefaultColorId: in.DefaultColorId,
 		Name:           in.Name,
 		SoldNum:        0,
 		Description:    in.Description,

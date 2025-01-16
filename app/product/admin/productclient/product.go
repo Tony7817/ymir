@@ -20,6 +20,8 @@ type (
 	CreateProductColorStockResponse = product.CreateProductColorStockResponse
 	CreateProductRequest            = product.CreateProductRequest
 	CreateProductResponse           = product.CreateProductResponse
+	DeleteProductColorRequest       = product.DeleteProductColorRequest
+	DeleteProductColorResposne      = product.DeleteProductColorResposne
 	DeleteProductRequest            = product.DeleteProductRequest
 	DeleteProductResponse           = product.DeleteProductResponse
 	ProductCountRequest             = product.ProductCountRequest

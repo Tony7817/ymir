@@ -4,12 +4,11 @@
 package types
 
 type CreateProductRequest struct {
-	StarId       string         `json:"star_id"`
-	Description  string         `json:"description"`
-	Name         string         `json:"name"`
-	Detail       *string        `json:"detail,optional"`
-	Color        []ProductColor `json:"color"`
-	DefaultColor ProductColor   `json:"default_color"`
+	StarId      string         `json:"star_id"`
+	Description string         `json:"description"`
+	Name        string         `json:"name"`
+	Detail      *string        `json:"detail,optional"`
+	Color       []ProductColor `json:"color"`
 }
 
 type CreateProductResponse struct {
@@ -44,6 +43,7 @@ type ProductColor struct {
 	Price           float64            `json:"price"`
 	Unit            string             `json:"unit"`
 	Sizes           []ProductColorSize `json:"sizes"`
+	IsDefault       bool               `json:"is_default"`
 }
 
 type ProductColorSize struct {

@@ -32,6 +32,7 @@ type (
 	ProductCoverUrlResponse            = product.ProductCoverUrlResponse
 	ProductDetailReqeust               = product.ProductDetailReqeust
 	ProductDetailResponse              = product.ProductDetailResponse
+	ProductListColorItem               = product.ProductListColorItem
 	ProductListItem                    = product.ProductListItem
 	ProductListRequest                 = product.ProductListRequest
 	ProductListResponse                = product.ProductListResponse

@@ -30,12 +30,14 @@ func NewProductDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pro
 }
 
 func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*types.ProductDetailResponse, error) {
-
 	var (
-		p        *product.ProductDetailResponse
-		respbCs  *product.ProductColorListResponse
-		pcmt     *product.ProductCommentListResponse
-		pcmtSize int64 = 10
+		p         *product.ProductDetailResponse
+		respbCs   *product.ProductColorListResponse
+		pcmt      *product.ProductCommentListResponse
+		s         *star.StarDetailResponse
+		pcmtFinal []types.ProductComment
+		pColors   []types.ProductColor
+		pcmtSize  int64 = 10
 	)
 	pId, err := id.DecodeId(req.Id)
 	if err != nil {
@@ -53,6 +55,12 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		if err != nil {
 			return errors.Wrapf(err, "[ProductDetail] failed to get product detail")
 		}
+		s, err = l.svcCtx.StarRPC.StarDetail(l.ctx, &star.StarDetailRequest{
+			Id: p.StarId,
+		})
+		if err != nil {
+			return errors.Wrapf(err, "[ProductDetail] failed to get star detail")
+		}
 		return nil
 	}, func() error {
 		var err error
@@ -61,6 +69,10 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		})
 		if err != nil {
 			return errors.Wrap(err, "[ProductDetail] failed to get product color list")
+		}
+		pColors, err = l.findProductColorStock(respbCs.Colors)
+		if err != nil {
+			return errors.Wrap(err, "[ProductDetail] failed to get product color stock")
 		}
 		return nil
 	}, func() error {
@@ -73,41 +85,6 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		if err != nil {
 			return err
 		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	var (
-		s         *star.StarDetailResponse
-		pcolor    *product.ProductColorResponse
-		pcmtFinal = make([]types.ProductComment, 0)
-	)
-
-	// find star detail by starId
-	// find default color by defaultColorId
-	// find user info in product comment by user id
-	err = mr.Finish(func() error {
-		var err error
-		s, err = l.svcCtx.StarRPC.StarDetail(l.ctx, &star.StarDetailRequest{
-			Id: p.StarId,
-		})
-		if err != nil {
-			return errors.Wrapf(err, "[ProductDetail] failed to get star detail")
-		}
-		return nil
-	}, func() error {
-		var err error
-		pcolor, err = l.svcCtx.ProductRPC.ProductColor(l.ctx, &product.ProductColorRequest{
-			ColorId: p.DefaultColorId,
-		})
-		if err != nil {
-			return errors.Wrapf(err, "[ProductDetail] failed to get product color")
-		}
-		return nil
-	}, func() error {
-		var err error
 		if len(pcmt.Comments) > 0 {
 			pcmtFinal, err = l.buildProductCommentUserInfo(pcmt.Comments)
 			if err != nil {
@@ -120,81 +97,93 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 		return nil, err
 	}
 
-	// find sizes by productId and colorId
-	sizes, err := mr.MapReduce(func(source chan<- string) {
-		for _, size := range pcolor.Color.AvaliableSizes {
-			source <- size
-		}
-	}, func(size string, writer mr.Writer[*types.ProductSize], cancel func(error)) {
-		stock, err := l.svcCtx.ProductRPC.ProductStock(l.ctx, &product.ProductStockRequest{
-			ProductId: pId,
-			ColorId:   pcolor.Color.Id,
-			Size:      size,
-		})
-		if err != nil {
-			cancel(errors.Wrapf(err, "[ProductDetail] failed to get product stock"))
-			return
-		}
-		productStock := types.ProductSize{
-			SizeName: size,
-			InStock:  stock.Stock,
-		}
-		writer.Write(&productStock)
-	}, func(pipe <-chan *types.ProductSize, writer mr.Writer[[]types.ProductSize], cancel func(error)) {
-		var sizes []types.ProductSize
-		for size := range pipe {
-			sizes = append(sizes, *size)
-		}
-		writer.Write(sizes)
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	var color = types.ProductColor{
-		Id:            id.EncodeId(p.Id),
-		ColorName:     pcolor.Color.Name,
-		Images:        pcolor.Color.Images,
-		Detail_Images: pcolor.Color.DetailImages,
-		Price:         pcolor.Color.Price,
-		CoverUrl:      pcolor.Color.CoverUrl,
-		Unit:          pcolor.Color.Unit,
-		Size:          sizes,
-	}
-
-	var clres = make([]types.ProductColor, len(respbCs.Colors))
-	for i := 0; i < len(respbCs.Colors); i++ {
-		clres[i] = types.ProductColor{
-			Id:            id.EncodeId(respbCs.Colors[i].Id),
-			ColorName:     respbCs.Colors[i].Name,
-			Images:        respbCs.Colors[i].Images,
-			Detail_Images: respbCs.Colors[i].DetailImages,
-			Price:         respbCs.Colors[i].Price,
-			CoverUrl:      respbCs.Colors[i].CoverUrl,
-			Unit:          respbCs.Colors[i].Unit,
-			Size:          sizes,
-		}
-	}
-
 	var pcmtRes = types.ProductCommentResponse{
 		Comments: pcmtFinal,
 		Total:    pcmt.Total,
 	}
 
 	var res = &types.ProductDetailResponse{
-		Id:           id.EncodeId(p.Id),
-		Description:  p.Description,
-		Rate:         p.Rate,
-		RateCount:    p.ReteCount,
-		DefaultColor: color,
-		Colors:       clres,
-		SoldNum:      p.SoldNum,
-		Detail:       &p.Detail,
-		StarAvatar:   s.AvatarUrl,
-		StarName:     s.Name,
-		StarId:       id.EncodeId(s.Id),
-		StarRate:     s.Rate,
-		Comments:     pcmtRes,
+		Id:          id.EncodeId(p.Id),
+		Description: p.Description,
+		Rate:        p.Rate,
+		RateCount:   p.ReteCount,
+		Colors:      pColors,
+		SoldNum:     p.SoldNum,
+		Detail:      &p.Detail,
+		StarAvatar:  s.AvatarUrl,
+		StarName:    s.Name,
+		StarId:      id.EncodeId(s.Id),
+		StarRate:    s.Rate,
+		Comments:    pcmtRes,
+	}
+
+	return res, nil
+}
+
+func (l *ProductDetailLogic) findProductColorStock(cs []*product.ProductColor) ([]types.ProductColor, error) {
+	resColor, err := mr.MapReduce(func(source chan<- *product.ProductColor) {
+		for i := 0; i < len(cs); i++ {
+			source <- cs[i]
+		}
+	}, func(c *product.ProductColor, writer mr.Writer[*types.ProductColor], cancel func(error)) {
+		resStock, err := l.findProductColorStockByColor(c.AvaliableSizes, c.ProductId, c.Id)
+		if err != nil {
+			cancel(errors.Wrapf(err, "[ProductDetail] failed to get product stock"))
+			return
+		}
+		writer.Write(&types.ProductColor{
+			Id:            id.EncodeId(c.Id),
+			ColorName:     c.Name,
+			Images:        c.Images,
+			Detail_Images: c.DetailImages,
+			Price:         c.Price,
+			CoverUrl:      c.CoverUrl,
+			Unit:          c.Unit,
+			Size:          resStock,
+			IsDefault:     c.IsDefault,
+		})
+	}, func(pipe <-chan *types.ProductColor, writer mr.Writer[[]types.ProductColor], cancel func(error)) {
+		var cs []types.ProductColor
+		for c := range pipe {
+			cs = append(cs, *c)
+		}
+		writer.Write(cs)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return resColor, nil
+}
+
+func (l *ProductDetailLogic) findProductColorStockByColor(sizes []string, pId int64, cId int64) ([]types.ProductSize, error) {
+	res, err := mr.MapReduce(func(source chan<- string) {
+		for i := 0; i < len(sizes); i++ {
+			source <- sizes[i]
+		}
+	}, func(size string, writer mr.Writer[*types.ProductSize], cancel func(error)) {
+		ps, err := l.svcCtx.ProductRPC.ProductStock(l.ctx, &product.ProductStockRequest{
+			ProductId: pId,
+			ColorId:   cId,
+			Size:      size,
+		})
+		if err != nil {
+			cancel(err)
+			return
+		}
+		writer.Write(&types.ProductSize{
+			SizeName: size,
+			InStock:  ps.Stock,
+		})
+	}, func(pipe <-chan *types.ProductSize, writer mr.Writer[[]types.ProductSize], cancel func(error)) {
+		var res []types.ProductSize
+		for p := range pipe {
+			res = append(res, *p)
+		}
+		writer.Write(res)
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	return res, nil

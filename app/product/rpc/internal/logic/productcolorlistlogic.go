@@ -42,6 +42,7 @@ func (l *ProductColorListLogic) ProductColorList(in *product.ProductColorListReq
 			CoverUrl:       cs[i].CoverUrl,
 			Unit:           cs[i].Unit,
 			AvaliableSizes: strings.Split(cs[i].AvailableSize, ","),
+			IsDefault:      cs[i].IsDefault == 1,
 		})
 	}
 

@@ -24,13 +24,15 @@ var (
 	productColorDetailRowsExpectAutoSet   = strings.Join(stringx.Remove(productColorDetailFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	productColorDetailRowsWithPlaceHolder = strings.Join(stringx.Remove(productColorDetailFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
-	cacheYmirProductColorDetailIdPrefix = "cache:ymir:productColorDetail:id:"
+	cacheYmirProductColorDetailIdPrefix                 = "cache:ymir:productColorDetail:id:"
+	cacheYmirProductColorDetailProductIdIsDefaultPrefix = "cache:ymir:productColorDetail:productId:isDefault:"
 )
 
 type (
 	productColorDetailModel interface {
 		Insert(ctx context.Context, data *ProductColorDetail) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*ProductColorDetail, error)
+		FindOneByProductIdIsDefault(ctx context.Context, productId int64, isDefault int64) (*ProductColorDetail, error)
 		Update(ctx context.Context, data *ProductColorDetail) error
 		Delete(ctx context.Context, id int64) error
 	}
@@ -53,6 +55,7 @@ type (
 		SoldNum       sql.NullInt64 `db:"sold_num"`
 		AvailableSize string        `db:"available_size"`
 		CoverUrl      string        `db:"cover_url"`
+		IsDefault     int64         `db:"is_default"`
 	}
 )
 
@@ -64,11 +67,17 @@ func newProductColorDetailModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...ca
 }
 
 func (m *defaultProductColorDetailModel) Delete(ctx context.Context, id int64) error {
+	data, err := m.FindOne(ctx, id)
+	if err != nil {
+		return err
+	}
+
 	ymirProductColorDetailIdKey := fmt.Sprintf("%s%v", cacheYmirProductColorDetailIdPrefix, id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+	ymirProductColorDetailProductIdIsDefaultKey := fmt.Sprintf("%s%v:%v", cacheYmirProductColorDetailProductIdIsDefaultPrefix, data.ProductId, data.IsDefault)
+	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		return conn.ExecCtx(ctx, query, id)
-	}, ymirProductColorDetailIdKey)
+	}, ymirProductColorDetailIdKey, ymirProductColorDetailProductIdIsDefaultKey)
 	return err
 }
 
@@ -89,21 +98,48 @@ func (m *defaultProductColorDetailModel) FindOne(ctx context.Context, id int64) 
 	}
 }
 
+func (m *defaultProductColorDetailModel) FindOneByProductIdIsDefault(ctx context.Context, productId int64, isDefault int64) (*ProductColorDetail, error) {
+	ymirProductColorDetailProductIdIsDefaultKey := fmt.Sprintf("%s%v:%v", cacheYmirProductColorDetailProductIdIsDefaultPrefix, productId, isDefault)
+	var resp ProductColorDetail
+	err := m.QueryRowIndexCtx(ctx, &resp, ymirProductColorDetailProductIdIsDefaultKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
+		query := fmt.Sprintf("select %s from %s where `product_id` = ? and `is_default` = ? limit 1", productColorDetailRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, productId, isDefault); err != nil {
+			return nil, err
+		}
+		return resp.Id, nil
+	}, m.queryPrimary)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
 func (m *defaultProductColorDetailModel) Insert(ctx context.Context, data *ProductColorDetail) (sql.Result, error) {
 	ymirProductColorDetailIdKey := fmt.Sprintf("%s%v", cacheYmirProductColorDetailIdPrefix, data.Id)
+	ymirProductColorDetailProductIdIsDefaultKey := fmt.Sprintf("%s%v:%v", cacheYmirProductColorDetailProductIdIsDefaultPrefix, data.ProductId, data.IsDefault)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, productColorDetailRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Id, data.ProductId, data.Color, data.Images, data.DetailImages, data.Price, data.Unit, data.SoldNum, data.AvailableSize, data.CoverUrl)
-	}, ymirProductColorDetailIdKey)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, productColorDetailRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.ProductId, data.Color, data.Images, data.DetailImages, data.Price, data.Unit, data.SoldNum, data.AvailableSize, data.CoverUrl, data.IsDefault)
+	}, ymirProductColorDetailIdKey, ymirProductColorDetailProductIdIsDefaultKey)
 	return ret, err
 }
 
-func (m *defaultProductColorDetailModel) Update(ctx context.Context, data *ProductColorDetail) error {
+func (m *defaultProductColorDetailModel) Update(ctx context.Context, newData *ProductColorDetail) error {
+	data, err := m.FindOne(ctx, newData.Id)
+	if err != nil {
+		return err
+	}
+
 	ymirProductColorDetailIdKey := fmt.Sprintf("%s%v", cacheYmirProductColorDetailIdPrefix, data.Id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+	ymirProductColorDetailProductIdIsDefaultKey := fmt.Sprintf("%s%v:%v", cacheYmirProductColorDetailProductIdIsDefaultPrefix, data.ProductId, data.IsDefault)
+	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, productColorDetailRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.ProductId, data.Color, data.Images, data.DetailImages, data.Price, data.Unit, data.SoldNum, data.AvailableSize, data.CoverUrl, data.Id)
-	}, ymirProductColorDetailIdKey)
+		return conn.ExecCtx(ctx, query, newData.ProductId, newData.Color, newData.Images, newData.DetailImages, newData.Price, newData.Unit, newData.SoldNum, newData.AvailableSize, newData.CoverUrl, newData.IsDefault, newData.Id)
+	}, ymirProductColorDetailIdKey, ymirProductColorDetailProductIdIsDefaultKey)
 	return err
 }
 

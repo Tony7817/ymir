@@ -31,6 +31,7 @@ func (l *StarDetailLogic) StarDetail(req *types.StarDetailRequest) (*types.StarD
 	var (
 		products   *product.ProductListResponse
 		starDetail *star.StarDetailResponse
+		ps         []types.ProductListItem
 	)
 	sId, err := id.DecodeId(req.Id)
 	if err != nil {
@@ -48,6 +49,18 @@ func (l *StarDetailLogic) StarDetail(req *types.StarDetailRequest) (*types.StarD
 			}); err != nil {
 				return err
 			}
+			for i := 0; i < len(products.Products); i++ {
+				ps = append(ps, types.ProductListItem{
+					Id:          id.EncodeId(products.Products[i].Id),
+					Description: products.Products[i].Description,
+					DefaultColor: types.ProductListColorItem{
+						CoverUrl: products.Products[i].DefaultColor.CoverUrl,
+						Price:    products.Products[i].DefaultColor.Price,
+						Unit:     products.Products[i].DefaultColor.Unit,
+					},
+				})
+			}
+
 			return nil
 		},
 		func() error {
@@ -62,17 +75,6 @@ func (l *StarDetailLogic) StarDetail(req *types.StarDetailRequest) (*types.StarD
 	)
 	if err != nil {
 		return nil, err
-	}
-
-	var ps []types.ProductListItem
-	for i := 0; i < len(products.Products); i++ {
-		ps = append(ps, types.ProductListItem{
-			Id:          id.EncodeId(products.Products[i].Id),
-			CoverUrl:    products.Products[i].Coverurl,
-			Description: products.Products[i].Description,
-			Price:       products.Products[i].Price,
-			Unit:        products.Products[i].Unit,
-		})
 	}
 
 	var res = &types.StarDetailResponse{

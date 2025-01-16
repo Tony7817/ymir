@@ -92,6 +92,7 @@ type ProductColor struct {
 	CoverUrl      string        `json:"cover_url"`
 	Unit          string        `json:"unit"`
 	Size          []ProductSize `json:"size"`
+	IsDefault     bool          `json:"is_default"`
 }
 
 type ProductColorListItem struct {
@@ -129,27 +130,30 @@ type ProductDetailRequest struct {
 }
 
 type ProductDetailResponse struct {
-	Id           string                 `json:"id"`
-	Description  string                 `json:"description"`
-	Rate         float64                `json:"rate"`
-	RateCount    int64                  `json:"rate_count"`
-	DefaultColor ProductColor           `json:"default_color"`
-	Colors       []ProductColor         `json:"colors"`
-	SoldNum      int64                  `json:"sold_num"`
-	Detail       *string                `json:"detail"`
-	StarAvatar   string                 `json:"star_avatar"`
-	StarName     string                 `json:"star_name"`
-	StarId       string                 `json:"star_id"`
-	StarRate     float64                `json:"star_rate"`
-	Comments     ProductCommentResponse `json:"comments"`
+	Id          string                 `json:"id"`
+	Description string                 `json:"description"`
+	Rate        float64                `json:"rate"`
+	RateCount   int64                  `json:"rate_count"`
+	Colors      []ProductColor         `json:"colors"`
+	SoldNum     int64                  `json:"sold_num"`
+	Detail      *string                `json:"detail"`
+	StarAvatar  string                 `json:"star_avatar"`
+	StarName    string                 `json:"star_name"`
+	StarId      string                 `json:"star_id"`
+	StarRate    float64                `json:"star_rate"`
+	Comments    ProductCommentResponse `json:"comments"`
+}
+
+type ProductListColorItem struct {
+	CoverUrl string  `json:"cover_url"`
+	Price    float64 `json:"price"`
+	Unit     string  `json:"unit"`
 }
 
 type ProductListItem struct {
-	Id          string  `json:"id"`
-	CoverUrl    string  `json:"cover_url"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	Unit        string  `json:"unit"`
+	Id           string               `json:"id"`
+	Description  string               `json:"description"`
+	DefaultColor ProductListColorItem `json:"default_color"`
 }
 
 type ProductListRequest struct {

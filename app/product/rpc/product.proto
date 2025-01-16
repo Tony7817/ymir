@@ -10,13 +10,17 @@ message ProductListRequest {
   int64 PageSize = 4;
 }
 
+message ProductListColorItem {
+  string CoverUrl = 1;
+  double Price = 2;
+  string Unit = 3;
+}
+
 message ProductListItem {
   int64 Id = 1;
   string Description = 2;
-  double Price = 3;
-  string Color = 4;
-  string Coverurl = 5;
-  string Unit = 6;
+  string Unit = 3;
+  ProductListColorItem DefaultColor = 4;
 }
 
 message ProductCoverUrlRequest {
@@ -48,10 +52,11 @@ message ProductColor {
   string Name = 3;
   repeated string Images = 4;
   repeated string DetailImages = 5;
-  double price = 6;
+  double Price = 6;
   string Unit = 7;
   string CoverUrl = 8;
   repeated string AvaliableSizes = 9;
+  bool IsDefault = 10;
 }
 
 message ProductColorResponse {
@@ -107,7 +112,6 @@ message ProductDetailResponse {
   string Description = 2;
   double Rate = 3;
   int64 ReteCount = 4;
-  int64 DefaultColorId = 7;
   int64 SoldNum = 8;
   string Detail = 9;
   int64 StarId = 10;

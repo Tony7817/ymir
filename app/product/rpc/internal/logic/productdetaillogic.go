@@ -34,7 +34,6 @@ func (l *ProductDetailLogic) ProductDetail(in *product.ProductDetailReqeust) (*p
 		Description:    p.Description,
 		Rate:           p.Rate,
 		ReteCount:      p.RateCount,
-		DefaultColorId: p.DefaultColorId,
 		SoldNum:        p.SoldNum,
 		Detail:         p.Detail.String,
 		StarId:         p.StarId,

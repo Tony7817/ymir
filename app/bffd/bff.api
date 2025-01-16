@@ -36,12 +36,15 @@ type (
 		Page     int64   `json:"page"`
 		PageSize int64   `json:"page_size"`
 	}
+	ProductListColorItem {
+		CoverUrl string  `json:"cover_url"`
+		Price    float64 `json:"price"`
+		Unit     string  `json:"unit"`
+	}
 	ProductListItem {
-		Id          string  `json:"id"`
-		CoverUrl    string  `json:"cover_url"`
-		Description string  `json:"description"`
-		Price       float64 `json:"price"`
-		Unit        string  `json:"unit"`
+		Id           string               `json:"id"`
+		Description  string               `json:"description"`
+		DefaultColor ProductListColorItem `json:"default_color"`
 	}
 	ProductListResponse {
 		Total    int64             `json:"total"`
@@ -68,19 +71,18 @@ type (
 		Color       string   `json:"color"`
 	}
 	ProductDetailResponse {
-		Id           string                 `json:"id"`
-		Description  string                 `json:"description"`
-		Rate         float64                `json:"rate"`
-		RateCount    int64                  `json:"rate_count"`
-		DefaultColor ProductColor           `json:"default_color"`
-		Colors       []ProductColor         `json:"colors"`
-		SoldNum      int64                  `json:"sold_num"`
-		Detail       *string                `json:"detail"`
-		StarAvatar   string                 `json:"star_avatar"`
-		StarName     string                 `json:"star_name"`
-		StarId       string                 `json:"star_id"`
-		StarRate     float64                `json:"star_rate"`
-		Comments     ProductCommentResponse `json:"comments"`
+		Id          string                 `json:"id"`
+		Description string                 `json:"description"`
+		Rate        float64                `json:"rate"`
+		RateCount   int64                  `json:"rate_count"`
+		Colors      []ProductColor         `json:"colors"`
+		SoldNum     int64                  `json:"sold_num"`
+		Detail      *string                `json:"detail"`
+		StarAvatar  string                 `json:"star_avatar"`
+		StarName    string                 `json:"star_name"`
+		StarId      string                 `json:"star_id"`
+		StarRate    float64                `json:"star_rate"`
+		Comments    ProductCommentResponse `json:"comments"`
 	}
 	ProductCommentRequest {
 		ProductId string `json:"product_id"`
@@ -100,6 +102,7 @@ type (
 		CoverUrl      string        `json:"cover_url"`
 		Unit          string        `json:"unit"`
 		Size          []ProductSize `json:"size"`
+		IsDefault     bool          `json:"is_default"`
 	}
 	ProductSize {
 		SizeName string `json:"size_name"`

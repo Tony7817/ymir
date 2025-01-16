@@ -60,6 +60,7 @@ message CreateProductColorRequeset {
     string Unit = 7;
     string Size = 8;
     int64 InStock = 9;
+    bool IsDefault = 10;
 }
 
 message CreateProductColorResponse {
