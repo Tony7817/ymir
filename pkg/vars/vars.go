@@ -46,7 +46,7 @@ const ResetPasswordSite = "www.lureros.com/user/forgetpass/reset"
 // email
 // captcha
 var EmailNoReplySenderName = "noreply@mail.lureros.com"
-var EmailAlias = "Miss Lover"
+var EmailAlias = "Lureros"
 var EmailCaptchaSubJect = "Verify your Email"
 
 func GetCaptchaEmailTemplate(captcha string) string {
