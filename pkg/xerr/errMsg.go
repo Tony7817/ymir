@@ -13,7 +13,7 @@ func init() {
 	message[TokenExpireError] = "token失效，请重新登陆"
 	message[TokenGenerateError] = "生成token失败"
 	message[DbError] = "数据库繁忙,请稍后再试"
-	message[DbUpdateAffectedZeroError] = "更新数据影响行数为0"
+	message[DbUpdateAffectedZeroError] = "update data affected zero"
 	message[DataNoExistError] = "Data not exist"
 	// user service
 	message[UserAlreadyExistError] = "user already signed up"
@@ -25,6 +25,10 @@ func init() {
 	message[UserNotExistedError] = "user not exist"
 	// product service
 	message[OutOfStockError] = "product is out of stock"
+	// order service
+	message[ErrorRequestOrderMaximunReach] = "request too many orders"
+	message[ErrorOrderNotExist] = "order does not exist"
+	message[ErrorCreateOrder] = "create order failed, please try again"
 }
 
 func MapErrMsg(errcode uint32) string {

@@ -47,7 +47,7 @@ func (l *SigninLogic) Signin(req *types.SigninRequest) (*types.SigninResponse, e
 	}
 
 	var now = time.Now().Unix()
-	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, now, l.svcCtx.Config.Auth.AccessExpire, respbOrg.Organizer.Id)
+	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, now, l.svcCtx.Config.Auth.AccessExpire, id.EncodeId(respbOrg.Organizer.Id))
 	if err != nil {
 		return nil, err
 	}

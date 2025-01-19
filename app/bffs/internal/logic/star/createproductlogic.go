@@ -37,8 +37,9 @@ func (l *CreateProductLogic) CreateProduct(req *types.CreateProductRequest) (*ty
 	if err != nil {
 		return nil, err
 	}
-	var newPId int64
+	var pId = id.SF.GenerateID()
 	respbProduct, err := l.svcCtx.ProductAdminRPC.CreateProduct(l.ctx, &product.CreateProductRequest{
+		ProductId:   pId,
 		StarId:      sId,
 		Name:        req.Name,
 		Description: req.Description,
@@ -47,14 +48,15 @@ func (l *CreateProductLogic) CreateProduct(req *types.CreateProductRequest) (*ty
 	if err != nil {
 		return nil, err
 	}
-	newPId = respbProduct.Id
 
 	err = mr.MapReduceVoid(func(source chan<- *types.ProductColor) {
 		for i := 0; i < len(req.Color); i++ {
 			source <- &req.Color[i]
 		}
 	}, func(item *types.ProductColor, writer mr.Writer[int64], cancel func(error)) {
+		cId := id.SF.GenerateID()
 		respb, err := l.svcCtx.ProductAdminRPC.CreateProductColor(l.ctx, &product.CreateProductColorRequeset{
+			ProductColorId:  cId,
 			ProductId:       respbProduct.Id,
 			ColorName:       item.ColorName,
 			CoverUrl:        item.CoverUrl,
@@ -68,7 +70,7 @@ func (l *CreateProductLogic) CreateProduct(req *types.CreateProductRequest) (*ty
 		if err != nil {
 			cancel(errors.Wrap(err, "failed to create product color"))
 		}
-		err = l.createProductColorStock(newPId, respb.Id, item.Sizes)
+		err = l.createProductColorStock(pId, respb.Id, item.Sizes)
 		if err != nil {
 			cancel(err)
 			return
@@ -83,7 +85,7 @@ func (l *CreateProductLogic) CreateProduct(req *types.CreateProductRequest) (*ty
 	}
 
 	return &types.CreateProductResponse{
-		ProductId: id.EncodeId(newPId),
+		ProductId: id.EncodeId(pId),
 	}, nil
 }
 
@@ -94,11 +96,13 @@ func (l *CreateProductLogic) createProductColorStock(pId int64, cId int64, sizes
 		}
 	}, func(s *types.ProductColorSize, writer mr.Writer[int64], cancel func(error)) {
 		var err error
+		sId := id.SF.GenerateID()
 		_, err = l.svcCtx.ProductAdminRPC.CreateProductColorStock(l.ctx, &product.CreateProductColorStockRequest{
-			ProductId: pId,
-			ColorId:   cId,
-			InStock:   s.InStock,
-			Size:      s.Size,
+			ProductColorStockId: sId,
+			ProductId:           pId,
+			ColorId:             cId,
+			InStock:             s.InStock,
+			Size:                s.Size,
 		})
 		if err != nil {
 			cancel(err)

@@ -40,7 +40,10 @@ const ErrorSignedupInGoogle uint32 = 201007
 const ErrorWrongPassword uint32 = 201008
 const UserNotExistedError uint32 = 201009
 
-//订单服务
+// 订单服务 300000 - 300999
+const ErrorRequestOrderMaximunReach uint32 = 300001
+const ErrorOrderNotExist uint32 = 300002
+const ErrorCreateOrder uint32 = 300003
 
 // 商品服务
 const OutOfStockError uint32 = 400001

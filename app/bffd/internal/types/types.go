@@ -21,12 +21,39 @@ type AddProductToCartResponse struct {
 	ProductCartId string `json:"product_cart_id"`
 }
 
+type CreateOrderRequest struct {
+	Orders []OrderItem `json:"orders"`
+}
+
+type CreateOrderResponse struct {
+	OrderId string `json:"order_id"`
+	Status  string `json:"status"`
+}
+
 type DecreaseProductAmountInCartRequest struct {
 	ProductId string `json:"product_id"`
 	Color     string `json:"color"`
 }
 
 type DecreaseProductAmountInCartResponse struct {
+}
+
+type DecreaseStockRequest struct {
+	ProductStockId string `json:"product_stock_id"`
+	Quantity       int64  `json:"quantity"`
+}
+
+type DecreaseStockResponse struct {
+	ProductStockId string `json:"product_stock_id"`
+	Quantity       int64  `json:"quantity"`
+}
+
+type DeleteORderResponse struct {
+	OrderId string `json:"order_id"`
+}
+
+type DeleteOrderRequest struct {
+	OrderId string `json:"order_id"`
 }
 
 type ForgetPasswordRequest struct {
@@ -46,8 +73,26 @@ type GetIpAddressResponse struct {
 	Ip string `json:"ip"`
 }
 
+type IncreaseStockRequest struct {
+	PorudctStockId string `json:"product_stock_id"`
+	Quantity       int64  `json:"quantity"`
+}
+
+type IncreaseStockResponse struct {
+	ProductStockId string `json:"product_stock_id"`
+	Quantity       int64  `json:"quantity"`
+}
+
 type LikeCommmentRequest struct {
 	CommentId string `json:"comment_id"`
+}
+
+type OrderItem struct {
+	ProductId string `json:"product_id"`
+	ColorId   string `json:"color_id"`
+	Size      string `json:"size"`
+	Quantity  int64  `json:"quantity"`
+	Price     int64  `json:"price"`
 }
 
 type OssTokenRequest struct {
@@ -58,6 +103,15 @@ type OssTokenResponse struct {
 	AccessKeySecret string `json:"access_key_secret"`
 	Expiration      string `json:"expiration"`
 	SecurityToken   string `json:"security_token"`
+}
+
+type PayOrderRequest struct {
+	OrderId string `json:"order_id"`
+	Status  string `json:"status"`
+}
+
+type PayOrderResponse struct {
+	Status string `json:"status"`
 }
 
 type ProductCartListItem struct {

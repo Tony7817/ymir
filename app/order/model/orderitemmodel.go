@@ -1,0 +1,74 @@
+package model
+
+import (
+	"context"
+	"database/sql"
+
+	"github.com/pkg/errors"
+	"github.com/zeromicro/go-zero/core/stores/cache"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+)
+
+var _ OrderItemModel = (*customOrderItemModel)(nil)
+
+type (
+	// OrderItemModel is an interface to be customized, add more methods here,
+	// and implement the added methods in customOrderItemModel.
+	OrderItemModel interface {
+		orderItemModel
+		FindOneNotSoftDelete(ctx context.Context, id int64) (*OrderItem, error)
+		SFInsertTx(ctx context.Context, tx *sql.Tx, oitem *OrderItem) (int64, error)
+		SoftDeleteByOrderIdTx(ctx context.Context, tx *sql.Tx, id int64) error
+		DeleteTx(ctx context.Context, tx *sql.Tx, id int64) error
+	}
+
+	customOrderItemModel struct {
+		*defaultOrderItemModel
+	}
+)
+
+// NewOrderItemModel returns a model for the database table.
+func NewOrderItemModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) OrderItemModel {
+	return &customOrderItemModel{
+		defaultOrderItemModel: newOrderItemModel(conn, c, opts...),
+	}
+}
+
+func (m *customOrderItemModel) SFInsertTx(ctx context.Context, tx *sql.Tx, oitem *OrderItem) (int64, error) {
+	_, err := tx.ExecContext(ctx, "insert into order_item (id, order_id, product_id, product_color_id, size, quantity, price, subtotal) values (?,?,?,?,?,?,?,?)",
+		oitem.Id, oitem.OrderId, oitem.ProductId, oitem.ProductColorId, oitem.Size, oitem.Quantity, oitem.Price, oitem.Subtotal)
+	if err != nil {
+		return 0, errors.Wrap(err, "[SFInsert] insert order item fail")
+	}
+	return 0, nil
+}
+
+func (m *customOrderItemModel) SoftDeleteByOrderIdTx(ctx context.Context, tx *sql.Tx, oId int64) error {
+	_, err := tx.ExecContext(ctx, "update order_item set is_delete = 1 where order_id = ?", oId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *customOrderItemModel) FindOneNotSoftDelete(ctx context.Context, id int64) (*OrderItem, error) {
+	var o OrderItem
+	err := m.QueryRowCtx(ctx, &o, CacheOrderItemNotSoftDelete(id), func(ctx context.Context, conn sqlx.SqlConn, v any) error {
+		return conn.QueryRowCtx(ctx, v, "select * from order_item where id = ? and is_delete = 1", id)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &o, nil
+}
+
+func (m *customOrderItemModel) DeleteTx(ctx context.Context, tx *sql.Tx, id int64) error {
+	_, err := tx.ExecContext(ctx, "delete from order_item where id = ?", id)
+	if err != nil {
+		return errors.Wrap(err, "[DeleteTx] delete order item failed")
+	}
+
+	return nil
+}

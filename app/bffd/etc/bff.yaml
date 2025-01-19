@@ -23,6 +23,11 @@ UserRPC:
       - 127.0.0.1:2379
     Key: ymir.user.rpc
   Timeout: 3000
+OrderRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: ymir.order.rpc
 
 Timeout: 3000
 Auth:

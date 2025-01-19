@@ -27,6 +27,7 @@ func NewWriteUserGoogleInDBLogic(ctx context.Context, svcCtx *svc.ServiceContext
 
 func (l *WriteUserGoogleInDBLogic) WriteUserGoogleInDB(in *user.WriteUserGoogleRequest) (*user.WriteUserGoogleResponse, error) {
 	uId, err := l.svcCtx.UserModel.InsertIntoUserAndUserGoogle(l.ctx, &model.User{
+		Id:       in.UserId,
 		Username: in.UserName,
 		Email: sql.NullString{
 			String: in.Email,

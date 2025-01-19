@@ -6,9 +6,11 @@ package handler
 import (
 	"net/http"
 
+	order "ymir.com/app/bffd/internal/handler/order"
 	product "ymir.com/app/bffd/internal/handler/product"
 	recommend "ymir.com/app/bffd/internal/handler/recommend"
 	star "ymir.com/app/bffd/internal/handler/star"
+	stock "ymir.com/app/bffd/internal/handler/stock"
 	user "ymir.com/app/bffd/internal/handler/user"
 	"ymir.com/app/bffd/internal/svc"
 
@@ -18,6 +20,28 @@ import (
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/api"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/order/create",
+				Handler: order.CreateOrderHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/order/delete",
+				Handler: order.DeleteOrderHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/order/pay",
+				Handler: order.PayOrderHandler(serverCtx),
+			},
+		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/api"),
 	)
@@ -99,6 +123,23 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: star.StarListHandler(serverCtx),
 			},
 		},
+		rest.WithPrefix("/api"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/stock/decrease",
+				Handler: stock.DecreaseStockHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/stock/increase",
+				Handler: stock.IncreaseStockHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/api"),
 	)
 

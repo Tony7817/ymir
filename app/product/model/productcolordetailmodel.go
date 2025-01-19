@@ -11,7 +11,6 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/threading"
 
-	"ymir.com/pkg/id"
 	"ymir.com/pkg/vars"
 )
 
@@ -29,7 +28,6 @@ type (
 
 	customProductColorDetailModel struct {
 		*defaultProductColorDetailModel
-		sf *id.Snowflake
 	}
 )
 
@@ -50,7 +48,6 @@ type ProductColorDetailPartial struct {
 func NewProductColorDetailModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) ProductColorDetailModel {
 	return &customProductColorDetailModel{
 		defaultProductColorDetailModel: newProductColorDetailModel(conn, c, opts...),
-		sf:                             id.NewSnowFlake(),
 	}
 }
 
@@ -77,7 +74,6 @@ func (m *customProductColorDetailModel) FindColorListByPId(ctx context.Context, 
 }
 
 func (m *customProductColorDetailModel) SFInsert(ctx context.Context, color *ProductColorDetail) (int64, error) {
-	color.Id = m.sf.GenerateID()
 	if _, err := m.Insert(ctx, color); err != nil {
 		return 0, errors.Wrap(err, "[SFInsert] insert color error")
 	}

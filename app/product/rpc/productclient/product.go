@@ -19,6 +19,10 @@ type (
 	AddProductToCartRequest            = product.AddProductToCartRequest
 	AddProductToCartResponse           = product.AddProductToCartResponse
 	DecreaseProductAmountInCartRequest = product.DecreaseProductAmountInCartRequest
+	DecreaseProductStockRequest        = product.DecreaseProductStockRequest
+	DecreaseProductStockResponse       = product.DecreaseProductStockResponse
+	IncreaseProductStockRequest        = product.IncreaseProductStockRequest
+	IncreaseProductStockResposne       = product.IncreaseProductStockResposne
 	ProducrtsInCartListResponse        = product.ProducrtsInCartListResponse
 	ProductColor                       = product.ProductColor
 	ProductColorListRequest            = product.ProductColorListRequest
@@ -36,6 +40,7 @@ type (
 	ProductListItem                    = product.ProductListItem
 	ProductListRequest                 = product.ProductListRequest
 	ProductListResponse                = product.ProductListResponse
+	ProductStockItem                   = product.ProductStockItem
 	ProductStockRequest                = product.ProductStockRequest
 	ProductStockResponse               = product.ProductStockResponse
 	ProductsInCartListItem             = product.ProductsInCartListItem
@@ -55,6 +60,8 @@ type (
 		ProductColor(ctx context.Context, in *ProductColorRequest, opts ...grpc.CallOption) (*ProductColorResponse, error)
 		ProductColorList(ctx context.Context, in *ProductColorListRequest, opts ...grpc.CallOption) (*ProductColorListResponse, error)
 		ProductCommentList(ctx context.Context, in *ProductCommentListRequest, opts ...grpc.CallOption) (*ProductCommentListResponse, error)
+		IncreaseProductStockOfOrder(ctx context.Context, in *DecreaseProductStockRequest, opts ...grpc.CallOption) (*DecreaseProductStockResponse, error)
+		DecreaseProductStockOfOrder(ctx context.Context, in *DecreaseProductStockRequest, opts ...grpc.CallOption) (*DecreaseProductStockResponse, error)
 	}
 
 	defaultProduct struct {
@@ -121,4 +128,14 @@ func (m *defaultProduct) ProductColorList(ctx context.Context, in *ProductColorL
 func (m *defaultProduct) ProductCommentList(ctx context.Context, in *ProductCommentListRequest, opts ...grpc.CallOption) (*ProductCommentListResponse, error) {
 	client := product.NewProductClient(m.cli.Conn())
 	return client.ProductCommentList(ctx, in, opts...)
+}
+
+func (m *defaultProduct) IncreaseProductStockOfOrder(ctx context.Context, in *DecreaseProductStockRequest, opts ...grpc.CallOption) (*DecreaseProductStockResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.IncreaseProductStockOfOrder(ctx, in, opts...)
+}
+
+func (m *defaultProduct) DecreaseProductStockOfOrder(ctx context.Context, in *DecreaseProductStockRequest, opts ...grpc.CallOption) (*DecreaseProductStockResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.DecreaseProductStockOfOrder(ctx, in, opts...)
 }

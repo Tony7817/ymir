@@ -27,6 +27,7 @@ func NewCreateStarLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Create
 
 func (l *CreateStarLogic) CreateStar(req *types.CreteStarRequest) (resp *types.CreateStarResponse, err error) {
 	respb, err := l.svcCtx.StarAdminRPC.CreateStar(l.ctx, &star.CreateStarRequest{
+		StarId:      id.SF.GenerateID(),
 		Name:        req.Name,
 		Description: req.Description,
 		CoverUrl:    req.CoverUrl,

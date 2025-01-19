@@ -33,13 +33,14 @@ func (l *CreateProductLogic) CreateProduct(in *product.CreateProductRequest) (*p
 	}
 
 	id, err := l.svcCtx.ProductModel.SFInsert(l.ctx, &model.Product{
-		StarId:         in.StarId,
-		Name:           in.Name,
-		SoldNum:        0,
-		Description:    in.Description,
-		Rate:           5,
-		RateCount:      0,
-		Detail: desc,
+		Id:          in.ProductId,
+		StarId:      in.StarId,
+		Name:        in.Name,
+		SoldNum:     0,
+		Description: in.Description,
+		Rate:        5,
+		RateCount:   0,
+		Detail:      desc,
 	})
 	if err != nil {
 		return nil, err

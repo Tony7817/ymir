@@ -236,6 +236,51 @@ type (
 		Expiration      string `json:"expiration"`
 		SecurityToken   string `json:"security_token"`
 	}
+	// order api
+	OrderItem {
+		ProductId string `json:"product_id"`
+		ColorId   string `json:"color_id"`
+		Size      string `json:"size"`
+		Quantity  int64  `json:"quantity"`
+		Price     int64  `json:"price"`
+	}
+	CreateOrderRequest {
+		Orders []OrderItem `json:"orders"`
+	}
+	CreateOrderResponse {
+		OrderId string `json:"order_id"`
+		Status  string `json:"status"`
+	}
+	PayOrderRequest {
+		OrderId string `json:"order_id"`
+		Status  string `json:"status"`
+	}
+	PayOrderResponse {
+		Status string `json:"status"`
+	}
+	DeleteOrderRequest {
+		OrderId string `json:"order_id"`
+	}
+	DeleteORderResponse {
+		OrderId string `json:"order_id"`
+	}
+	// Stock api
+	IncreaseStockRequest {
+		PorudctStockId string `json:"product_stock_id"`
+		Quantity       int64  `json:"quantity"`
+	}
+	IncreaseStockResponse {
+		ProductStockId string `json:"product_stock_id"`
+		Quantity       int64  `json:"quantity"`
+	}
+	DecreaseStockRequest {
+		ProductStockId string `json:"product_stock_id"`
+		Quantity       int64  `json:"quantity"`
+	}
+	DecreaseStockResponse {
+		ProductStockId string `json:"product_stock_id"`
+		Quantity       int64  `json:"quantity"`
+	}
 )
 
 @server (
@@ -362,5 +407,21 @@ service bff {
 service bff {
 	@handler UserDetail
 	post /user/detail (UserDetailRequest) returns (UserDetailResponse)
+}
+
+@server (
+	group:  order
+	prefix: /api
+	jwt:    Auth
+)
+service bff {
+	@handler CreateOrder
+	post /order/create (CreateOrderRequest) returns (CreateOrderResponse)
+
+	@handler DeleteOrder
+	post /order/delete (DeleteOrderRequest) returns (DeleteORderResponse)
+
+	@handler PayOrder
+	post /order/pay (PayOrderRequest) returns (PayOrderResponse)
 }
 

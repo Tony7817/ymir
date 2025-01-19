@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	"ymir.com/pkg/id"
 	"ymir.com/pkg/xerr"
 
 	"github.com/pkg/errors"
@@ -25,13 +24,12 @@ type (
 		CountTotalProductOfUser(ctx context.Context, userId int64) (int64, error)
 		IncrProductAmount(ctx context.Context, userId int64, productId int64, color string) error
 		DescProductAmount(ctx context.Context, userId int64, productId int64, color string) error
-		AddToProductCart(ctx context.Context, userId int64, productId int64, size string, colorId int64) (int64, error)
+		AddToProductCart(ctx context.Context, pcId int64, userId int64, productId int64, size string, colorId int64) error
 		DeleteProductFromCart(ctx context.Context, userId int64, productId int64, colorId int64) error
 	}
 
 	customProductCartModel struct {
 		*defaultProductCartModel
-		sf *id.Snowflake
 	}
 )
 
@@ -44,7 +42,6 @@ const (
 func NewProductCartModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) ProductCartModel {
 	return &customProductCartModel{
 		defaultProductCartModel: newProductCartModel(conn, c, opts...),
-		sf:                      id.NewSnowFlake(),
 	}
 }
 
@@ -113,15 +110,14 @@ func (m *customProductCartModel) DescProductAmount(ctx context.Context, userId i
 	return err
 }
 
-func (m *customProductCartModel) AddToProductCart(ctx context.Context, userId int64, productId int64, size string, colorId int64) (int64, error) {
-	var pId = m.sf.GenerateID()
+func (m *customProductCartModel) AddToProductCart(ctx context.Context, pcId int64, userId int64, productId int64, size string, colorId int64) error {
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (sql.Result, error) {
-		return conn.ExecCtx(ctx, "insert into product_cart (id, user_id, product_id, size, amount, color_id) values (?, ?, ?, 1, ?) on duplicate key update amount = amount + 1", pId, userId, productId, size, colorId)
+		return conn.ExecCtx(ctx, "insert into product_cart (id, user_id, product_id, size, amount, color_id) values (?, ?, ?, 1, ?) on duplicate key update amount = amount + 1", pcId, userId, productId, size, colorId)
 	}, fmt.Sprintf(cacheYmirProductCartTotalUserId, userId))
 	if err != nil {
-		return 0, err
+		return err
 	}
-	return pId, nil
+	return nil
 }
 
 func (m *customProductCartModel) DeleteProductFromCart(ctx context.Context, productId int64, colorId int64, userId int64) error {

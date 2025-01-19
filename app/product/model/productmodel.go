@@ -9,7 +9,6 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/threading"
-	"ymir.com/pkg/id"
 	"ymir.com/pkg/util"
 )
 
@@ -29,7 +28,6 @@ type (
 
 	customProductModel struct {
 		*defaultProductModel
-		sf *id.Snowflake
 	}
 )
 
@@ -37,7 +35,6 @@ type (
 func NewProductModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) ProductModel {
 	return &customProductModel{
 		defaultProductModel: newProductModel(conn, c, opts...),
-		sf:                  id.NewSnowFlake(),
 	}
 }
 
@@ -93,7 +90,6 @@ func (m *customProductModel) CountTotalProduct(ctx context.Context, starId *int6
 }
 
 func (m *customProductModel) SFInsert(ctx context.Context, product *Product) (int64, error) {
-	product.Id = m.sf.GenerateID()
 	_, err := m.Insert(ctx, product)
 	if err != nil {
 		return 0, err

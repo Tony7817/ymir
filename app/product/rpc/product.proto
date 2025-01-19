@@ -3,6 +3,11 @@ syntax = "proto3";
 package product;
 option go_package="./product";
 
+enum Status {
+  OK = 0;
+  ERROR = 1;
+}
+
 message ProductListRequest {
   optional int64 StarId = 1;
   optional string Keyword = 2;
@@ -158,8 +163,9 @@ message DecreaseProductAmountInCartRequest {
 message AddProductToCartRequest {
   int64 ProductId = 1;
   int64 UserId = 2;
-  int64 ColorId = 4;
   string Size = 3;
+  int64 ColorId = 4;
+  int64 ProductCartId = 5;
 }
 
 message AddProductToCartResponse {
@@ -174,6 +180,29 @@ message RemoveProductFromCartRequest {
 
 message RemoveProductFromCartResponse {}
 
+message ProductStockItem {
+  int64 ProductId = 1;
+  int64 ColorId = 2;
+  string Size = 3;
+  int64 Quantity = 4;
+}
+
+message IncreaseProductStockRequest {
+  repeated ProductStockItem ProductStockItem = 1;
+}
+
+message IncreaseProductStockResposne {
+  Status Status = 1;
+}
+
+message DecreaseProductStockRequest {
+  repeated ProductStockItem ProductStockItem = 1;
+}
+
+message DecreaseProductStockResponse {
+  Status Status = 1;
+}
+
 service Product {
   rpc ProductList(ProductListRequest) returns (ProductListResponse);
   rpc ProductDetail(ProductDetailReqeust) returns (ProductDetailResponse);
@@ -186,4 +215,6 @@ service Product {
   rpc ProductColor(ProductColorRequest) returns (ProductColorResponse);
   rpc ProductColorList(ProductColorListRequest) returns (ProductColorListResponse);
   rpc ProductCommentList(ProductCommentListRequest) returns (ProductCommentListResponse);
+  rpc IncreaseProductStockOfOrder(DecreaseProductStockRequest) returns (DecreaseProductStockResponse);
+  rpc DecreaseProductStockOfOrder(DecreaseProductStockRequest) returns (DecreaseProductStockResponse);
 }

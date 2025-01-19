@@ -77,3 +77,13 @@ func (s *ProductServer) ProductCommentList(ctx context.Context, in *product.Prod
 	l := logic.NewProductCommentListLogic(ctx, s.svcCtx)
 	return l.ProductCommentList(in)
 }
+
+func (s *ProductServer) IncreaseProductStockOfOrder(ctx context.Context, in *product.DecreaseProductStockRequest) (*product.DecreaseProductStockResponse, error) {
+	l := logic.NewIncreaseProductStockOfOrderLogic(ctx, s.svcCtx)
+	return l.IncreaseProductStockOfOrder(in)
+}
+
+func (s *ProductServer) DecreaseProductStockOfOrder(ctx context.Context, in *product.DecreaseProductStockRequest) (*product.DecreaseProductStockResponse, error) {
+	l := logic.NewDecreaseProductStockOfOrderLogic(ctx, s.svcCtx)
+	return l.DecreaseProductStockOfOrder(in)
+}

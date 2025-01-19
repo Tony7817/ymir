@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 
-	"ymir.com/pkg/id"
 	"ymir.com/pkg/vars"
 
 	"github.com/pkg/errors"
@@ -30,7 +29,6 @@ type (
 
 	customCaptchaModel struct {
 		*defaultCaptchaModel
-		sf *id.Snowflake
 	}
 )
 
@@ -38,7 +36,6 @@ type (
 func NewCaptchaModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) CaptchaModel {
 	return &customCaptchaModel{
 		defaultCaptchaModel: newCaptchaModel(conn, c, opts...),
-		sf:                  id.NewSnowFlake(),
 	}
 }
 
@@ -119,8 +116,6 @@ func (m *customCaptchaModel) InsertCaptchaToDbAndCache(captcha Captcha) (int64, 
 	} else {
 		cacheKey = vars.GetCaptchaPhonenumberCacheKey(captcha.PhoneNumber.String)
 	}
-	var id = m.sf.GenerateID()
-	captcha.Id = id
 
 	_, err := m.Insert(context.Background(), &captcha)
 	if err != nil {
@@ -133,7 +128,7 @@ func (m *customCaptchaModel) InsertCaptchaToDbAndCache(captcha Captcha) (int64, 
 		}
 	})
 
-	return id, nil
+	return captcha.Id, nil
 }
 
 func (m *customCaptchaModel) FindOneNoCache(ctx context.Context, id int64) (*Captcha, error) {

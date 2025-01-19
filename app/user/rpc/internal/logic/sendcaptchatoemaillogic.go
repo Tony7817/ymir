@@ -54,6 +54,7 @@ func (l *SendCaptchaToEmailLogic) SendCaptchaToEmail(in *user.SendCaptchaToEmail
 	}
 
 	var newCaptcha = model.Captcha{
+		Id:         in.CaptchaId,
 		VerifyCode: code,
 		Email: sql.NullString{
 			String: in.Email,

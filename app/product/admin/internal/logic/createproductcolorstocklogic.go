@@ -26,6 +26,7 @@ func NewCreateProductColorStockLogic(ctx context.Context, svcCtx *svc.ServiceCon
 
 func (l *CreateProductColorStockLogic) CreateProductColorStock(in *product.CreateProductColorStockRequest) (*product.CreateProductColorStockResponse, error) {
 	id, err := l.svcCtx.ProductStockModel.InsertSF(l.ctx, &model.ProductStock{
+		Id:        in.ProductColorStockId,
 		ProductId: in.ProductId,
 		ColorId:   in.ColorId,
 		InStock:   in.InStock,

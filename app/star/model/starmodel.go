@@ -8,7 +8,6 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"ymir.com/pkg/id"
 	"ymir.com/pkg/xerr"
 )
 
@@ -27,7 +26,6 @@ type (
 
 	customStarModel struct {
 		*defaultStarModel
-		sf *id.Snowflake
 	}
 )
 
@@ -46,7 +44,6 @@ type StarPartial struct {
 func NewStarModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) StarModel {
 	return &customStarModel{
 		defaultStarModel: newStarModel(conn, c, opts...),
-		sf:               id.NewSnowFlake(),
 	}
 }
 
@@ -76,7 +73,6 @@ func (m *customStarModel) CountStarTotal(ctx context.Context) (int64, error) {
 }
 
 func (m *customStarModel) InsertStar(ctx context.Context, star *Star) (int64, error) {
-	star.Id = m.sf.GenerateID()
 	if _, err := m.Insert(ctx, star); err != nil {
 		return 0, nil
 	}

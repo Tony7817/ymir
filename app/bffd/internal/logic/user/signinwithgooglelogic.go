@@ -61,7 +61,7 @@ func (l *SigninWithGoogleLogic) Signin(ugoogle *user.UserGoogleInfo) (resp *type
 	}
 
 	var nowDate = time.Now().Unix()
-	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, respb.User.Id)
+	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, id.EncodeId(respb.User.Id))
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (l *SigninWithGoogleLogic) SignupAndSignin(usr *google.User) (resp *types.S
 	}
 
 	var nowDate = time.Now().Unix()
-	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, respbUser.User.Id)
+	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, id.EncodeId(respbUser.User.Id))
 	if err != nil {
 		return nil, err
 	}

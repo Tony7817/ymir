@@ -28,6 +28,7 @@ func NewWriteUserLocalInDBLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 func (l *WriteUserLocalInDBLogic) WriteUserLocalInDB(in *user.WriteUserLocalRequest) (*user.WriteUserLocalResponse, error) {
 	var usr = &model.User{
+		Id:       in.UserId,
 		Username: in.UserName,
 	}
 	if in.Email != nil {

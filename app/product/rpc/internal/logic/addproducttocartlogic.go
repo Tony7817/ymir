@@ -24,12 +24,12 @@ func NewAddProductToCartLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *AddProductToCartLogic) AddProductToCart(in *product.AddProductToCartRequest) (*product.AddProductToCartResponse, error) {
-	nPid, err := l.svcCtx.ProductCartModel.AddToProductCart(l.ctx, in.UserId, in.ProductId, in.Size, in.ColorId)
+	err := l.svcCtx.ProductCartModel.AddToProductCart(l.ctx, in.ProductCartId, in.UserId, in.ProductId, in.Size, in.ColorId)
 	if err != nil {
 		return nil, err
 	}
 
 	return &product.AddProductToCartResponse{
-		ProductCartId: nPid,
+		ProductCartId: in.ProductCartId,
 	}, nil
 }

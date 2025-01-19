@@ -25,6 +25,11 @@ const (
 	machineIDShift = sequenceBits
 )
 
+var SF *Snowflake
+
+func init() {
+	SF = NewSnowFlake()
+}
 
 func NewSnowFlake() *Snowflake {
 	var marchineIdRaw = os.Getenv("MACHINE_ID")
@@ -41,7 +46,6 @@ func NewSnowFlake() *Snowflake {
 		sequence:  0,
 	}
 }
-
 
 type Snowflake struct {
 	machineID int64

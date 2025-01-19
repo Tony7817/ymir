@@ -53,6 +53,7 @@ func (l *SendCaptchaToPhonenumberLogic) SendCaptchaToPhonenumber(in *user.SendCa
 	}
 
 	var newCaptcha = model.Captcha{
+		Id:         in.CaptchaId,
 		VerifyCode: code,
 		PhoneNumber: sql.NullString{
 			String: in.Phonenumber,

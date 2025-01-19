@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/redis"
@@ -19,11 +20,17 @@ type ServiceContext struct {
 	ProductStockModel        model.ProductStockModel
 	ProductCommentModel      model.ProductCommentModel
 	ProductCommentImageModel model.ProductCommentImageModel
-	Redis                    *redis.Redis
+
+	DB    *sql.DB
+	Redis *redis.Redis
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	conn := sqlx.NewMysql(c.DataSource)
+	db, err := conn.RawDB()
+	if err != nil {
+		panic(err)
+	}
 	return &ServiceContext{
 		ProductModel:             model.NewProductModel(conn, c.CacheRedis),
 		ProductCartModel:         model.NewProductCartModel(conn, c.CacheRedis),
@@ -31,6 +38,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		ProductColorModel:        model.NewProductColorDetailModel(conn, c.CacheRedis),
 		ProductCommentModel:      model.NewProductCommentModel(conn, c.CacheRedis),
 		ProductCommentImageModel: model.NewProductCommentImageModel(conn, c.CacheRedis),
+		DB:                       db,
 		Redis:                    redis.New(c.BizRedis.Host, redis.WithPass(c.BizRedis.Pass)),
 		Config:                   c,
 	}

@@ -72,7 +72,7 @@ func (l *SigninLogic) Signin(req *types.SigninRequest) (resp *types.SigninRespon
 	}
 
 	var nowDate = time.Now().Unix()
-	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, respb.User.Id)
+	token, err := util.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, nowDate, l.svcCtx.Config.Auth.AccessExpire, id.EncodeId(respb.User.Id))
 	if err != nil {
 		return nil, err
 	}

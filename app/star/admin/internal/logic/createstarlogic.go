@@ -32,6 +32,7 @@ func (l *CreateStarLogic) CreateStar(in *star.CreateStarRequest) (*star.CreateSt
 		desc.Valid = true
 	}
 	var starInfo = model.Star{
+		Id:   in.StarId,
 		Name: in.Name,
 		Rate: sql.NullFloat64{
 			Float64: 5,

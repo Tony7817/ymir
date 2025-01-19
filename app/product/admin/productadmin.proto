@@ -44,6 +44,7 @@ message CreateProductRequest {
     string Description = 3;
     optional string Detail = 6;
     int64 DefaultColorId = 7;
+    int64 ProductId = 8;
 }
 
 message CreateProductResponse {
@@ -61,6 +62,7 @@ message CreateProductColorRequeset {
     string Size = 8;
     int64 InStock = 9;
     bool IsDefault = 10;
+    int64 ProductColorId =11;
 }
 
 message CreateProductColorResponse {
@@ -88,6 +90,7 @@ message CreateProductColorStockRequest {
     int64 ColorId = 2;
     int64 InStock = 3;   
     string Size = 4;
+    int64 ProductColorStockId = 5;
 }
 
 message CreateProductColorStockResponse {

@@ -38,6 +38,7 @@
 - [ ] 增加数量的时候前端做debonce，方式点击太快，后端增加amount参数。
 - [ ] 哪些接口可以设计为ETag, 是否需要？
 - [ ] decompose product list from star detail.
+- [ ] repaire dtm interface， unify them.
 
 # 架构
 ## 商品图片

@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package order;
+option go_package="./order";
+
+message OrderItem {
+    int64 ProductId = 1;
+    int64 ColorId = 2;
+    string Size = 3;
+    int64 Qunantity = 4;   
+    int64 Price = 5;
+    int64 OrderItemId = 6;
+}
+
+message CreateOrderRequest {
+    int64 UserId = 1;
+    repeated OrderItem Items = 2;
+    int64 OrderId = 3;
+}
+
+message CreateOrderResponse {
+    int64 OrderId = 1; 
+}
+
+message SoftDeleteOrderRequest {
+    int64 UserId = 1;
+    repeated OrderItem Items = 2;
+    int64 OrderId = 3;
+}
+
+message SoftDeleteOrderResponse {
+    int64 OrderId = 1;
+}
+
+message GetOrderRequest {
+    int64 UserId = 1;
+    int64 OrderId = 2;
+}
+
+message GetOrderResponse {
+    int64 OrderId = 1;
+    int64 UserId = 2;
+    int64 TotalPrice = 3;
+    string Status = 4;
+}
+
+service order {
+    rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+    rpc CreateOrderRollback(CreateOrderRequest) returns (CreateOrderResponse);
+    rpc SoftDeleteOrder(SoftDeleteOrderRequest) returns (SoftDeleteOrderResponse);
+    rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
+}

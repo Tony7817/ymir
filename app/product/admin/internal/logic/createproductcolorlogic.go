@@ -26,6 +26,7 @@ func NewCreateProductColorLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 func (l *CreateProductColorLogic) CreateProductColor(in *product.CreateProductColorRequeset) (*product.CreateProductColorResponse, error) {
 	id, err := l.svcCtx.ProductColorModel.SFInsert(l.ctx, &model.ProductColorDetail{
+		Id:            in.ProductColorId,
 		ProductId:     in.ProductId,
 		Color:         in.ColorName,
 		Images:        in.ImageUrl,

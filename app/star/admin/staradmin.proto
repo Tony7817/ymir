@@ -59,6 +59,7 @@ message CreateStarRequest {
     string CoverUrl = 3;
     string AvatarUrl = 4;
     string PosterUrl = 5;
+    int64 StarId = 6;
 }
 
 message CreateStarResponse {

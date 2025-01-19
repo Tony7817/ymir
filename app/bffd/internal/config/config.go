@@ -11,6 +11,7 @@ type Config struct {
 	ProductRPC zrpc.RpcClientConf
 	StarRPC    zrpc.RpcClientConf
 	UserRPC    zrpc.RpcClientConf
+	OrderRPC   zrpc.RpcClientConf
 	Auth       JwtAuth
 
 	BizRedis redis.RedisConf

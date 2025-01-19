@@ -2,9 +2,7 @@ package id
 
 import (
 	"context"
-	"encoding/json"
 
-	"github.com/pkg/errors"
 	"github.com/speps/go-hashids"
 	"ymir.com/pkg/vars"
 	"ymir.com/pkg/xerr"
@@ -49,12 +47,16 @@ func NewHashIds() *hashids.HashID {
 // }
 
 func GetDecodedUserId(ctx context.Context) (int64, error) {
-	userId, err := ctx.Value(vars.UserIdKey).(json.Number).Int64()
+	userId, ok := ctx.Value(vars.UserIdKey).(string)
+	if !ok {
+		return 0, xerr.NewErrCode(xerr.UnauthorizedError)
+	}
+	userIdDecoded, err := DecodeId(userId)
 	if err != nil {
-		return -1, errors.Wrap(xerr.NewErrCode(xerr.UnauthorizedError), "empty id")
+		return 0, err
 	}
 
-	return userId, nil
+	return userIdDecoded, nil
 }
 
 func EncodeId(id int64) string {
