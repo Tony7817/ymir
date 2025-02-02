@@ -33,14 +33,14 @@ func NewSigninLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SigninLogi
 func (l *SigninLogic) Signin(req *types.SigninRequest) (resp *types.SigninResponse, err error) {
 	if req.Email != nil {
 		if !util.IsEmailValid(*req.Email) {
-			return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+			return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 		}
 	} else if req.Phonenumber != nil {
 		if !util.IsPhonenumberValid(*req.Phonenumber) {
-			return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+			return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 		}
 	} else {
-		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 
 	respb, err := l.svcCtx.UserRPC.GetUserInfo(l.ctx, &user.GetUserInfoRequest{

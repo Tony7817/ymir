@@ -46,7 +46,7 @@ func (l *GetUserInfoLogic) GetUserInfo(in *user.GetUserInfoRequest) (*user.GetUs
 	} else if in.UserId != nil {
 		usr, err = l.svcCtx.UserModel.FindOne(l.ctx, *in.UserId)
 	} else {
-		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err

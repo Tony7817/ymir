@@ -40,7 +40,7 @@ func (m *TimerMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 		} else if req.Phonenumber != nil {
 			cacheKey = vars.GetCaptchaPhonenumberLastRequestTimeKey(*req.Phonenumber)
 		} else {
-			result.HttpResult(r, w, nil, xerr.NewErrCode(xerr.ReuqestParamError))
+			result.HttpResult(r, w, nil, xerr.NewErrCode(xerr.ErrorReuqestParam))
 		}
 
 		lastReqTime, err := m.Redis.Get(cacheKey)

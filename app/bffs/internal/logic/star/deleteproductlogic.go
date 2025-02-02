@@ -29,7 +29,7 @@ func NewDeleteProductLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Del
 func (l *DeleteProductLogic) DeleteProduct(req *types.DeleteProductRequest) (resp *types.DeleteProductResponse, err error) {
 	pId, err := id.DecodeId(req.ProductId)
 	if err != nil {
-		return nil, xerr.NewErrCode(xerr.NotAuthorizedError)
+		return nil, xerr.NewErrCode(xerr.ErrorNotAuthorized)
 	}
 
 	respb, err := l.svcCtx.ProductAdminRPC.DeleteProduct(l.ctx, &product.DeleteProductRequest{

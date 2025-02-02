@@ -3,6 +3,7 @@ package svc
 import (
 	"database/sql"
 
+	"github.com/hibiken/asynq"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"ymir.com/app/order/model"
 	"ymir.com/app/order/rpc/internal/config"
@@ -14,6 +15,7 @@ type ServiceContext struct {
 	OrderItemModel      model.OrderItemModel
 	OrderStatusLogModel model.OrderStatusLogModel
 	DB                  *sql.DB
+	AsynqClient         *asynq.Client
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -27,5 +29,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		OrderItemModel:      model.NewOrderItemModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
 		OrderStatusLogModel: model.NewOrderStatusLogModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
 		DB:                  db,
+		AsynqClient:         asynq.NewClient(asynq.RedisClientOpt{Addr: c.Redis.Host}),
 	}
 }

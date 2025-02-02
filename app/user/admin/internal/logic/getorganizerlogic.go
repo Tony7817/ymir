@@ -37,7 +37,7 @@ func (l *GetOrganizerLogic) GetOrganizer(in *user.GetOrganizerRequest) (*user.Ge
 	} else if in.UserId != nil {
 		o, err = l.svcCtx.OrganizerModel.FindOne(l.ctx, *in.UserId)
 	} else {
-		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err

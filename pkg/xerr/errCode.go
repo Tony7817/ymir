@@ -10,7 +10,7 @@ const OK uint32 = 200
 const ServerCommonError uint32 = 100001
 
 // 请求参数错误
-const ReuqestParamError uint32 = 100002
+const ErrorReuqestParam uint32 = 100002
 
 // token过期
 const TokenExpireError uint32 = 100003
@@ -34,7 +34,7 @@ const UserAlreadyExistError uint32 = 201001
 const CaptchaExpireError uint32 = 201002
 const WrongCaptchaError uint32 = 201003
 const MaxCaptchaSendTimeError uint32 = 201004
-const NotAuthorizedError uint32 = 201005
+const ErrorNotAuthorized uint32 = 201005
 const ErrorInvalidEmail uint32 = 201006
 const ErrorSignedupInGoogle uint32 = 201007
 const ErrorWrongPassword uint32 = 201008
@@ -44,6 +44,9 @@ const UserNotExistedError uint32 = 201009
 const ErrorRequestOrderMaximunReach uint32 = 300001
 const ErrorOrderNotExist uint32 = 300002
 const ErrorCreateOrder uint32 = 300003
+const ErrorPayOrder uint32 = 300004
+const ErrorInvalidOrderStatus uint32 = 300005
+const ErrorDeleteOrder uint32 = 300006
 
 // 商品服务
 const OutOfStockError uint32 = 400001

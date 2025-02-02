@@ -7,7 +7,7 @@ func init() {
 	message[OK] = "SUCCESS"
 	message[ServerCommonError] = "internal Server Error"
 	message[UnauthorizedError] = "not authorized"
-	message[ReuqestParamError] = "bad request param"
+	message[ErrorReuqestParam] = "bad request param"
 	message[CaptchaExpireError] = "verification code has expired"
 	message[WrongCaptchaError] = "wrong verification code"
 	message[TokenExpireError] = "token失效，请重新登陆"
@@ -18,7 +18,7 @@ func init() {
 	// user service
 	message[UserAlreadyExistError] = "user already signed up"
 	message[MaxCaptchaSendTimeError] = "maxmum captcha send time reached"
-	message[NotAuthorizedError] = "not authorized"
+	message[ErrorNotAuthorized] = "not authorized"
 	message[ErrorInvalidEmail] = "invalid email"
 	message[ErrorSignedupInGoogle] = "user has signed up by google, please sign in with google"
 	message[ErrorWrongPassword] = "incrrect password"
@@ -29,6 +29,9 @@ func init() {
 	message[ErrorRequestOrderMaximunReach] = "request too many orders"
 	message[ErrorOrderNotExist] = "order does not exist"
 	message[ErrorCreateOrder] = "create order failed, please try again"
+	message[ErrorPayOrder] = "pay order failed, please try again"
+	message[ErrorInvalidOrderStatus] = "invalid order"
+	message[ErrorDeleteOrder] = "delete order failed, please try again"
 }
 
 func MapErrMsg(errcode uint32) string {

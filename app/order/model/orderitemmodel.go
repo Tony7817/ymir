@@ -16,7 +16,7 @@ type (
 	// and implement the added methods in customOrderItemModel.
 	OrderItemModel interface {
 		orderItemModel
-		FindOneNotSoftDelete(ctx context.Context, id int64) (*OrderItem, error)
+		FindOneByOrderIdNotSoftDelete(ctx context.Context, id int64) ([]OrderItem, error)
 		SFInsertTx(ctx context.Context, tx *sql.Tx, oitem *OrderItem) (int64, error)
 		SoftDeleteByOrderIdTx(ctx context.Context, tx *sql.Tx, id int64) error
 		DeleteTx(ctx context.Context, tx *sql.Tx, id int64) error
@@ -52,16 +52,14 @@ func (m *customOrderItemModel) SoftDeleteByOrderIdTx(ctx context.Context, tx *sq
 	return nil
 }
 
-func (m *customOrderItemModel) FindOneNotSoftDelete(ctx context.Context, id int64) (*OrderItem, error) {
-	var o OrderItem
-	err := m.QueryRowCtx(ctx, &o, CacheOrderItemNotSoftDelete(id), func(ctx context.Context, conn sqlx.SqlConn, v any) error {
-		return conn.QueryRowCtx(ctx, v, "select * from order_item where id = ? and is_delete = 1", id)
-	})
+func (m *customOrderItemModel) FindOneByOrderIdNotSoftDelete(ctx context.Context, orderId int64) ([]OrderItem, error) {
+	var o []OrderItem
+	err := m.QueryRowsNoCacheCtx(ctx, &o, "select * from order_item where order_id = ? and is_delete = 0", orderId)
 	if err != nil {
 		return nil, err
 	}
 
-	return &o, nil
+	return o, nil
 }
 
 func (m *customOrderItemModel) DeleteTx(ctx context.Context, tx *sql.Tx, id int64) error {

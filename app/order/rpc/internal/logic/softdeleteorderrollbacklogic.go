@@ -14,27 +14,28 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type SoftDeleteOrderLogic struct {
+type SoftDeleteOrderRollbackLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
 }
 
-func NewSoftDeleteOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SoftDeleteOrderLogic {
-	return &SoftDeleteOrderLogic{
+func NewSoftDeleteOrderRollbackLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SoftDeleteOrderRollbackLogic {
+	return &SoftDeleteOrderRollbackLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
 		Logger: logx.WithContext(ctx),
 	}
 }
 
-func (l *SoftDeleteOrderLogic) SoftDeleteOrder(in *order.SoftDeleteOrderRequest) (*order.SoftDeleteOrderResponse, error) {
+func (l *SoftDeleteOrderRollbackLogic) SoftDeleteOrderRollback(in *order.SoftDeleteOrderRequest) (*order.SoftDeleteOrderResponse, error) {
 	barrier, err := dtmgrpc.BarrierFromGrpc(l.ctx)
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, status.Error(codes.Aborted, dtmcli.ResultFailure)
 	}
+
 	err = barrier.CallWithDB(l.svcCtx.DB, func(tx *sql.Tx) error {
-		return l.svcCtx.OrderModel.SoftDeleteTx(l.ctx, tx, in.OrderId, in.UserId)
+		return l.svcCtx.OrderModel.SoftDeleteRollbackTx(l.ctx, tx, in.OrderId, in.UserId)
 	})
 	if err != nil {
 		l.Logger.Errorf("[SoftDeleteOrder] SoftDeleteTx error: %+v", err)

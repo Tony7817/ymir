@@ -30,21 +30,21 @@ func NewVerifyCaptchaLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ver
 func (l *VerifyCaptchaLogic) VerifyCaptcha(req *types.VerifyCaptchaRequest) (resp *types.VerifyCaptchaResponse, err error) {
 	if req.Email != nil {
 		if !util.IsEmailValid(*req.Email) {
-			return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+			return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 		}
 		if err := l.verifyCaptchaByEmail(*req.Email, req.Captcha); err != nil {
 			return nil, err
 		}
 	} else if req.Phonenumber != nil {
 		if !util.IsPhonenumberValid(*req.Phonenumber) {
-			return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+			return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 
 		}
 		if err := l.verifyCaptchaByPhoneNumber(*req.Phonenumber, req.Captcha); err != nil {
 			return nil, err
 		}
 	} else {
-		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 
 	return &types.VerifyCaptchaResponse{

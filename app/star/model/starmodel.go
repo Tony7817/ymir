@@ -82,7 +82,7 @@ func (m *customStarModel) InsertStar(ctx context.Context, star *Star) (int64, er
 
 func (m *customStarModel) UpdatePartial(ctx context.Context, star *StarPartial) (sql.Result, error) {
 	if star == nil {
-		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 
 	var query = "update star set "
@@ -121,7 +121,7 @@ func (m *customStarModel) UpdatePartial(ctx context.Context, star *StarPartial) 
 	args = append(args, star.Id)
 
 	if cond == "" {
-		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 
 	logx.Infof("sql:%s", query+cond)

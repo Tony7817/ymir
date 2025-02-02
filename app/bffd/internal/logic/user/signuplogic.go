@@ -30,7 +30,7 @@ func NewSignupLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SignupLogi
 
 func (l *SignupLogic) Signup(req *types.SignupRequest) (*types.SignupResponse, error) {
 	if req.Email == nil && req.Phonenumber == nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ReuqestParamError), "email or phonenumber must be set")
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ErrorReuqestParam), "email or phonenumber must be set")
 	}
 	// If user exist
 	respb, err := l.svcCtx.UserRPC.GetUserInfo(l.ctx, &user.GetUserInfoRequest{

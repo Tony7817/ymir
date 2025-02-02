@@ -43,7 +43,7 @@ func (l *CreateOrderRollbackLogic) CreateOrderRollback(in *order.CreateOrderRequ
 	}
 	err = barrier.CallWithDB(l.svcCtx.DB, func(tx *sql.Tx) error {
 		return mr.Finish(func() error {
-			err := l.svcCtx.OrderModel.DeleteTx(l.ctx, tx, in.OrderId, in.UserId)
+			err := l.svcCtx.OrderModel.SoftDeleteTx(l.ctx, tx, in.OrderId, in.UserId)
 			if err != nil {
 				l.Logger.Errorf("[CreateOrderRollback] OrderModel.DeleteTx error: %+v", err)
 				return status.Error(codes.Aborted, dtmcli.ResultFailure)
@@ -69,7 +69,7 @@ func (l *CreateOrderRollbackLogic) deleteOrderItmes(tx *sql.Tx, os []*order.Orde
 			source <- os[i].OrderItemId
 		}
 	}, func(id int64, writer mr.Writer[any], cancel func(error)) {
-		err := l.svcCtx.OrderItemModel.DeleteTx(l.ctx, tx, id)
+		err := l.svcCtx.OrderItemModel.SoftDeleteByOrderIdTx(l.ctx, tx, id)
 		if err != nil {
 			l.Logger.Errorf("[CreateOrderRollback] OrderItemModel.DeleteTx error: %+v", err)
 			cancel(status.Error(codes.Aborted, dtmcli.ResultFailure))

@@ -24,7 +24,7 @@ func NewAddProductToCartLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *AddProductToCartLogic) AddProductToCart(in *product.AddProductToCartRequest) (*product.AddProductToCartResponse, error) {
-	err := l.svcCtx.ProductCartModel.AddToProductCart(l.ctx, in.ProductCartId, in.UserId, in.ProductId, in.Size, in.ColorId)
+	err := l.svcCtx.ProductCartModel.InsertIntoProductCart(l.ctx, in.ProductCartId, in.UserId, in.ProductId, in.Size, in.ColorId)
 	if err != nil {
 		return nil, err
 	}

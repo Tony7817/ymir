@@ -46,7 +46,7 @@
 
 # id encoded 系统
 是否所有的Id都需要encode？
-好像不是，应该是只有敏感信息的id被encode，比如product的id，user的id，star的id，但是比如product下面的image的id，color的id不需要encode
+不是，应该是只有敏感信息的id被encode，比如product的id，user的id，star的id，但是比如product下面的image的id，color的id不需要encode
 
 ## api rpc db接口的讨论
 api接口返回前端的id是string
@@ -78,3 +78,6 @@ s1 --> s2 --> s3 --> s4
 ## 微服务的拆分不是越细越好。
 创建商品的逻辑应该统一写为一个rpc，然后rpc内部再进行解藕，这样不涉及分布式事务。
 创建行为本身就应该是一个服务商的行为，而不是跨服务的行为。
+
+## 生成id是全局生成还是每个微服务生成
+全局生成，雪花算法每秒能生成几千个id，不存在并发问题。

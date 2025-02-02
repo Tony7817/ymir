@@ -30,7 +30,7 @@ func NewCreateProductLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cre
 
 func (l *CreateProductLogic) CreateProduct(req *types.CreateProductRequest) (*types.CreateProductResponse, error) {
 	if req.Name == "" || req.Description == "" || !isSizesAdnColorInvalid(req.Color) {
-		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 
 	sId, err := id.DecodeId(req.StarId)

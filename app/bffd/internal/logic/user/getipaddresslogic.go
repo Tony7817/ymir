@@ -48,5 +48,5 @@ func (l *GetIpAddressLogic) GetIpAddress(req *http.Request) (resp *types.GetIpAd
 		return res, nil
 	}
 
-	return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+	return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 }

@@ -38,7 +38,32 @@ func (s *OrderServer) SoftDeleteOrder(ctx context.Context, in *order.SoftDeleteO
 	return l.SoftDeleteOrder(in)
 }
 
+func (s *OrderServer) SoftDeleteOrderRollback(ctx context.Context, in *order.SoftDeleteOrderRequest) (*order.SoftDeleteOrderResponse, error) {
+	l := logic.NewSoftDeleteOrderRollbackLogic(ctx, s.svcCtx)
+	return l.SoftDeleteOrderRollback(in)
+}
+
 func (s *OrderServer) GetOrder(ctx context.Context, in *order.GetOrderRequest) (*order.GetOrderResponse, error) {
 	l := logic.NewGetOrderLogic(ctx, s.svcCtx)
 	return l.GetOrder(in)
+}
+
+func (s *OrderServer) UpdateOrder(ctx context.Context, in *order.UpdateOrderRequest) (*order.UpdateOrderResponse, error) {
+	l := logic.NewUpdateOrderLogic(ctx, s.svcCtx)
+	return l.UpdateOrder(in)
+}
+
+func (s *OrderServer) PayOrder(ctx context.Context, in *order.PayOrderRequest) (*order.PayOrderResponse, error) {
+	l := logic.NewPayOrderLogic(ctx, s.svcCtx)
+	return l.PayOrder(in)
+}
+
+func (s *OrderServer) OrderList(ctx context.Context, in *order.GetOrderListRequest) (*order.GetOrderListResponse, error) {
+	l := logic.NewOrderListLogic(ctx, s.svcCtx)
+	return l.OrderList(in)
+}
+
+func (s *OrderServer) OrderItems(ctx context.Context, in *order.GetOrderItemsRequest) (*order.GetOrderItemsResponse, error) {
+	l := logic.NewOrderItemsLogic(ctx, s.svcCtx)
+	return l.OrderItems(in)
 }

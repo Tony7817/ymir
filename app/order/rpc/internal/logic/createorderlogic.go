@@ -3,16 +3,19 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"ymir.com/app/order/model"
+	"ymir.com/app/order/mq"
 	"ymir.com/app/order/rpc/internal/svc"
 	"ymir.com/app/order/rpc/order"
 	"ymir.com/pkg/xerr"
 
 	"github.com/dtm-labs/dtmcli"
 	"github.com/dtm-labs/dtmgrpc"
+	"github.com/hibiken/asynq"
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
@@ -44,7 +47,7 @@ func (l *CreateOrderLogic) CreateOrder(in *order.CreateOrderRequest) (*order.Cre
 	}
 
 	err = barrier.CallWithDB(l.svcCtx.DB, func(tx *sql.Tx) error {
-		return mr.Finish(func() error {
+		err := mr.Finish(func() error {
 			var totalPrice int64
 			for i := 0; i < len(in.Items); i++ {
 				totalPrice += in.Items[i].Price
@@ -67,7 +70,20 @@ func (l *CreateOrderLogic) CreateOrder(in *order.CreateOrderRequest) (*order.Cre
 			}
 			return nil
 		})
-
+		if err != nil {
+			return err
+		}
+		taskOrder, err := mq.NewOrderTask(in.OrderId, in.UserId)
+		if err != nil {
+			l.Logger.Errorf("[CreateOrder] NewOrderTask error: %+v", err)
+			return status.Error(codes.Aborted, dtmcli.ResultFailure)
+		}
+		_, err = l.svcCtx.AsynqClient.Enqueue(taskOrder, asynq.ProcessIn(15*time.Minute))
+		if err != nil {
+			l.Logger.Errorf("[CreateOrder] AsynqClient.Enqueue error: %+v", err)
+			return status.Error(codes.Aborted, dtmcli.ResultFailure)
+		}
+		return nil
 	})
 	if err != nil {
 		return nil, err

@@ -42,7 +42,7 @@ func (l *WriteUserLocalInDBLogic) WriteUserLocalInDB(in *user.WriteUserLocalRequ
 			Valid:  true,
 		}
 	} else {
-		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 
 	uId, err := l.svcCtx.UserModel.InsertIntoUserAndUserLocal(l.ctx, usr, &model.UserLocal{

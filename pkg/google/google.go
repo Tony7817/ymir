@@ -27,7 +27,7 @@ func ValidateToken(ctx context.Context, token string) (*User, error) {
 	}
 
 	if time.Now().UTC().Unix() > res.Expires {
-		return nil, errors.Wrap(xerr.NewErrCode(xerr.NotAuthorizedError), "google token has expired")
+		return nil, errors.Wrap(xerr.NewErrCode(xerr.ErrorNotAuthorized), "google token has expired")
 	}
 
 	return &User{

@@ -16,17 +16,31 @@ import (
 type (
 	CreateOrderRequest      = order.CreateOrderRequest
 	CreateOrderResponse     = order.CreateOrderResponse
+	GetOrderItemsRequest    = order.GetOrderItemsRequest
+	GetOrderItemsResponse   = order.GetOrderItemsResponse
+	GetOrderListRequest     = order.GetOrderListRequest
+	GetOrderListResponse    = order.GetOrderListResponse
 	GetOrderRequest         = order.GetOrderRequest
 	GetOrderResponse        = order.GetOrderResponse
+	OrderContent            = order.OrderContent
 	OrderItem               = order.OrderItem
+	PayOrderRequest         = order.PayOrderRequest
+	PayOrderResponse        = order.PayOrderResponse
 	SoftDeleteOrderRequest  = order.SoftDeleteOrderRequest
 	SoftDeleteOrderResponse = order.SoftDeleteOrderResponse
+	UpdateOrderRequest      = order.UpdateOrderRequest
+	UpdateOrderResponse     = order.UpdateOrderResponse
 
 	Order interface {
 		CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
 		CreateOrderRollback(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
 		SoftDeleteOrder(ctx context.Context, in *SoftDeleteOrderRequest, opts ...grpc.CallOption) (*SoftDeleteOrderResponse, error)
+		SoftDeleteOrderRollback(ctx context.Context, in *SoftDeleteOrderRequest, opts ...grpc.CallOption) (*SoftDeleteOrderResponse, error)
 		GetOrder(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
+		UpdateOrder(ctx context.Context, in *UpdateOrderRequest, opts ...grpc.CallOption) (*UpdateOrderResponse, error)
+		PayOrder(ctx context.Context, in *PayOrderRequest, opts ...grpc.CallOption) (*PayOrderResponse, error)
+		OrderList(ctx context.Context, in *GetOrderListRequest, opts ...grpc.CallOption) (*GetOrderListResponse, error)
+		OrderItems(ctx context.Context, in *GetOrderItemsRequest, opts ...grpc.CallOption) (*GetOrderItemsResponse, error)
 	}
 
 	defaultOrder struct {
@@ -55,7 +69,32 @@ func (m *defaultOrder) SoftDeleteOrder(ctx context.Context, in *SoftDeleteOrderR
 	return client.SoftDeleteOrder(ctx, in, opts...)
 }
 
+func (m *defaultOrder) SoftDeleteOrderRollback(ctx context.Context, in *SoftDeleteOrderRequest, opts ...grpc.CallOption) (*SoftDeleteOrderResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.SoftDeleteOrderRollback(ctx, in, opts...)
+}
+
 func (m *defaultOrder) GetOrder(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error) {
 	client := order.NewOrderClient(m.cli.Conn())
 	return client.GetOrder(ctx, in, opts...)
+}
+
+func (m *defaultOrder) UpdateOrder(ctx context.Context, in *UpdateOrderRequest, opts ...grpc.CallOption) (*UpdateOrderResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.UpdateOrder(ctx, in, opts...)
+}
+
+func (m *defaultOrder) PayOrder(ctx context.Context, in *PayOrderRequest, opts ...grpc.CallOption) (*PayOrderResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.PayOrder(ctx, in, opts...)
+}
+
+func (m *defaultOrder) OrderList(ctx context.Context, in *GetOrderListRequest, opts ...grpc.CallOption) (*GetOrderListResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.OrderList(ctx, in, opts...)
+}
+
+func (m *defaultOrder) OrderItems(ctx context.Context, in *GetOrderItemsRequest, opts ...grpc.CallOption) (*GetOrderItemsResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.OrderItems(ctx, in, opts...)
 }

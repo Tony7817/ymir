@@ -22,7 +22,7 @@ func MaskEmail(s string) (string, error) {
 		s = strings.Split(s, "@")[0]
 	}
 	if s == "" {
-		return "", errors.Wrapf(xerr.NewErrCode(xerr.ReuqestParamError), "mask empty string is not supported")
+		return "", errors.Wrapf(xerr.NewErrCode(xerr.ErrorReuqestParam), "mask empty string is not supported")
 	}
 	if len(s) < 5 {
 		return string(s[0]) + "*****" + s[len(s)-1:], nil
@@ -50,12 +50,12 @@ func GenerateCpatcha() (string, error) {
 func ParseRedisCaptcha(value string) (string, int64, error) {
 	var vs = strings.Split(value, ":")
 	if len(vs) != 2 {
-		return "", 0, errors.Wrapf(xerr.NewErrCode(xerr.ReuqestParamError), "invalid redis captcha value")
+		return "", 0, errors.Wrapf(xerr.NewErrCode(xerr.ErrorReuqestParam), "invalid redis captcha value")
 	}
 
 	createdAt, err := strconv.ParseInt(vs[1], 10, 64)
 	if err != nil {
-		return "", 0, errors.Wrapf(xerr.NewErrCode(xerr.ReuqestParamError), "invalid redis captcha created time")
+		return "", 0, errors.Wrapf(xerr.NewErrCode(xerr.ErrorReuqestParam), "invalid redis captcha created time")
 	}
 
 	return vs[0], createdAt, nil
@@ -69,7 +69,7 @@ func IsPhonenumberValid(phonenumber string) bool {
 
 func MaskPhonenumber(phonenumber string) (string, error) {
 	if len(phonenumber) < 4 {
-		return "", xerr.NewErrCode(xerr.ReuqestParamError)
+		return "", xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 
 	return "****" + phonenumber[len(phonenumber)-4:], nil

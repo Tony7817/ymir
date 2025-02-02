@@ -3,6 +3,14 @@ syntax = "proto3";
 package order;
 option go_package="./order";
 
+message OrderContent {
+    int64 OrderId = 1;
+    int64 UserId = 2;
+    int64 TotalPrice = 3;
+    string Status = 4;
+    string Unit  = 5;
+}
+
 message OrderItem {
     int64 ProductId = 1;
     int64 ColorId = 2;
@@ -24,7 +32,6 @@ message CreateOrderResponse {
 
 message SoftDeleteOrderRequest {
     int64 UserId = 1;
-    repeated OrderItem Items = 2;
     int64 OrderId = 3;
 }
 
@@ -38,15 +45,47 @@ message GetOrderRequest {
 }
 
 message GetOrderResponse {
+    OrderContent Order = 1;
+    repeated OrderItem OrderItems = 2;
+}
+
+message UpdateOrderRequest {
     int64 OrderId = 1;
     int64 UserId = 2;
-    int64 TotalPrice = 3;
-    string Status = 4;
+    optional string Status = 3;
+}
+
+message UpdateOrderResponse {
+    string Status = 1;
+}
+
+message PayOrderRequest {
+    int64 OrderId = 1;
+    int64 UserId = 2;
+}
+
+message PayOrderResponse {
+    string Status = 1;
+}
+
+message GetOrderListRequest {
+    int64 UserId = 1;
+    int64 Page = 2;
+    int64 PageSize = 3;
+}
+
+message GetOrderListResponse {
+    repeated OrderContent Order = 1;
+    int64 Total = 2;
 }
 
 service order {
     rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
     rpc CreateOrderRollback(CreateOrderRequest) returns (CreateOrderResponse);
     rpc SoftDeleteOrder(SoftDeleteOrderRequest) returns (SoftDeleteOrderResponse);
+    rpc SoftDeleteOrderRollback(SoftDeleteOrderRequest) returns (SoftDeleteOrderResponse);
     rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
+    rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse);
+    rpc PayOrder(PayOrderRequest) returns (PayOrderResponse);
+    rpc OrderList(GetOrderListRequest) returns (GetOrderListResponse);
 }

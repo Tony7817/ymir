@@ -38,7 +38,7 @@ func (l *SendSignupCaptchaLogic) SendSignupCaptcha(req *types.SendSignupCaptchaR
 		createdAt = resp.CreatedAt
 	} else if req.Phonenumber != nil {
 		if !util.IsPhonenumberValid(*req.Phonenumber) {
-			return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+			return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 		}
 		resp, err := l.svcCtx.UserRPC.SendCaptchaToPhonenumber(l.ctx, &user.SendCaptchaToPhonenumberRequest{
 			Phonenumber: *req.Phonenumber,
@@ -48,7 +48,7 @@ func (l *SendSignupCaptchaLogic) SendSignupCaptcha(req *types.SendSignupCaptchaR
 		}
 		createdAt = resp.CreatedAt
 	} else {
-		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 
 	return &types.SendSignupCaptchaResponse{

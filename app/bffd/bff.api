@@ -237,12 +237,20 @@ type (
 		SecurityToken   string `json:"security_token"`
 	}
 	// order api
+	Order {
+		OrderId string `json:"order_id"`
+		Status  string `json:"status"`
+		Price   int64  `json:"price"`
+		Unit    string `json:"unit"`
+	}
 	OrderItem {
-		ProductId string `json:"product_id"`
-		ColorId   string `json:"color_id"`
-		Size      string `json:"size"`
-		Quantity  int64  `json:"quantity"`
-		Price     int64  `json:"price"`
+		ProductId          string `json:"product_id"`
+		ProductAvatar      string `json:"product_avatar"`
+		ProductDescription string `json:"product_description"`
+		ColorId            string `json:"color_id"`
+		Size               string `json:"size"`
+		Quantity           int64  `json:"quantity"`
+		Price              int64  `json:"price"`
 	}
 	CreateOrderRequest {
 		Orders []OrderItem `json:"orders"`
@@ -263,6 +271,21 @@ type (
 	}
 	DeleteORderResponse {
 		OrderId string `json:"order_id"`
+	}
+	GetOrderRequest {
+		Page     int64 `json:"page"`
+		PageSize int64 `json:"page_size"`
+	}
+	GetOrderResponse {
+		Orders []Order `json:"orders"`
+		Total  int64   `json:"total"`
+	}
+	GetOrderItemRequest {
+		OrderId string `path:"orderId"`
+	}
+	GetOrderItemResponse {
+		OrderItems []OrderItem `json:"order_items"`
+		Total      int64       `json:"total"`
 	}
 	// Stock api
 	IncreaseStockRequest {
@@ -423,5 +446,11 @@ service bff {
 
 	@handler PayOrder
 	post /order/pay (PayOrderRequest) returns (PayOrderResponse)
+
+	@handler OrderList
+	post /order/list (GetOrderRequest) returns (GetOrderResponse)
+
+	@handler OrderItems
+	post /order/:orderId (GetOrderItemRequest) returns (GetOrderItemResponse)
 }
 

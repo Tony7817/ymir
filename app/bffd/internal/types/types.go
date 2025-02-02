@@ -73,6 +73,25 @@ type GetIpAddressResponse struct {
 	Ip string `json:"ip"`
 }
 
+type GetOrderItemRequest struct {
+	OrderId string `path:"orderId"`
+}
+
+type GetOrderItemResponse struct {
+	OrderItems []OrderItem `json:"order_items"`
+	Total      int64       `json:"total"`
+}
+
+type GetOrderRequest struct {
+	Page     int64 `json:"page"`
+	PageSize int64 `json:"page_size"`
+}
+
+type GetOrderResponse struct {
+	Orders []Order `json:"orders"`
+	Total  int64   `json:"total"`
+}
+
 type IncreaseStockRequest struct {
 	PorudctStockId string `json:"product_stock_id"`
 	Quantity       int64  `json:"quantity"`
@@ -87,12 +106,21 @@ type LikeCommmentRequest struct {
 	CommentId string `json:"comment_id"`
 }
 
+type Order struct {
+	OrderId string `json:"order_id"`
+	Status  string `json:"status"`
+	Price   int64  `json:"price"`
+	Unit    string `json:"unit"`
+}
+
 type OrderItem struct {
-	ProductId string `json:"product_id"`
-	ColorId   string `json:"color_id"`
-	Size      string `json:"size"`
-	Quantity  int64  `json:"quantity"`
-	Price     int64  `json:"price"`
+	ProductId          string `json:"product_id"`
+	ProductAvatar      string `json:"product_avatar"`
+	ProductDescription string `json:"product_description"`
+	ColorId            string `json:"color_id"`
+	Size               string `json:"size"`
+	Quantity           int64  `json:"quantity"`
+	Price              int64  `json:"price"`
 }
 
 type OssTokenRequest struct {

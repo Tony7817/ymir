@@ -30,7 +30,7 @@ func (l *SendForgetPasswordCaptchaLogic) SendForgetPasswordCaptcha(req *types.Se
 	var createdAt int64
 	if req.Email != nil {
 		if !util.IsEmailValid(*req.Email) {
-			return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+			return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 		}
 		resp, err := l.svcCtx.UserRPC.SendCaptchaToEmail(l.ctx, &user.SendCaptchaToEmailRequest{
 			Email: *req.Email,
@@ -41,7 +41,7 @@ func (l *SendForgetPasswordCaptchaLogic) SendForgetPasswordCaptcha(req *types.Se
 		createdAt = resp.CreatedAt
 	} else if req.Phonenumber != nil {
 		if !util.IsPhonenumberValid(*req.Phonenumber) {
-			return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+			return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 		}
 		resp, err := l.svcCtx.UserRPC.SendCaptchaToPhonenumber(l.ctx, &user.SendCaptchaToPhonenumberRequest{
 			Phonenumber: *req.Phonenumber,
@@ -51,7 +51,7 @@ func (l *SendForgetPasswordCaptchaLogic) SendForgetPasswordCaptcha(req *types.Se
 		}
 		createdAt = resp.CreatedAt
 	} else {
-		return nil, xerr.NewErrCode(xerr.ReuqestParamError)
+		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 
 	return &types.SendForgetPasswordCaptchaResponse{

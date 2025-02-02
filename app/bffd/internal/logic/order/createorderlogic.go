@@ -5,6 +5,7 @@ import (
 
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
+	"ymir.com/app/order/model"
 	"ymir.com/app/order/rpc/order"
 	"ymir.com/app/product/rpc/product"
 	"ymir.com/pkg/id"
@@ -35,7 +36,7 @@ func NewCreateOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Creat
 func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderRequest) (*types.CreateOrderResponse, error) {
 	uId, err := id.GetDecodedUserId(l.ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "Not Authorized")
+		return nil, xerr.NewErrCode(xerr.ErrorNotAuthorized)
 	}
 	orderRpcServer, err := l.svcCtx.Config.OrderRPC.BuildTarget()
 	if err != nil {
@@ -91,16 +92,8 @@ func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderRequest) (*types.Cr
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ErrorCreateOrder), "[CreateOrder] dtm trans failed, err: %+v", err)
 	}
 
-	orderResp, err := l.svcCtx.OrderRPC.GetOrder(l.ctx, &order.GetOrderRequest{
-		UserId:  uId,
-		OrderId: oId,
-	})
-	if err != nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ErrorCreateOrder), "[CreateOrder] get order failed, err: %+v", err)
-	}
-
 	return &types.CreateOrderResponse{
-		OrderId: id.EncodeId(orderResp.OrderId),
-		Status:  orderResp.Status,
+		OrderId: id.EncodeId(oId),
+		Status:  model.OrderStatusPending,
 	}, nil
 }
