@@ -26,7 +26,7 @@ func NewDecreaseProductAmountInCartLogic(ctx context.Context, svcCtx *svc.Servic
 }
 
 func (l *DecreaseProductAmountInCartLogic) DecreaseProductAmountInCart(req *types.DecreaseProductAmountInCartRequest) (resp *types.DecreaseProductAmountInCartResponse, err error) {
-	uIdDecoded, err := id.GetDecodedUserId(l.ctx)
+	uId, err := id.GetDecodedUserId(l.ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -35,14 +35,23 @@ func (l *DecreaseProductAmountInCartLogic) DecreaseProductAmountInCart(req *type
 	if err != nil {
 		return nil, err
 	}
-	_, err = l.svcCtx.ProductRPC.DecreaseProductAmountInCart(l.ctx, &product.DecreaseProductAmountInCartRequest{
+	cId, err := id.DecodeId(req.ColorId)
+	if err != nil {
+		return nil, err
+	}
+	respb, err := l.svcCtx.ProductRPC.DecreaseProductAmountInCart(l.ctx, &product.DecreaseProductAmountInCartRequest{
 		ProductId: pId,
-		UserId:    uIdDecoded,
-		Color:     req.Color,
+		UserId:    uId,
+		ColorId:   cId,
+		Size:      req.Size,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.DecreaseProductAmountInCartResponse{}, nil
+	return &types.DecreaseProductAmountInCartResponse{
+		ProductCartId: id.EncodeId(respb.ProductCartId),
+		Amount:        respb.Amount,
+		TotalPrice:    respb.TotalPrice,
+	}, nil
 }

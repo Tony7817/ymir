@@ -3,7 +3,7 @@ package svc
 import (
 	"database/sql"
 
-	"github.com/hibiken/asynq"
+	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"ymir.com/app/order/model"
 	"ymir.com/app/order/rpc/internal/config"
@@ -14,8 +14,9 @@ type ServiceContext struct {
 	OrderModel          model.OrderModel
 	OrderItemModel      model.OrderItemModel
 	OrderStatusLogModel model.OrderStatusLogModel
+	PaypalModel         model.PaypalModel
 	DB                  *sql.DB
-	AsynqClient         *asynq.Client
+	Redis               *redis.Redis
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -28,7 +29,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		OrderModel:          model.NewOrderModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
 		OrderItemModel:      model.NewOrderItemModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
 		OrderStatusLogModel: model.NewOrderStatusLogModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
+		PaypalModel:         model.NewPaypalModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
 		DB:                  db,
-		AsynqClient:         asynq.NewClient(asynq.RedisClientOpt{Addr: c.Redis.Host}),
+		Redis:               redis.New(c.BizRedis.Host, redis.WithPass(c.BizRedis.Pass)),
 	}
 }

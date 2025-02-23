@@ -4,11 +4,16 @@
 package types
 
 type AddProductAmountInCartRequest struct {
-	ProductId string `json:"product_id"`
-	Color     string `json:"color"`
+	ProductId      string `json:"product_id"`
+	ColorId        string `json:"color_id"`
+	Size           string `json:"size"`
+	ExpectedAmount int64  `json:"expected_amount"`
 }
 
 type AddProductAmountInCartResponse struct {
+	ProductCartId string `json:"product_cart_id"`
+	Amount        int64  `json:"amount"`
+	TotalPrice    int64  `json:"total_price"`
 }
 
 type AddProductToCartRequest struct {
@@ -22,7 +27,8 @@ type AddProductToCartResponse struct {
 }
 
 type CreateOrderRequest struct {
-	Orders []OrderItem `json:"orders"`
+	RequestId string      `json:"request_id"`
+	Orders    []OrderItem `json:"orders"`
 }
 
 type CreateOrderResponse struct {
@@ -32,10 +38,14 @@ type CreateOrderResponse struct {
 
 type DecreaseProductAmountInCartRequest struct {
 	ProductId string `json:"product_id"`
-	Color     string `json:"color"`
+	ColorId   string `json:"color_id"`
+	Size      string `json:"size"`
 }
 
 type DecreaseProductAmountInCartResponse struct {
+	ProductCartId string `json:"product_cart_id"`
+	Amount        int64  `json:"amount"`
+	TotalPrice    int64  `json:"total_price"`
 }
 
 type DecreaseStockRequest struct {
@@ -114,13 +124,11 @@ type Order struct {
 }
 
 type OrderItem struct {
-	ProductId          string `json:"product_id"`
-	ProductAvatar      string `json:"product_avatar"`
-	ProductDescription string `json:"product_description"`
-	ColorId            string `json:"color_id"`
-	Size               string `json:"size"`
-	Quantity           int64  `json:"quantity"`
-	Price              int64  `json:"price"`
+	ProductId string `json:"product_id"`
+	ColorId   string `json:"color_id"`
+	Size      string `json:"size"`
+	Quantity  int64  `json:"quantity"`
+	Price     int64  `json:"price,optional"`
 }
 
 type OssTokenRequest struct {
@@ -143,16 +151,17 @@ type PayOrderResponse struct {
 }
 
 type ProductCartListItem struct {
-	ProductId   string  `json:"product_id"`
-	StarId      string  `json:"star_id"`
-	ColorId     string  `json:"color_id"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	Unit        string  `json:"unit"`
-	CoverUrl    string  `json:"cover_url"`
-	Amount      int64   `json:"amount"`
-	Size        string  `json:"size"`
-	TotalPrice  float64 `json:"total_price"`
+	ProductId   string `json:"product_id"`
+	StarId      string `json:"star_id"`
+	ColorId     string `json:"color_id"`
+	Description string `json:"description"`
+	Price       int64  `json:"price"`
+	Unit        string `json:"unit"`
+	CoverUrl    string `json:"cover_url"`
+	Amount      int64  `json:"amount"`
+	Size        string `json:"size"`
+	TotalPrice  int64  `json:"total_price"`
+	Stock       int64  `json:"stock"`
 }
 
 type ProductCartListRequest struct {
@@ -170,7 +179,7 @@ type ProductColor struct {
 	ColorName     string        `json:"color_name"`
 	Images        []string      `json:"images"`
 	Detail_Images []string      `json:"detail_images"`
-	Price         float64       `json:"price"`
+	Price         int64         `json:"price"`
 	CoverUrl      string        `json:"cover_url"`
 	Unit          string        `json:"unit"`
 	Size          []ProductSize `json:"size"`
@@ -227,9 +236,9 @@ type ProductDetailResponse struct {
 }
 
 type ProductListColorItem struct {
-	CoverUrl string  `json:"cover_url"`
-	Price    float64 `json:"price"`
-	Unit     string  `json:"unit"`
+	CoverUrl string `json:"cover_url"`
+	Price    int64  `json:"price"`
+	Unit     string `json:"unit"`
 }
 
 type ProductListItem struct {

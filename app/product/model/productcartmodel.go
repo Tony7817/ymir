@@ -5,12 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
-	"ymir.com/pkg/xerr"
-
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"github.com/zeromicro/go-zero/core/threading"
 )
 
 var _ ProductCartModel = (*customProductCartModel)(nil)
@@ -22,8 +19,8 @@ type (
 		productCartModel
 		FindProductsOfUser(userId int64, page int64, pageSize int64) ([]*ProductCart, error)
 		CountTotalProductOfUser(ctx context.Context, userId int64) (int64, error)
-		IncrProductAmount(ctx context.Context, userId int64, productId int64, color string) error
-		DescProductAmount(ctx context.Context, userId int64, productId int64, color string) error
+		IncrProductAmount(ctx context.Context, userId int64, productId int64, colorId int64, size string) error
+		DescProductAmount(ctx context.Context, userId int64, productId int64, colorId int64, size string) error
 		InsertIntoProductCart(ctx context.Context, pcId int64, userId int64, productId int64, size string, colorId int64) error
 		DeleteProductFromCart(ctx context.Context, userId int64, productId int64, colorId int64) error
 	}
@@ -72,41 +69,17 @@ func (m *customProductCartModel) CountTotalProductOfUser(ctx context.Context, us
 	return count, nil
 }
 
-func (m *customProductCartModel) IncrProductAmount(ctx context.Context, userId int64, productId int64, color string) error {
-	err := m.TransactCtx(ctx, func(ctx context.Context, s sqlx.Session) error {
-		var inStock int64
-		err := s.QueryRowCtx(ctx, &inStock, "select in_stock from product_stock where product_id = ? and color = ?", productId, color)
-		if err != nil {
-			return errors.Wrapf(err, "[IncrProductAmount] failed to get product stock")
-		}
-
-		if inStock <= 0 {
-			return xerr.NewErrCode(xerr.CaptchaExpireError)
-		}
-
-		_, err = s.ExecCtx(ctx, "update product_cart set amount = amount + 1 where user_id = ? and product_id = ? and color = ?", userId, productId, color)
-		if err != nil {
-			return errors.Wrapf(err, "[IncrProductAmount] failed to increase product amount")
-		}
-
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-
-	// delete cachhe
-	threading.GoSafe(func() {
-		_ = m.CachedConn.DelCache(fmt.Sprintf(cacheYmirProductCartTotalUserId, userId))
-	})
-
-	return nil
+func (m *customProductCartModel) IncrProductAmount(ctx context.Context, userId int64, productId int64, colorId int64, size string) error {
+	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (sql.Result, error) {
+		return conn.ExecCtx(ctx, "update product_cart set amount = amount + 1 where user_id = ? and product_id = ? and color_id = ? and size = ?", userId, productId, colorId, size)
+	}, fmt.Sprintf("%s%v:%v:%v:%v", cacheYmirProductCartUserIdColorIdProductIdSizePrefix, userId, colorId, productId, size))
+	return err
 }
 
-func (m *customProductCartModel) DescProductAmount(ctx context.Context, userId int64, productId int64, color string) error {
+func (m *customProductCartModel) DescProductAmount(ctx context.Context, userId int64, productId int64, colorId int64, size string) error {
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (sql.Result, error) {
-		return conn.ExecCtx(ctx, "update product_cart set amount = amount - 1 where user_id = ? and product_id = ? and color = ?", userId, productId, color)
-	}, fmt.Sprintf(cacheYmirProductCartTotalUserId, userId))
+		return conn.ExecCtx(ctx, "update product_cart set amount = amount - 1 where user_id = ? and color_id = ? and product_id = ? and size = ?", userId, colorId, productId, size)
+	}, fmt.Sprintf("%s%v:%v:%v:%v", cacheYmirProductCartUserIdColorIdProductIdSizePrefix, userId, colorId, productId, size))
 	return err
 }
 

@@ -16,8 +16,6 @@ import (
 type (
 	CreateOrderRequest      = order.CreateOrderRequest
 	CreateOrderResponse     = order.CreateOrderResponse
-	GetOrderItemsRequest    = order.GetOrderItemsRequest
-	GetOrderItemsResponse   = order.GetOrderItemsResponse
 	GetOrderListRequest     = order.GetOrderListRequest
 	GetOrderListResponse    = order.GetOrderListResponse
 	GetOrderRequest         = order.GetOrderRequest
@@ -26,6 +24,9 @@ type (
 	OrderItem               = order.OrderItem
 	PayOrderRequest         = order.PayOrderRequest
 	PayOrderResponse        = order.PayOrderResponse
+	Paypal                  = order.Paypal
+	PaypalOrderResponse     = order.PaypalOrderResponse
+	PaypalOrderReuqest      = order.PaypalOrderReuqest
 	SoftDeleteOrderRequest  = order.SoftDeleteOrderRequest
 	SoftDeleteOrderResponse = order.SoftDeleteOrderResponse
 	UpdateOrderRequest      = order.UpdateOrderRequest
@@ -40,7 +41,7 @@ type (
 		UpdateOrder(ctx context.Context, in *UpdateOrderRequest, opts ...grpc.CallOption) (*UpdateOrderResponse, error)
 		PayOrder(ctx context.Context, in *PayOrderRequest, opts ...grpc.CallOption) (*PayOrderResponse, error)
 		OrderList(ctx context.Context, in *GetOrderListRequest, opts ...grpc.CallOption) (*GetOrderListResponse, error)
-		OrderItems(ctx context.Context, in *GetOrderItemsRequest, opts ...grpc.CallOption) (*GetOrderItemsResponse, error)
+		PaypalOrder(ctx context.Context, in *PaypalOrderReuqest, opts ...grpc.CallOption) (*PaypalOrderResponse, error)
 	}
 
 	defaultOrder struct {
@@ -94,7 +95,7 @@ func (m *defaultOrder) OrderList(ctx context.Context, in *GetOrderListRequest, o
 	return client.OrderList(ctx, in, opts...)
 }
 
-func (m *defaultOrder) OrderItems(ctx context.Context, in *GetOrderItemsRequest, opts ...grpc.CallOption) (*GetOrderItemsResponse, error) {
+func (m *defaultOrder) PaypalOrder(ctx context.Context, in *PaypalOrderReuqest, opts ...grpc.CallOption) (*PaypalOrderResponse, error) {
 	client := order.NewOrderClient(m.cli.Conn())
-	return client.OrderItems(ctx, in, opts...)
+	return client.PaypalOrder(ctx, in, opts...)
 }

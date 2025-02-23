@@ -50,7 +50,7 @@ type (
 		Color         string        `db:"color"`
 		Images        string        `db:"images"`
 		DetailImages  string        `db:"detail_images"`
-		Price         float64       `db:"price"`
+		Price         int64         `db:"price"`
 		Unit          string        `db:"unit"`
 		SoldNum       sql.NullInt64 `db:"sold_num"`
 		AvailableSize string        `db:"available_size"`

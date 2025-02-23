@@ -6,10 +6,13 @@ import (
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/order/rpc/order"
+	"ymir.com/app/product/rpc/product"
 	"ymir.com/pkg/id"
 	"ymir.com/pkg/xerr"
 
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/mr"
 )
 
 type OrderItemsLogic struct {
@@ -45,17 +48,48 @@ func (l *OrderItemsLogic) OrderItems(req *types.GetOrderItemRequest) (*types.Get
 		return nil, err
 	}
 
-	var res types.GetOrderItemResponse
-
-	for i := 0; i < len(respb.OrderItems); i++ {
-		res.OrderItems = append(res.OrderItems, types.OrderItem{
-			ProductId: id.EncodeId(respb.OrderItems[i].ProductId),
-			ColorId:   id.EncodeId(respb.OrderItems[i].ColorId),
-			Size:      respb.OrderItems[i].Size,
-			Quantity:  respb.OrderItems[i].Qunantity,
-			Price:     respb.OrderItems[i].Price,
+	res, err := mr.MapReduce(func(source chan<- *order.OrderItem) {
+		for i := 0; i < len(respb.OrderItems); i++ {
+			source <- respb.OrderItems[i]
+		}
+	}, func(item *order.OrderItem, writer mr.Writer[*types.OrderItem], cancel func(error)) {
+		var p *product.ProductDetailResponse
+		var pc *product.ProductColorResponse
+		err := mr.Finish(func() error {
+			var err error
+			p, err = l.svcCtx.ProductRPC.ProductDetail(l.ctx, &product.ProductDetailReqeust{
+				Id: item.ProductId,
+			})
+			return err
+		}, func() error {
+			var err error
+			pc, err = l.svcCtx.ProductRPC.ProductColor(l.ctx, &product.ProductColorRequest{
+				ColorId: item.ColorId,
+			})
+			return err
 		})
+		if err != nil {
+			cancel(err)
+		}
+		writer.Write(&types.OrderItem{
+			ProductId: id.EncodeId(p.Id),
+			ColorId:   id.EncodeId(pc.Color.Id),
+			Size:      item.Size,
+			Quantity:  item.Qunantity,
+		})
+	}, func(pipe <-chan *types.OrderItem, writer mr.Writer[[]types.OrderItem], cancel func(error)) {
+		var items []types.OrderItem
+		for item := range pipe {
+			items = append(items, *item)
+		}
+		writer.Write(items)
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "get order items by orderId: %d failed", oId)
 	}
 
-	return &res, nil
+	return &types.GetOrderItemResponse{
+		OrderItems: res,
+		Total:      int64(len(res)),
+	}, nil
 }

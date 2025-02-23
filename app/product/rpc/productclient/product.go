@@ -14,39 +14,40 @@ import (
 )
 
 type (
-	AddProductAmountInCartRequest      = product.AddProductAmountInCartRequest
-	AddProductAmountInCartResponse     = product.AddProductAmountInCartResponse
-	AddProductToCartRequest            = product.AddProductToCartRequest
-	AddProductToCartResponse           = product.AddProductToCartResponse
-	DecreaseProductAmountInCartRequest = product.DecreaseProductAmountInCartRequest
-	DecreaseProductStockRequest        = product.DecreaseProductStockRequest
-	DecreaseProductStockResponse       = product.DecreaseProductStockResponse
-	IncreaseProductStockRequest        = product.IncreaseProductStockRequest
-	IncreaseProductStockResposne       = product.IncreaseProductStockResposne
-	ProducrtsInCartListResponse        = product.ProducrtsInCartListResponse
-	ProductColor                       = product.ProductColor
-	ProductColorListRequest            = product.ProductColorListRequest
-	ProductColorListResponse           = product.ProductColorListResponse
-	ProductColorRequest                = product.ProductColorRequest
-	ProductColorResponse               = product.ProductColorResponse
-	ProductComment                     = product.ProductComment
-	ProductCommentListRequest          = product.ProductCommentListRequest
-	ProductCommentListResponse         = product.ProductCommentListResponse
-	ProductCoverUrlRequest             = product.ProductCoverUrlRequest
-	ProductCoverUrlResponse            = product.ProductCoverUrlResponse
-	ProductDetailReqeust               = product.ProductDetailReqeust
-	ProductDetailResponse              = product.ProductDetailResponse
-	ProductListColorItem               = product.ProductListColorItem
-	ProductListItem                    = product.ProductListItem
-	ProductListRequest                 = product.ProductListRequest
-	ProductListResponse                = product.ProductListResponse
-	ProductStockItem                   = product.ProductStockItem
-	ProductStockRequest                = product.ProductStockRequest
-	ProductStockResponse               = product.ProductStockResponse
-	ProductsInCartListItem             = product.ProductsInCartListItem
-	ProductsInCartListRequest          = product.ProductsInCartListRequest
-	RemoveProductFromCartRequest       = product.RemoveProductFromCartRequest
-	RemoveProductFromCartResponse      = product.RemoveProductFromCartResponse
+	AddProductAmountInCartRequest       = product.AddProductAmountInCartRequest
+	AddProductAmountInCartResponse      = product.AddProductAmountInCartResponse
+	AddProductToCartRequest             = product.AddProductToCartRequest
+	AddProductToCartResponse            = product.AddProductToCartResponse
+	DecreaseProductAmountInCartRequest  = product.DecreaseProductAmountInCartRequest
+	DecreaseProductAmountInCartResponse = product.DecreaseProductAmountInCartResponse
+	DecreaseProductStockRequest         = product.DecreaseProductStockRequest
+	DecreaseProductStockResponse        = product.DecreaseProductStockResponse
+	IncreaseProductStockRequest         = product.IncreaseProductStockRequest
+	IncreaseProductStockResposne        = product.IncreaseProductStockResposne
+	ProducrtsInCartListResponse         = product.ProducrtsInCartListResponse
+	ProductColor                        = product.ProductColor
+	ProductColorListRequest             = product.ProductColorListRequest
+	ProductColorListResponse            = product.ProductColorListResponse
+	ProductColorRequest                 = product.ProductColorRequest
+	ProductColorResponse                = product.ProductColorResponse
+	ProductComment                      = product.ProductComment
+	ProductCommentListRequest           = product.ProductCommentListRequest
+	ProductCommentListResponse          = product.ProductCommentListResponse
+	ProductCoverUrlRequest              = product.ProductCoverUrlRequest
+	ProductCoverUrlResponse             = product.ProductCoverUrlResponse
+	ProductDetailReqeust                = product.ProductDetailReqeust
+	ProductDetailResponse               = product.ProductDetailResponse
+	ProductListColorItem                = product.ProductListColorItem
+	ProductListItem                     = product.ProductListItem
+	ProductListRequest                  = product.ProductListRequest
+	ProductListResponse                 = product.ProductListResponse
+	ProductStockItem                    = product.ProductStockItem
+	ProductStockRequest                 = product.ProductStockRequest
+	ProductStockResponse                = product.ProductStockResponse
+	ProductsInCartListItem              = product.ProductsInCartListItem
+	ProductsInCartListRequest           = product.ProductsInCartListRequest
+	RemoveProductFromCartRequest        = product.RemoveProductFromCartRequest
+	RemoveProductFromCartResponse       = product.RemoveProductFromCartResponse
 
 	Product interface {
 		ProductList(ctx context.Context, in *ProductListRequest, opts ...grpc.CallOption) (*ProductListResponse, error)

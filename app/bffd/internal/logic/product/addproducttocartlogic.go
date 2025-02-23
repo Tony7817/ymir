@@ -7,6 +7,7 @@ import (
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/product/rpc/product"
 	"ymir.com/pkg/id"
+	"ymir.com/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -37,6 +38,18 @@ func (l *AddProductToCartLogic) AddProductToCart(req *types.AddProductToCartRequ
 	cId, err := id.DecodeId(req.ColorId)
 	if err != nil {
 		return nil, err
+	}
+
+	stock, err := l.svcCtx.ProductRPC.ProductStock(l.ctx, &product.ProductStockRequest{
+		ProductId: pId,
+		ColorId:   cId,
+		Size:      req.Size,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if stock.Stock <= 0 {
+		return nil, xerr.NewErrCode(xerr.ErrorOutOfStockError)
 	}
 
 	respb, err := l.svcCtx.ProductRPC.AddProductToCart(l.ctx, &product.AddProductToCartRequest{

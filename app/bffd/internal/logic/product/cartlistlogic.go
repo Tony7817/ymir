@@ -7,7 +7,6 @@ import (
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/product/rpc/product"
 	"ymir.com/pkg/id"
-	"ymir.com/pkg/util"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -59,7 +58,8 @@ func (l *CartListLogic) CartList(req *types.ProductCartListRequest) (resp *types
 			CoverUrl:    respb.Products[i].CoverUrl,
 			Amount:      respb.Products[i].Amount,
 			Size:        respb.Products[i].Sizes,
-			TotalPrice:  util.MutiplyAndRound(float64(respb.Products[i].Amount), respb.Products[i].Price),
+			TotalPrice:  respb.Products[i].Amount * respb.Products[i].Price,
+			Stock:       respb.Products[i].Stock,
 		})
 	}
 

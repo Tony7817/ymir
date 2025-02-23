@@ -21,9 +21,10 @@ message OrderItem {
 }
 
 message CreateOrderRequest {
-    int64 UserId = 1;
-    repeated OrderItem Items = 2;
-    int64 OrderId = 3;
+    string RequestId = 1;
+    int64 UserId = 2;
+    repeated OrderItem Items = 3;
+    int64 OrderId = 4;
 }
 
 message CreateOrderResponse {
@@ -79,6 +80,21 @@ message GetOrderListResponse {
     int64 Total = 2;
 }
 
+message Paypal {
+    int64 Id = 1;
+    int64 OrderId = 2;
+    string RequestId = 3;
+    string PaypalOrderId = 4;
+}
+
+message PaypalOrderReuqest {
+    string RequestId = 1;
+}
+
+message PaypalOrderResponse {
+    Paypal Paypal = 1;
+}
+
 service order {
     rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
     rpc CreateOrderRollback(CreateOrderRequest) returns (CreateOrderResponse);
@@ -88,4 +104,5 @@ service order {
     rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse);
     rpc PayOrder(PayOrderRequest) returns (PayOrderResponse);
     rpc OrderList(GetOrderListRequest) returns (GetOrderListResponse);
+    rpc PaypalOrder(PaypalOrderReuqest) returns (PaypalOrderResponse);
 }

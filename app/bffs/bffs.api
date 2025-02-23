@@ -53,9 +53,9 @@ type (
 		Products []ProductListItem `json:"products"`
 	}
 	ProductListColorItem {
-		CoverUrl string  `json:"cover_url"`
-		Price    float64 `json:"price"`
-		Unit     string  `json:"unit"`
+		CoverUrl string `json:"cover_url"`
+		Price    int64  `json:"price"`
+		Unit     string `json:"unit"`
 	}
 	ProductListItem {
 		Id           string               `json:"id"`
@@ -96,7 +96,7 @@ type (
 		CoverUrl        string             `json:"cover_url"`
 		ImagesUrl       string             `json:"images_url"`
 		DetailImagesUrl string             `json:"detail_images_url"`
-		Price           float64            `json:"price"`
+		Price           int64              `json:"price"`
 		Unit            string             `json:"unit"`
 		Sizes           []ProductColorSize `json:"sizes"`
 		IsDefault       bool               `json:"is_default"`

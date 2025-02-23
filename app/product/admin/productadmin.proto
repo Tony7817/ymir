@@ -19,7 +19,7 @@ message ProductListRequest {
 
 message ProductListColorItem {
     string CoverUrl = 1;
-    double Price = 2;
+    int64 Price = 2;
     string Unit = 3;
 }
 
@@ -57,7 +57,7 @@ message CreateProductColorRequeset {
     string CoverUrl = 3;
     string ImageUrl = 4;
     string DetailImagesUrl = 5;
-    double Price = 6;
+    int64 Price = 6;
     string Unit = 7;
     string Size = 8;
     int64 InStock = 9;
@@ -75,7 +75,7 @@ message UpdateProductColorRequest {
     optional string CoverUrl = 3;
     optional string ImageUrl = 4;
     optional string DetailImagesUrl = 5;
-    optional double Price = 6;
+    optional int64 Price = 6;
     optional string Unit = 7;
     optional string Size = 8;
     optional int64 ProductId = 9;

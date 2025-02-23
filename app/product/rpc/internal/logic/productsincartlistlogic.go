@@ -3,11 +3,13 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"sort"
 
 	"ymir.com/app/product/model"
 	"ymir.com/app/product/rpc/internal/svc"
 	"ymir.com/app/product/rpc/product"
 
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
 )
@@ -69,34 +71,83 @@ func (l *ProductsInCartListLogic) ProductsInCartList(in *product.ProductsInCartL
 }
 
 func (l *ProductsInCartListLogic) productsInCarts(pcarts []*model.ProductCart) ([]*product.ProductsInCartListItem, error) {
-	return mr.MapReduce(func(source chan<- *model.ProductCart) {
-		for _, item := range pcarts {
+	type indexedProductCart struct {
+		index int
+		item  *model.ProductCart
+	}
+	type indexedProductCartItem struct {
+		index int
+		item  *product.ProductsInCartListItem
+	}
+	var productCartsWithIndex = make([]*indexedProductCart, len(pcarts))
+	for i := 0; i < len(pcarts); i++ {
+		productCartsWithIndex[i] = &indexedProductCart{
+			index: i,
+			item:  pcarts[i],
+		}
+	}
+	res, err := mr.MapReduce(func(source chan<- *indexedProductCart) {
+		for _, item := range productCartsWithIndex {
 			source <- item
 		}
-	}, func(pcart *model.ProductCart, writer mr.Writer[*product.ProductsInCartListItem], cancel func(error)) {
-		p, c, err := l.findProductDetailAndColorDetail(pcart.ProductId, pcart.ColorId)
+	}, func(pcart *indexedProductCart, writer mr.Writer[*indexedProductCartItem], cancel func(error)) {
+		var p *model.Product
+		var c *model.ProductColorDetail
+		var s *model.ProductStock
+		err := mr.Finish(func() error {
+			var err error
+			p, c, err = l.findProductDetailAndColorDetail(pcart.item.ProductId, pcart.item.ColorId)
+			if err != nil {
+				return err
+			}
+			return nil
+		}, func() error {
+			var err error
+			s, err = l.svcCtx.ProductStockModel.FindOneByProductIdColorIdSize(l.ctx, pcart.item.ProductId, pcart.item.ColorId, pcart.item.Size)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
 		if err != nil {
 			cancel(err)
 			return
 		}
-		writer.Write(&product.ProductsInCartListItem{
-			ProductId:   p.Id,
-			StarId:      p.StarId,
-			ColorId:     c.Id,
-			Amount:      pcart.Amount,
-			Sizes:       pcart.Size,
-			Description: p.Description,
-			Price:       c.Price,
-			Unit:        c.Unit,
-			CoverUrl:    c.CoverUrl,
+		writer.Write(&indexedProductCartItem{
+			index: pcart.index,
+			item: &product.ProductsInCartListItem{
+				ProductId:   p.Id,
+				StarId:      p.StarId,
+				ColorId:     c.Id,
+				Amount:      pcart.item.Amount,
+				Sizes:       pcart.item.Size,
+				Description: p.Description,
+				Price:       c.Price,
+				Unit:        c.Unit,
+				CoverUrl:    c.CoverUrl,
+				Stock:       s.InStock,
+			},
 		})
-	}, func(pipe <-chan *product.ProductsInCartListItem, writer mr.Writer[[]*product.ProductsInCartListItem], cancel func(error)) {
-		pitems := []*product.ProductsInCartListItem{}
+	}, func(pipe <-chan *indexedProductCartItem, writer mr.Writer[[]*product.ProductsInCartListItem], cancel func(error)) {
+		productsItemWithIndex := []*indexedProductCartItem{}
 		for item := range pipe {
-			pitems = append(pitems, item)
+			productsItemWithIndex = append(productsItemWithIndex, item)
 		}
-		writer.Write(pitems)
+		sort.Slice(productsItemWithIndex, func(i, j int) bool {
+			return productsItemWithIndex[i].index < productsItemWithIndex[j].index
+		})
+
+		res := make([]*product.ProductsInCartListItem, len(productsItemWithIndex))
+		for i := 0; i < len(productsItemWithIndex); i++ {
+			res[i] = productsItemWithIndex[i].item
+		}
+		writer.Write(res)
 	})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get product detail and color detail")
+	}
+
+	return res, nil
 }
 
 func (l *ProductsInCartListLogic) findProductDetailAndColorDetail(productId int64, colorId int64) (*model.Product, *model.ProductColorDetail, error) {

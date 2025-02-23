@@ -5,6 +5,7 @@ import (
 
 	"ymir.com/app/product/rpc/internal/svc"
 	"ymir.com/app/product/rpc/product"
+	"ymir.com/pkg/id"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +25,7 @@ func NewAddProductToCartLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *AddProductToCartLogic) AddProductToCart(in *product.AddProductToCartRequest) (*product.AddProductToCartResponse, error) {
-	err := l.svcCtx.ProductCartModel.InsertIntoProductCart(l.ctx, in.ProductCartId, in.UserId, in.ProductId, in.Size, in.ColorId)
+	err := l.svcCtx.ProductCartModel.InsertIntoProductCart(l.ctx, id.SF.GenerateID(), in.UserId, in.ProductId, in.Size, in.ColorId)
 	if err != nil {
 		return nil, err
 	}

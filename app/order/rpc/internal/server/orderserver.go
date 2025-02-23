@@ -63,7 +63,7 @@ func (s *OrderServer) OrderList(ctx context.Context, in *order.GetOrderListReque
 	return l.OrderList(in)
 }
 
-func (s *OrderServer) OrderItems(ctx context.Context, in *order.GetOrderItemsRequest) (*order.GetOrderItemsResponse, error) {
-	l := logic.NewOrderItemsLogic(ctx, s.svcCtx)
-	return l.OrderItems(in)
+func (s *OrderServer) PaypalOrder(ctx context.Context, in *order.PaypalOrderReuqest) (*order.PaypalOrderResponse, error) {
+	l := logic.NewPaypalOrderLogic(ctx, s.svcCtx)
+	return l.PaypalOrder(in)
 }

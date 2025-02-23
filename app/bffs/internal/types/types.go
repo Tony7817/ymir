@@ -40,7 +40,7 @@ type ProductColor struct {
 	CoverUrl        string             `json:"cover_url"`
 	ImagesUrl       string             `json:"images_url"`
 	DetailImagesUrl string             `json:"detail_images_url"`
-	Price           float64            `json:"price"`
+	Price           int64              `json:"price"`
 	Unit            string             `json:"unit"`
 	Sizes           []ProductColorSize `json:"sizes"`
 	IsDefault       bool               `json:"is_default"`
@@ -52,9 +52,9 @@ type ProductColorSize struct {
 }
 
 type ProductListColorItem struct {
-	CoverUrl string  `json:"cover_url"`
-	Price    float64 `json:"price"`
-	Unit     string  `json:"unit"`
+	CoverUrl string `json:"cover_url"`
+	Price    int64  `json:"price"`
+	Unit     string `json:"unit"`
 }
 
 type ProductListItem struct {

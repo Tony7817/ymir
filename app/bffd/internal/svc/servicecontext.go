@@ -8,7 +8,7 @@ import (
 	"ymir.com/app/star/rpc/starclient"
 	"ymir.com/app/user/rpc/userclient"
 
-	"github.com/hibiken/asynq"
+	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
 )
@@ -20,8 +20,8 @@ type ServiceContext struct {
 	UserRPC    userclient.User
 	OrderRPC   orderclient.Order
 
-	Timer       rest.Middleware
-	AsynqClient *asynq.Client
+	Redis *redis.Redis
+	Timer rest.Middleware
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -31,8 +31,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		StarRPC:    starclient.NewStar(zrpc.MustNewClient(c.StarRPC)),
 		UserRPC:    userclient.NewUser(zrpc.MustNewClient(c.UserRPC)),
 		OrderRPC:   orderclient.NewOrder(zrpc.MustNewClient(c.OrderRPC)),
+		Redis:      redis.New(c.BizRedis.Host, redis.WithPass(c.BizRedis.Pass)),
 		//
-		Timer:       middleware.NewTimerMiddleware(c).Handle,
-		AsynqClient: asynq.NewClient(asynq.RedisClientOpt{Addr: c.BizRedis.Host}),
+		Timer: middleware.NewTimerMiddleware(c).Handle,
 	}
 }

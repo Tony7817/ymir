@@ -24,15 +24,15 @@ var (
 	productCartRowsExpectAutoSet   = strings.Join(stringx.Remove(productCartFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	productCartRowsWithPlaceHolder = strings.Join(stringx.Remove(productCartFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
-	cacheYmirProductCartIdPrefix                     = "cache:ymir:productCart:id:"
-	cacheYmirProductCartProductIdColorIdUserIdPrefix = "cache:ymir:productCart:productId:colorId:userId:"
+	cacheYmirProductCartIdPrefix                         = "cache:ymir:productCart:id:"
+	cacheYmirProductCartUserIdColorIdProductIdSizePrefix = "cache:ymir:productCart:userId:colorId:productId:size:"
 )
 
 type (
 	productCartModel interface {
 		Insert(ctx context.Context, data *ProductCart) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*ProductCart, error)
-		FindOneByProductIdColorIdUserId(ctx context.Context, productId int64, colorId int64, userId int64) (*ProductCart, error)
+		FindOneByUserIdColorIdProductIdSize(ctx context.Context, userId int64, colorId int64, productId int64, size string) (*ProductCart, error)
 		Update(ctx context.Context, data *ProductCart) error
 		Delete(ctx context.Context, id int64) error
 	}
@@ -68,11 +68,11 @@ func (m *defaultProductCartModel) Delete(ctx context.Context, id int64) error {
 	}
 
 	ymirProductCartIdKey := fmt.Sprintf("%s%v", cacheYmirProductCartIdPrefix, id)
-	ymirProductCartProductIdColorIdUserIdKey := fmt.Sprintf("%s%v:%v:%v", cacheYmirProductCartProductIdColorIdUserIdPrefix, data.ProductId, data.ColorId, data.UserId)
+	ymirProductCartUserIdColorIdProductIdSizeKey := fmt.Sprintf("%s%v:%v:%v:%v", cacheYmirProductCartUserIdColorIdProductIdSizePrefix, data.UserId, data.ColorId, data.ProductId, data.Size)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		return conn.ExecCtx(ctx, query, id)
-	}, ymirProductCartIdKey, ymirProductCartProductIdColorIdUserIdKey)
+	}, ymirProductCartIdKey, ymirProductCartUserIdColorIdProductIdSizeKey)
 	return err
 }
 
@@ -93,12 +93,12 @@ func (m *defaultProductCartModel) FindOne(ctx context.Context, id int64) (*Produ
 	}
 }
 
-func (m *defaultProductCartModel) FindOneByProductIdColorIdUserId(ctx context.Context, productId int64, colorId int64, userId int64) (*ProductCart, error) {
-	ymirProductCartProductIdColorIdUserIdKey := fmt.Sprintf("%s%v:%v:%v", cacheYmirProductCartProductIdColorIdUserIdPrefix, productId, colorId, userId)
+func (m *defaultProductCartModel) FindOneByUserIdColorIdProductIdSize(ctx context.Context, userId int64, colorId int64, productId int64, size string) (*ProductCart, error) {
+	ymirProductCartUserIdColorIdProductIdSizeKey := fmt.Sprintf("%s%v:%v:%v:%v", cacheYmirProductCartUserIdColorIdProductIdSizePrefix, userId, colorId, productId, size)
 	var resp ProductCart
-	err := m.QueryRowIndexCtx(ctx, &resp, ymirProductCartProductIdColorIdUserIdKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
-		query := fmt.Sprintf("select %s from %s where `product_id` = ? and `color_id` = ? and `user_id` = ? limit 1", productCartRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, productId, colorId, userId); err != nil {
+	err := m.QueryRowIndexCtx(ctx, &resp, ymirProductCartUserIdColorIdProductIdSizeKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
+		query := fmt.Sprintf("select %s from %s where `user_id` = ? and `color_id` = ? and `product_id` = ? and `size` = ? limit 1", productCartRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, userId, colorId, productId, size); err != nil {
 			return nil, err
 		}
 		return resp.Id, nil
@@ -115,11 +115,11 @@ func (m *defaultProductCartModel) FindOneByProductIdColorIdUserId(ctx context.Co
 
 func (m *defaultProductCartModel) Insert(ctx context.Context, data *ProductCart) (sql.Result, error) {
 	ymirProductCartIdKey := fmt.Sprintf("%s%v", cacheYmirProductCartIdPrefix, data.Id)
-	ymirProductCartProductIdColorIdUserIdKey := fmt.Sprintf("%s%v:%v:%v", cacheYmirProductCartProductIdColorIdUserIdPrefix, data.ProductId, data.ColorId, data.UserId)
+	ymirProductCartUserIdColorIdProductIdSizeKey := fmt.Sprintf("%s%v:%v:%v:%v", cacheYmirProductCartUserIdColorIdProductIdSizePrefix, data.UserId, data.ColorId, data.ProductId, data.Size)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, productCartRowsExpectAutoSet)
 		return conn.ExecCtx(ctx, query, data.Id, data.ProductId, data.UserId, data.ColorId, data.Amount, data.Size)
-	}, ymirProductCartIdKey, ymirProductCartProductIdColorIdUserIdKey)
+	}, ymirProductCartIdKey, ymirProductCartUserIdColorIdProductIdSizeKey)
 	return ret, err
 }
 
@@ -130,11 +130,11 @@ func (m *defaultProductCartModel) Update(ctx context.Context, newData *ProductCa
 	}
 
 	ymirProductCartIdKey := fmt.Sprintf("%s%v", cacheYmirProductCartIdPrefix, data.Id)
-	ymirProductCartProductIdColorIdUserIdKey := fmt.Sprintf("%s%v:%v:%v", cacheYmirProductCartProductIdColorIdUserIdPrefix, data.ProductId, data.ColorId, data.UserId)
+	ymirProductCartUserIdColorIdProductIdSizeKey := fmt.Sprintf("%s%v:%v:%v:%v", cacheYmirProductCartUserIdColorIdProductIdSizePrefix, data.UserId, data.ColorId, data.ProductId, data.Size)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, productCartRowsWithPlaceHolder)
 		return conn.ExecCtx(ctx, query, newData.ProductId, newData.UserId, newData.ColorId, newData.Amount, newData.Size, newData.Id)
-	}, ymirProductCartIdKey, ymirProductCartProductIdColorIdUserIdKey)
+	}, ymirProductCartIdKey, ymirProductCartUserIdColorIdProductIdSizeKey)
 	return err
 }
 

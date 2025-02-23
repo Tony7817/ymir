@@ -24,7 +24,7 @@ func init() {
 	message[ErrorWrongPassword] = "incrrect password"
 	message[UserNotExistedError] = "user not exist"
 	// product service
-	message[OutOfStockError] = "product is out of stock"
+	message[ErrorOutOfStockError] = "product is out of stock"
 	// order service
 	message[ErrorRequestOrderMaximunReach] = "request too many orders"
 	message[ErrorOrderNotExist] = "order does not exist"
@@ -32,6 +32,8 @@ func init() {
 	message[ErrorPayOrder] = "pay order failed, please try again"
 	message[ErrorInvalidOrderStatus] = "invalid order"
 	message[ErrorDeleteOrder] = "delete order failed, please try again"
+	message[ErrorIdempotence] = "please don't submit the order repeatedly"
+	message[ErrorStockNotEnough] = "stock is not enough"
 }
 
 func MapErrMsg(errcode uint32) string {

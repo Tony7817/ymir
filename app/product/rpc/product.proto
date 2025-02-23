@@ -17,7 +17,7 @@ message ProductListRequest {
 
 message ProductListColorItem {
   string CoverUrl = 1;
-  double Price = 2;
+  int64 Price = 2;
   string Unit = 3;
 }
 
@@ -44,7 +44,6 @@ message ProductListResponse {
 
 message ProductDetailReqeust {
   int64 Id = 1;
-  int64 StarId = 2;
 }
 
 message ProductColorRequest {
@@ -57,7 +56,7 @@ message ProductColor {
   string Name = 3;
   repeated string Images = 4;
   repeated string DetailImages = 5;
-  double Price = 6;
+  int64 Price = 6;
   string Unit = 7;
   string CoverUrl = 8;
   repeated string AvaliableSizes = 9;
@@ -135,10 +134,11 @@ message ProductsInCartListItem {
   int64 Amount = 4;
   string Sizes = 5;
   string Description = 6;
-  double Price = 7;
-  double TotalPrice = 8;
+  int64 Price = 7;
+  int64 TotalPrice = 8;
   string Unit = 9;
   string CoverUrl = 10;
+  int64 Stock = 11;
 }
 
 message ProducrtsInCartListResponse {
@@ -149,15 +149,28 @@ message ProducrtsInCartListResponse {
 message AddProductAmountInCartRequest {
   int64 ProductId = 1;
   int64 UserId = 2;
-  string Color = 3;
+  int64 ColorId = 3;
+  string Size = 4;
+  int64 ExpectedAmount = 5;
 }
 
-message AddProductAmountInCartResponse {}
+message AddProductAmountInCartResponse {
+  int64 ProductCartId = 1;
+  int64 Amount = 2;
+  int64 TotalPrice = 3;
+}
 
 message DecreaseProductAmountInCartRequest {
   int64 ProductId = 1;
   int64 UserId = 2;
-  string Color = 3;
+  int64 ColorId = 3;
+  string Size = 4;
+}
+
+message DecreaseProductAmountInCartResponse {
+  int64 ProductCartId = 1;
+  int64 Amount = 2;
+  int64 TotalPrice = 3;
 }
 
 message AddProductToCartRequest {

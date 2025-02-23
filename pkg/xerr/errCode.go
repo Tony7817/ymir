@@ -47,8 +47,10 @@ const ErrorCreateOrder uint32 = 300003
 const ErrorPayOrder uint32 = 300004
 const ErrorInvalidOrderStatus uint32 = 300005
 const ErrorDeleteOrder uint32 = 300006
+const ErrorIdempotence uint32 = 300007
 
 // 商品服务
-const OutOfStockError uint32 = 400001
+const ErrorOutOfStockError uint32 = 400001
+const ErrorStockNotEnough uint32 = 400002
 
 //支付服务

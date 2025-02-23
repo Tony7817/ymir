@@ -36,13 +36,25 @@ func (l *AddProductAmountInCartLogic) AddProductAmountInCart(req *types.AddProdu
 		return nil, err
 	}
 
-	_, err = l.svcCtx.ProductRPC.AddProductAmountInCart(l.ctx, &product.AddProductAmountInCartRequest{
-		ProductId: pId,
-		UserId:    uIdDecoded,
+	cId, err := id.DecodeId(req.ColorId)
+	if err != nil {
+		return nil, err
+	}
+
+	respb, err := l.svcCtx.ProductRPC.AddProductAmountInCart(l.ctx, &product.AddProductAmountInCartRequest{
+		ProductId:      pId,
+		ColorId:        cId,
+		UserId:         uIdDecoded,
+		Size:           req.Size,
+		ExpectedAmount: req.ExpectedAmount,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.AddProductAmountInCartResponse{}, nil
+	return &types.AddProductAmountInCartResponse{
+		ProductCartId: id.EncodeId(respb.ProductCartId),
+		Amount:        respb.Amount,
+		TotalPrice:    respb.TotalPrice,
+	}, nil
 }
