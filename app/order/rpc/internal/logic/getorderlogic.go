@@ -59,8 +59,14 @@ func (l *GetOrderLogic) GetOrder(in *order.GetOrderRequest) (*order.GetOrderResp
 		}
 		return nil
 	})
-	if err != nil {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, errors.Wrapf(err, "get order by orderId: %d failed", in.OrderId)
+	}
+	if errors.Is(err, sql.ErrNoRows) {
+		return &order.GetOrderResponse{
+			Order:      nil,
+			OrderItems: nil,
+		}, nil
 	}
 
 	return &order.GetOrderResponse{

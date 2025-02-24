@@ -36,6 +36,7 @@ func (l *IncreaseProductStockOfOrderLogic) IncreaseProductStockOfOrder(in *produ
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ErrorRequestOrderMaximunReach), "Request too many product stocks, order num: %d", len(in.ProductStockItem))
 	}
 
+	l.Logger.Debugf("increase stock")
 	barrier, err := dtmgrpc.BarrierFromGrpc(l.ctx)
 	if err != nil {
 		l.Logger.Errorf("[IncreaseProductStockOfOrder] BarrierFromGrpc error: %v", err)
@@ -50,7 +51,9 @@ func (l *IncreaseProductStockOfOrderLogic) IncreaseProductStockOfOrder(in *produ
 		return nil, status.Error(codes.Aborted, dtmcli.ResultFailure)
 	}
 
-	return &product.DecreaseProductStockResponse{}, nil
+	return &product.DecreaseProductStockResponse{
+		Status: product.Status_OK,
+	}, nil
 }
 
 func (l *IncreaseProductStockOfOrderLogic) increaseStocks(tx *sql.Tx, s []*product.ProductStockItem) error {
@@ -59,7 +62,7 @@ func (l *IncreaseProductStockOfOrderLogic) increaseStocks(tx *sql.Tx, s []*produ
 			source <- s[i]
 		}
 	}, func(item *product.ProductStockItem, writer mr.Writer[any], cancel func(error)) {
-		if err := l.svcCtx.ProductStockModel.IncreaseProductStockTx(l.ctx, tx, item.ProductId, item.ColorId, item.Quantity,  item.Size); err != nil {
+		if err := l.svcCtx.ProductStockModel.IncreaseProductStockTx(l.ctx, tx, item.ProductId, item.ColorId, item.Quantity, item.Size); err != nil {
 			l.Logger.Errorf("[IncreaseProductStockOfOrder] IncreaseProductStockTx error: %+v", err)
 			cancel(status.Error(codes.Aborted, dtmcli.ResultFailure))
 		}

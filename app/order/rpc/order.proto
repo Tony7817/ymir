@@ -95,6 +95,16 @@ message PaypalOrderResponse {
     Paypal Paypal = 1;
 }
 
+message CreatePaypalOrderRequest {
+    string RequestId = 1;
+    int64 OrderId = 2;
+}
+
+message CreatePaypalOrderResponse {
+    int64 OrderId = 1;
+    string PaypalOrderId = 2;
+}
+
 service order {
     rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
     rpc CreateOrderRollback(CreateOrderRequest) returns (CreateOrderResponse);
@@ -105,4 +115,5 @@ service order {
     rpc PayOrder(PayOrderRequest) returns (PayOrderResponse);
     rpc OrderList(GetOrderListRequest) returns (GetOrderListResponse);
     rpc PaypalOrder(PaypalOrderReuqest) returns (PaypalOrderResponse);
+    rpc CreatePaypalOrder(CreatePaypalOrderRequest) returns (CreatePaypalOrderResponse);
 }

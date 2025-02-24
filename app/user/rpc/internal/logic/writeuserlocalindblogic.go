@@ -7,6 +7,7 @@ import (
 	"ymir.com/app/user/model"
 	"ymir.com/app/user/rpc/internal/svc"
 	"ymir.com/app/user/rpc/user"
+	"ymir.com/pkg/id"
 	"ymir.com/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -28,7 +29,7 @@ func NewWriteUserLocalInDBLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 func (l *WriteUserLocalInDBLogic) WriteUserLocalInDB(in *user.WriteUserLocalRequest) (*user.WriteUserLocalResponse, error) {
 	var usr = &model.User{
-		Id:       in.UserId,
+		Id:       id.SF.GenerateID(),
 		Username: in.UserName,
 	}
 	if in.Email != nil {
@@ -45,7 +46,10 @@ func (l *WriteUserLocalInDBLogic) WriteUserLocalInDB(in *user.WriteUserLocalRequ
 		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 
-	uId, err := l.svcCtx.UserModel.InsertIntoUserAndUserLocal(l.ctx, usr, &model.UserLocal{
+	var userId = id.SF.GenerateID()
+	err := l.svcCtx.UserModel.InsertIntoUserAndUserLocal(l.ctx, usr, &model.UserLocal{
+		Id:           userId,
+		UserId:       usr.Id,
 		PasswordHash: in.PasswordHash,
 		IsActivated:  1,
 	})
@@ -54,6 +58,6 @@ func (l *WriteUserLocalInDBLogic) WriteUserLocalInDB(in *user.WriteUserLocalRequ
 	}
 
 	return &user.WriteUserLocalResponse{
-		UserId: uId,
+		UserId: userId,
 	}, nil
 }

@@ -67,3 +67,8 @@ func (s *OrderServer) PaypalOrder(ctx context.Context, in *order.PaypalOrderReuq
 	l := logic.NewPaypalOrderLogic(ctx, s.svcCtx)
 	return l.PaypalOrder(in)
 }
+
+func (s *OrderServer) CreatePaypalOrder(ctx context.Context, in *order.CreatePaypalOrderRequest) (*order.CreatePaypalOrderResponse, error) {
+	l := logic.NewCreatePaypalOrderLogic(ctx, s.svcCtx)
+	return l.CreatePaypalOrder(in)
+}

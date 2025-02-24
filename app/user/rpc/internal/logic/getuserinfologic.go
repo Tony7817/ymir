@@ -30,7 +30,7 @@ func NewGetUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUs
 func (l *GetUserInfoLogic) GetUserInfo(in *user.GetUserInfoRequest) (*user.GetUserInfoResponse, error) {
 	var usr *model.User
 	var err error
-	if in.Email != nil {
+	if in.Email != nil && *in.Email != "" {
 		usr, err = l.svcCtx.UserModel.FindOneByEmail(l.ctx, sql.NullString{
 			String: *in.Email,
 			Valid:  true,
@@ -38,7 +38,7 @@ func (l *GetUserInfoLogic) GetUserInfo(in *user.GetUserInfoRequest) (*user.GetUs
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return nil, err
 		}
-	} else if in.Phonenumber != nil {
+	} else if in.Phonenumber != nil && *in.Phonenumber != "" {
 		usr, err = l.svcCtx.UserModel.FindOneByPhoneNumber(l.ctx, sql.NullString{
 			String: *in.Phonenumber,
 			Valid:  true,

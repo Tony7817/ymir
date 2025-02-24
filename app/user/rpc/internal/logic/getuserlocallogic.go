@@ -41,17 +41,13 @@ func (l *GetUserLocalLogic) GetUserLocal(in *user.GetUserLocalRequest) (*user.Ge
 			User: nil,
 		}, nil
 	}
-	usrLocal, err := l.svcCtx.UserLocalModel.FindOneByUserId(l.ctx, usr.Id)
-	if err != nil {
-		return nil, err
-	}
 
 	var res = &user.GetUserLocalResponse{
 		User: &user.UserLocalInfo{
 			Id:           usr.Id,
 			UserId:       usr.UserId,
-			PasswordHash: usrLocal.PasswordHash,
-			IsActivated:  usrLocal.IsActivated == 1,
+			PasswordHash: usr.PasswordHash,
+			IsActivated:  usr.IsActivated == 1,
 		},
 	}
 

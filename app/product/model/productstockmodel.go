@@ -3,9 +3,9 @@ package model
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/pkg/errors"
-	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"ymir.com/pkg/xerr"
@@ -53,10 +53,11 @@ func (m *customProductStockModel) DecreaseProductStockTx(ctx context.Context, tx
 	if err != nil {
 		return errors.Wrap(err, "[DecreaseProductStockTx]get affected rows fail")
 	}
-	logx.Info(affected)
 	if affected == 0 {
 		return errors.Wrap(xerr.NewErrCode(xerr.DbUpdateAffectedZeroError), "[DecreaseProductStockTx]stock not enough")
 	}
+
+	_ = m.DelCache(fmt.Sprintf("%s%v:%v:%v", cacheYmirProductStockProductIdColorIdSizePrefix, pId, cId, size))
 
 	return nil
 }
@@ -66,6 +67,8 @@ func (m *customProductStockModel) IncreaseProductStockTx(ctx context.Context, tx
 	if err != nil {
 		return errors.Wrap(err, "[IncreaseProductStockTx]update product stock fail")
 	}
+
+	_ = m.DelCache(fmt.Sprintf("%s%v:%v:%v", cacheYmirProductStockProductIdColorIdSizePrefix, pId, cId, size))
 
 	return nil
 }

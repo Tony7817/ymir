@@ -14,23 +14,25 @@ import (
 )
 
 type (
-	CreateOrderRequest      = order.CreateOrderRequest
-	CreateOrderResponse     = order.CreateOrderResponse
-	GetOrderListRequest     = order.GetOrderListRequest
-	GetOrderListResponse    = order.GetOrderListResponse
-	GetOrderRequest         = order.GetOrderRequest
-	GetOrderResponse        = order.GetOrderResponse
-	OrderContent            = order.OrderContent
-	OrderItem               = order.OrderItem
-	PayOrderRequest         = order.PayOrderRequest
-	PayOrderResponse        = order.PayOrderResponse
-	Paypal                  = order.Paypal
-	PaypalOrderResponse     = order.PaypalOrderResponse
-	PaypalOrderReuqest      = order.PaypalOrderReuqest
-	SoftDeleteOrderRequest  = order.SoftDeleteOrderRequest
-	SoftDeleteOrderResponse = order.SoftDeleteOrderResponse
-	UpdateOrderRequest      = order.UpdateOrderRequest
-	UpdateOrderResponse     = order.UpdateOrderResponse
+	CreateOrderRequest        = order.CreateOrderRequest
+	CreateOrderResponse       = order.CreateOrderResponse
+	CreatePaypalOrderRequest  = order.CreatePaypalOrderRequest
+	CreatePaypalOrderResponse = order.CreatePaypalOrderResponse
+	GetOrderListRequest       = order.GetOrderListRequest
+	GetOrderListResponse      = order.GetOrderListResponse
+	GetOrderRequest           = order.GetOrderRequest
+	GetOrderResponse          = order.GetOrderResponse
+	OrderContent              = order.OrderContent
+	OrderItem                 = order.OrderItem
+	PayOrderRequest           = order.PayOrderRequest
+	PayOrderResponse          = order.PayOrderResponse
+	Paypal                    = order.Paypal
+	PaypalOrderResponse       = order.PaypalOrderResponse
+	PaypalOrderReuqest        = order.PaypalOrderReuqest
+	SoftDeleteOrderRequest    = order.SoftDeleteOrderRequest
+	SoftDeleteOrderResponse   = order.SoftDeleteOrderResponse
+	UpdateOrderRequest        = order.UpdateOrderRequest
+	UpdateOrderResponse       = order.UpdateOrderResponse
 
 	Order interface {
 		CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
@@ -42,6 +44,7 @@ type (
 		PayOrder(ctx context.Context, in *PayOrderRequest, opts ...grpc.CallOption) (*PayOrderResponse, error)
 		OrderList(ctx context.Context, in *GetOrderListRequest, opts ...grpc.CallOption) (*GetOrderListResponse, error)
 		PaypalOrder(ctx context.Context, in *PaypalOrderReuqest, opts ...grpc.CallOption) (*PaypalOrderResponse, error)
+		CreatePaypalOrder(ctx context.Context, in *CreatePaypalOrderRequest, opts ...grpc.CallOption) (*CreatePaypalOrderResponse, error)
 	}
 
 	defaultOrder struct {
@@ -98,4 +101,9 @@ func (m *defaultOrder) OrderList(ctx context.Context, in *GetOrderListRequest, o
 func (m *defaultOrder) PaypalOrder(ctx context.Context, in *PaypalOrderReuqest, opts ...grpc.CallOption) (*PaypalOrderResponse, error) {
 	client := order.NewOrderClient(m.cli.Conn())
 	return client.PaypalOrder(ctx, in, opts...)
+}
+
+func (m *defaultOrder) CreatePaypalOrder(ctx context.Context, in *CreatePaypalOrderRequest, opts ...grpc.CallOption) (*CreatePaypalOrderResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.CreatePaypalOrder(ctx, in, opts...)
 }

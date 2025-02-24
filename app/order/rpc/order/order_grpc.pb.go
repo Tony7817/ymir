@@ -28,6 +28,7 @@ const (
 	Order_PayOrder_FullMethodName                = "/order.order/PayOrder"
 	Order_OrderList_FullMethodName               = "/order.order/OrderList"
 	Order_PaypalOrder_FullMethodName             = "/order.order/PaypalOrder"
+	Order_CreatePaypalOrder_FullMethodName       = "/order.order/CreatePaypalOrder"
 )
 
 // OrderClient is the client API for Order service.
@@ -43,6 +44,7 @@ type OrderClient interface {
 	PayOrder(ctx context.Context, in *PayOrderRequest, opts ...grpc.CallOption) (*PayOrderResponse, error)
 	OrderList(ctx context.Context, in *GetOrderListRequest, opts ...grpc.CallOption) (*GetOrderListResponse, error)
 	PaypalOrder(ctx context.Context, in *PaypalOrderReuqest, opts ...grpc.CallOption) (*PaypalOrderResponse, error)
+	CreatePaypalOrder(ctx context.Context, in *CreatePaypalOrderRequest, opts ...grpc.CallOption) (*CreatePaypalOrderResponse, error)
 }
 
 type orderClient struct {
@@ -143,6 +145,16 @@ func (c *orderClient) PaypalOrder(ctx context.Context, in *PaypalOrderReuqest, o
 	return out, nil
 }
 
+func (c *orderClient) CreatePaypalOrder(ctx context.Context, in *CreatePaypalOrderRequest, opts ...grpc.CallOption) (*CreatePaypalOrderResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreatePaypalOrderResponse)
+	err := c.cc.Invoke(ctx, Order_CreatePaypalOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServer is the server API for Order service.
 // All implementations must embed UnimplementedOrderServer
 // for forward compatibility.
@@ -156,6 +168,7 @@ type OrderServer interface {
 	PayOrder(context.Context, *PayOrderRequest) (*PayOrderResponse, error)
 	OrderList(context.Context, *GetOrderListRequest) (*GetOrderListResponse, error)
 	PaypalOrder(context.Context, *PaypalOrderReuqest) (*PaypalOrderResponse, error)
+	CreatePaypalOrder(context.Context, *CreatePaypalOrderRequest) (*CreatePaypalOrderResponse, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -192,6 +205,9 @@ func (UnimplementedOrderServer) OrderList(context.Context, *GetOrderListRequest)
 }
 func (UnimplementedOrderServer) PaypalOrder(context.Context, *PaypalOrderReuqest) (*PaypalOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PaypalOrder not implemented")
+}
+func (UnimplementedOrderServer) CreatePaypalOrder(context.Context, *CreatePaypalOrderRequest) (*CreatePaypalOrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePaypalOrder not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
 func (UnimplementedOrderServer) testEmbeddedByValue()               {}
@@ -376,6 +392,24 @@ func _Order_PaypalOrder_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_CreatePaypalOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreatePaypalOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).CreatePaypalOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_CreatePaypalOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).CreatePaypalOrder(ctx, req.(*CreatePaypalOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Order_ServiceDesc is the grpc.ServiceDesc for Order service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -418,6 +452,10 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PaypalOrder",
 			Handler:    _Order_PaypalOrder_Handler,
+		},
+		{
+			MethodName: "CreatePaypalOrder",
+			Handler:    _Order_CreatePaypalOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

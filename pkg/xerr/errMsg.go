@@ -15,6 +15,7 @@ func init() {
 	message[DbError] = "数据库繁忙,请稍后再试"
 	message[DbUpdateAffectedZeroError] = "update data affected zero"
 	message[DataNoExistError] = "Data not exist"
+	message[ErrorResourceForbiden] = "resource forbidden"
 	// user service
 	message[UserAlreadyExistError] = "user already signed up"
 	message[MaxCaptchaSendTimeError] = "maxmum captcha send time reached"

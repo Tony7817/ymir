@@ -50,6 +50,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/order/pay",
 				Handler: order.PayOrderHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/order/paypal/capture",
+				Handler: order.CapturePaypalOrderHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/order/paypal/create",
+				Handler: order.CreatePaypalOrderHandler(serverCtx),
+			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/api"),

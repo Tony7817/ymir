@@ -298,6 +298,39 @@ type (
 		OrderItems []OrderItem `json:"order_items"`
 		Total      int64       `json:"total"`
 	}
+	CreatePaypalOrderRequest {
+		RequestId string `json:"request_id"`
+		OrderId   string `json:"order_id"`
+	}
+	CreatePaypalOrderResponse {
+		OrderId       string `json:"order_id"`
+		PaypalOrderId string `json:"paypal_order_id"`
+	}
+	CapturePaypalOrderRequest {
+		OrderId       string `json:"order_id"`
+		PaypalOrderId string `json:"paypal_order_id"`
+	}
+	PayerInfo {
+		PayerId   string `json:"payer_id"`
+		AccountId string `json:"account_id"`
+		Email     string `json:"email"`
+		FirstName string `json:"first_name"`
+		LastName  string `json:"last_name"`
+	}
+	Address {
+		AddressLine1 string `json:"address_line_1"`
+		AddressLine2 string `json:"address_line_2"`
+		AdminArea1   string `json:"admin_area_1"`
+		AdminArea2   string `json:"admin_area_2"`
+		PostalCode   string `json:"postal_code"`
+		CountryCode  string `json:"country_code"`
+	}
+	CapturePaypalOrderResponse {
+		OrderId   string    `json:"order_id"`
+		Status    string    `json:"status"`
+		PayerInfo PayerInfo `json:"payer_info"`
+		Address   Address   `json:"address"`
+	}
 	// Stock api
 	IncreaseStockRequest {
 		PorudctStockId string `json:"product_stock_id"`
@@ -463,5 +496,11 @@ service bff {
 
 	@handler OrderItems
 	post /order/:orderId (GetOrderItemRequest) returns (GetOrderItemResponse)
+
+	@handler CreatePaypalOrder
+	post /order/paypal/create (CreatePaypalOrderRequest) returns (CreatePaypalOrderResponse)
+
+	@handler CapturePaypalOrder
+	post /order/paypal/capture (CapturePaypalOrderRequest) returns (CapturePaypalOrderResponse)
 }
 

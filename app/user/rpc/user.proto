@@ -57,7 +57,6 @@ message WriteUserLocalRequest {
   string PasswordHash = 3;
   string UserName = 4;
   optional string AvatarUrl = 5;
-  int64 UserId = 6;
 
   // avatar is not avaliable for now
   // string AvatarUrl = 3; 
@@ -69,7 +68,6 @@ message WriteUserLocalResponse {
 
 
 message WriteUserGoogleRequest {
-  int64 UserId = 1;
   string UserGoogleId = 2;
   string Email = 3;
   string AvatarUrl = 4;

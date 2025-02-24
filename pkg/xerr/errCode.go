@@ -28,6 +28,7 @@ const DbUpdateAffectedZeroError uint32 = 100006
 const DataNoExistError uint32 = 100007
 
 const UnauthorizedError uint32 = 100008
+const ErrorResourceForbiden uint32 = 100009
 
 // user service 200000-200999
 const UserAlreadyExistError uint32 = 201001

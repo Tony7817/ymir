@@ -7,6 +7,7 @@ import (
 	"ymir.com/app/user/model"
 	"ymir.com/app/user/rpc/internal/svc"
 	"ymir.com/app/user/rpc/user"
+	"ymir.com/pkg/id"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -26,15 +27,13 @@ func NewWriteUserGoogleInDBLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *WriteUserGoogleInDBLogic) WriteUserGoogleInDB(in *user.WriteUserGoogleRequest) (*user.WriteUserGoogleResponse, error) {
-	uId, err := l.svcCtx.UserModel.InsertIntoUserAndUserGoogle(l.ctx, &model.User{
-		Id:       in.UserId,
+	var userId = id.SF.GenerateID()
+	err := l.svcCtx.UserModel.InsertIntoUserAndUserGoogle(l.ctx, &model.User{
+		Id:       userId,
 		Username: in.UserName,
 		Email: sql.NullString{
 			String: in.Email,
 			Valid:  true,
-		},
-		PhoneNumber: sql.NullString{
-			Valid: false,
 		},
 		AvatarUrl: sql.NullString{
 			String: in.AvatarUrl,
@@ -48,6 +47,6 @@ func (l *WriteUserGoogleInDBLogic) WriteUserGoogleInDB(in *user.WriteUserGoogleR
 	}
 
 	return &user.WriteUserGoogleResponse{
-		UserId: uId,
+		UserId: userId,
 	}, nil
 }

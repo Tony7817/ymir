@@ -26,6 +26,27 @@ type AddProductToCartResponse struct {
 	ProductCartId string `json:"product_cart_id"`
 }
 
+type Address struct {
+	AddressLine1 string `json:"address_line_1"`
+	AddressLine2 string `json:"address_line_2"`
+	AdminArea1   string `json:"admin_area_1"`
+	AdminArea2   string `json:"admin_area_2"`
+	PostalCode   string `json:"postal_code"`
+	CountryCode  string `json:"country_code"`
+}
+
+type CapturePaypalOrderRequest struct {
+	OrderId       string `json:"order_id"`
+	PaypalOrderId string `json:"paypal_order_id"`
+}
+
+type CapturePaypalOrderResponse struct {
+	OrderId   string    `json:"order_id"`
+	Status    string    `json:"status"`
+	PayerInfo PayerInfo `json:"payer_info"`
+	Address   Address   `json:"address"`
+}
+
 type CreateOrderRequest struct {
 	RequestId string      `json:"request_id"`
 	Orders    []OrderItem `json:"orders"`
@@ -34,6 +55,16 @@ type CreateOrderRequest struct {
 type CreateOrderResponse struct {
 	OrderId string `json:"order_id"`
 	Status  string `json:"status"`
+}
+
+type CreatePaypalOrderRequest struct {
+	RequestId string `json:"request_id"`
+	OrderId   string `json:"order_id"`
+}
+
+type CreatePaypalOrderResponse struct {
+	OrderId       string `json:"order_id"`
+	PaypalOrderId string `json:"paypal_order_id"`
 }
 
 type DecreaseProductAmountInCartRequest struct {
@@ -148,6 +179,14 @@ type PayOrderRequest struct {
 
 type PayOrderResponse struct {
 	Status string `json:"status"`
+}
+
+type PayerInfo struct {
+	PayerId   string `json:"payer_id"`
+	AccountId string `json:"account_id"`
+	Email     string `json:"email"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
 type ProductCartListItem struct {
