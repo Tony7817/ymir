@@ -240,6 +240,13 @@ type (
 	VerifyCaptchaResponse {
 		OK bool `json:"ok"`
 	}
+	CheckIfUserSignedUpRequest {
+		Email       *string `json:"email,optional"`
+		PhoneNumber *string `json:"phone_number,optional"`
+	}
+	CheckIfUserSignedUpResponse {
+		OK bool `json:"ok"`
+	}
 	// aliyun api
 	OssTokenRequest  {}
 	OssTokenResponse {
@@ -437,6 +444,9 @@ service bff {
 
 	@handler ForgetPasswordReset
 	post /user/forgetpass/reset (ForgetPasswordRequest) returns (ForgetpasswordResponse)
+
+	@handler CheckIfUserSignedUp
+	post /user/check (CheckIfUserSignedUpRequest) returns (CheckIfUserSignedUpResponse)
 }
 
 @server (

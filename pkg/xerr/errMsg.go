@@ -23,7 +23,7 @@ func init() {
 	message[ErrorInvalidEmail] = "invalid email"
 	message[ErrorSignedupInGoogle] = "user has signed up by google, please sign in with google"
 	message[ErrorWrongPassword] = "incrrect password"
-	message[UserNotExistedError] = "user not exist"
+	message[UserNotExistedError] = "user is not signed up"
 	// product service
 	message[ErrorOutOfStockError] = "product is out of stock"
 	// order service

@@ -33,8 +33,8 @@ type (
 	userModel interface {
 		Insert(ctx context.Context, data *User) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*User, error)
-		FindOneByEmail(ctx context.Context, email sql.NullString) (*User, error)
-		FindOneByPhoneNumber(ctx context.Context, phoneNumber sql.NullString) (*User, error)
+		FindOneByEmail(ctx context.Context, email string) (*User, error)
+		FindOneByPhoneNumber(ctx context.Context, phoneNumber string) (*User, error)
 		Update(ctx context.Context, data *User) error
 		Delete(ctx context.Context, id int64) error
 	}
@@ -96,7 +96,7 @@ func (m *defaultUserModel) FindOne(ctx context.Context, id int64) (*User, error)
 	}
 }
 
-func (m *defaultUserModel) FindOneByEmail(ctx context.Context, email sql.NullString) (*User, error) {
+func (m *defaultUserModel) FindOneByEmail(ctx context.Context, email string) (*User, error) {
 	ymirUserEmailKey := fmt.Sprintf("%s%v", cacheYmirUserEmailPrefix, email)
 	var resp User
 	err := m.QueryRowIndexCtx(ctx, &resp, ymirUserEmailKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
@@ -116,7 +116,7 @@ func (m *defaultUserModel) FindOneByEmail(ctx context.Context, email sql.NullStr
 	}
 }
 
-func (m *defaultUserModel) FindOneByPhoneNumber(ctx context.Context, phoneNumber sql.NullString) (*User, error) {
+func (m *defaultUserModel) FindOneByPhoneNumber(ctx context.Context, phoneNumber string) (*User, error) {
 	ymirUserPhoneNumberKey := fmt.Sprintf("%s%v", cacheYmirUserPhoneNumberPrefix, phoneNumber)
 	var resp User
 	err := m.QueryRowIndexCtx(ctx, &resp, ymirUserPhoneNumberKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {

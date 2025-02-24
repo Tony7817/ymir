@@ -149,6 +149,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
+				Path:    "/user/check",
+				Handler: user.CheckIfUserSignedUpHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/user/forgetpass/reset",
 				Handler: user.ForgetPasswordResetHandler(serverCtx),
 			},

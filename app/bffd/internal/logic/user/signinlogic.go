@@ -51,6 +51,7 @@ func (l *SigninLogic) Signin(req *types.SigninRequest) (resp *types.SigninRespon
 	if err != nil {
 		return nil, err
 	}
+	l.Logger.Debugf("respb: %v", respb)
 
 	if respb.User == nil {
 		return nil, errors.Wrap(xerr.NewErrCode(xerr.UserNotExistedError), "user not exist")

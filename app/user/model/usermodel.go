@@ -2,10 +2,12 @@ package model
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/zeromicro/go-zero/core/threading"
 )
 
 var _ UserModel = (*customUserModel)(nil)
@@ -48,6 +50,11 @@ func (m *customUserModel) InsertIntoUserAndUserGoogle(ctx context.Context, user 
 	if err != nil {
 		return err
 	}
+	threading.GoSafe(func() {
+		_ = m.DelCache(cacheYmirUserEmailPrefix + user.Email.String)
+		_ = m.DelCache(fmt.Sprintf("%s%v", cacheYmirUserIdPrefix, user.Id))
+		_ = m.DelCache(cacheYmirUserPhoneNumberPrefix + user.PhoneNumber.String)
+	})
 
 	return nil
 }
@@ -69,6 +76,11 @@ func (m *customUserModel) InsertIntoUserAndUserLocal(ctx context.Context, user *
 	if err != nil {
 		return errors.Wrapf(err, "insert user and user local failed")
 	}
+	threading.GoSafe(func() {
+		_ = m.DelCache(cacheYmirUserEmailPrefix + user.Email.String)
+		_ = m.DelCache(fmt.Sprintf("%s%v", cacheYmirUserIdPrefix, user.Id))
+		_ = m.DelCache(cacheYmirUserPhoneNumberPrefix + user.PhoneNumber.String)
+	})
 
 	return nil
 }

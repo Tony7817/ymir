@@ -47,6 +47,15 @@ type CapturePaypalOrderResponse struct {
 	Address   Address   `json:"address"`
 }
 
+type CheckIfUserSignedUpRequest struct {
+	Email       *string `json:"email,optional"`
+	PhoneNumber *string `json:"phone_number,optional"`
+}
+
+type CheckIfUserSignedUpResponse struct {
+	OK bool `json:"ok"`
+}
+
 type CreateOrderRequest struct {
 	RequestId string      `json:"request_id"`
 	Orders    []OrderItem `json:"orders"`

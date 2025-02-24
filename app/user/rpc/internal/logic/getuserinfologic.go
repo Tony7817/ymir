@@ -31,18 +31,9 @@ func (l *GetUserInfoLogic) GetUserInfo(in *user.GetUserInfoRequest) (*user.GetUs
 	var usr *model.User
 	var err error
 	if in.Email != nil && *in.Email != "" {
-		usr, err = l.svcCtx.UserModel.FindOneByEmail(l.ctx, sql.NullString{
-			String: *in.Email,
-			Valid:  true,
-		})
-		if err != nil && !errors.Is(err, sql.ErrNoRows) {
-			return nil, err
-		}
+		usr, err = l.svcCtx.UserModel.FindOneByEmail(context.Background(), *in.Email)
 	} else if in.Phonenumber != nil && *in.Phonenumber != "" {
-		usr, err = l.svcCtx.UserModel.FindOneByPhoneNumber(l.ctx, sql.NullString{
-			String: *in.Phonenumber,
-			Valid:  true,
-		})
+		usr, err = l.svcCtx.UserModel.FindOneByPhoneNumber(l.ctx, *in.Phonenumber)
 	} else if in.UserId != nil {
 		usr, err = l.svcCtx.UserModel.FindOne(l.ctx, *in.UserId)
 	} else {
