@@ -87,3 +87,13 @@ func (s *ProductServer) DecreaseProductStockOfOrder(ctx context.Context, in *pro
 	l := logic.NewDecreaseProductStockOfOrderLogic(ctx, s.svcCtx)
 	return l.DecreaseProductStockOfOrder(in)
 }
+
+func (s *ProductServer) CheckoutProduct(ctx context.Context, in *product.CheckoutProductRequest) (*product.CheckoutProductResponse, error) {
+	l := logic.NewCheckoutProductLogic(ctx, s.svcCtx)
+	return l.CheckoutProduct(in)
+}
+
+func (s *ProductServer) CheckoutProductRollback(ctx context.Context, in *product.CheckoutProductRequest) (*product.CheckoutProductResponse, error) {
+	l := logic.NewCheckoutProductRollbackLogic(ctx, s.svcCtx)
+	return l.CheckoutProductRollback(in)
+}

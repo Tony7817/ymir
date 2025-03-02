@@ -43,11 +43,11 @@ func (l *GetOrderLogic) GetOrder(in *order.GetOrderRequest) (*order.GetOrderResp
 		return nil
 	}, func() error {
 		var err error
-		res, err := l.svcCtx.OrderItemModel.FindOneByOrderIdNotSoftDelete(l.ctx, in.OrderId)
+		res, err := l.svcCtx.OrderItemModel.FindOneByOrderId(l.ctx, in.OrderId)
 		if err != nil {
 			return errors.Wrapf(err, "find order items by orderId: %d failed", in.OrderId)
 		}
-		for i := 0; i < len(res); i++ {
+		for i := range res {
 			oiRes = append(oiRes, &order.OrderItem{
 				ProductId:   res[i].ProductId,
 				ColorId:     res[i].ProductColorId,
@@ -71,10 +71,12 @@ func (l *GetOrderLogic) GetOrder(in *order.GetOrderRequest) (*order.GetOrderResp
 
 	return &order.GetOrderResponse{
 		Order: &order.OrderContent{
+			RequestId:  orderRes.RequestId,
 			OrderId:    orderRes.Id,
 			UserId:     orderRes.UserId,
 			TotalPrice: orderRes.TotalPrice,
 			Status:     orderRes.Status,
+			Unit:       orderRes.Unit,
 		},
 		OrderItems: oiRes,
 	}, nil

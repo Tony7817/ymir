@@ -69,9 +69,9 @@ func (l *DeleteOrderLogic) DeleteOrder(req *types.DeleteOrderRequest) (*types.De
 		return nil, errors.Wrapf(err, "[DeleteOrder] get product target path failed")
 	}
 	saga := dtmgrpc.NewSagaGrpc(vars.DtmServer, gid).
-		Add(orderRpcServer+order.Order_SoftDeleteOrder_FullMethodName, orderRpcServer+order.Order_SoftDeleteOrderRollback_FullMethodName, &order.SoftDeleteOrderRequest{
-			UserId:  uId,
+		Add(orderRpcServer+order.Order_DeleteOrder_FullMethodName, orderRpcServer+order.Order_DeleteOrderRollback_FullMethodName, &order.DeleteOrderRequest{
 			OrderId: oId,
+			UserId:  uId,
 		}).
 		Add(productRpcServer+product.Product_IncreaseProductStockOfOrder_FullMethodName, productRpcServer+product.Product_DecreaseProductStockOfOrder_FullMethodName, &product.IncreaseProductStockRequest{
 			ProductStockItem: psItems,

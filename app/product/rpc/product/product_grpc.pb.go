@@ -32,6 +32,8 @@ const (
 	Product_ProductCommentList_FullMethodName          = "/product.Product/ProductCommentList"
 	Product_IncreaseProductStockOfOrder_FullMethodName = "/product.Product/IncreaseProductStockOfOrder"
 	Product_DecreaseProductStockOfOrder_FullMethodName = "/product.Product/DecreaseProductStockOfOrder"
+	Product_CheckoutProduct_FullMethodName             = "/product.Product/CheckoutProduct"
+	Product_CheckoutProductRollback_FullMethodName     = "/product.Product/CheckoutProductRollback"
 )
 
 // ProductClient is the client API for Product service.
@@ -51,6 +53,8 @@ type ProductClient interface {
 	ProductCommentList(ctx context.Context, in *ProductCommentListRequest, opts ...grpc.CallOption) (*ProductCommentListResponse, error)
 	IncreaseProductStockOfOrder(ctx context.Context, in *DecreaseProductStockRequest, opts ...grpc.CallOption) (*DecreaseProductStockResponse, error)
 	DecreaseProductStockOfOrder(ctx context.Context, in *DecreaseProductStockRequest, opts ...grpc.CallOption) (*DecreaseProductStockResponse, error)
+	CheckoutProduct(ctx context.Context, in *CheckoutProductRequest, opts ...grpc.CallOption) (*CheckoutProductResponse, error)
+	CheckoutProductRollback(ctx context.Context, in *CheckoutProductRequest, opts ...grpc.CallOption) (*CheckoutProductResponse, error)
 }
 
 type productClient struct {
@@ -191,6 +195,26 @@ func (c *productClient) DecreaseProductStockOfOrder(ctx context.Context, in *Dec
 	return out, nil
 }
 
+func (c *productClient) CheckoutProduct(ctx context.Context, in *CheckoutProductRequest, opts ...grpc.CallOption) (*CheckoutProductResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckoutProductResponse)
+	err := c.cc.Invoke(ctx, Product_CheckoutProduct_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productClient) CheckoutProductRollback(ctx context.Context, in *CheckoutProductRequest, opts ...grpc.CallOption) (*CheckoutProductResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckoutProductResponse)
+	err := c.cc.Invoke(ctx, Product_CheckoutProductRollback_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProductServer is the server API for Product service.
 // All implementations must embed UnimplementedProductServer
 // for forward compatibility.
@@ -208,6 +232,8 @@ type ProductServer interface {
 	ProductCommentList(context.Context, *ProductCommentListRequest) (*ProductCommentListResponse, error)
 	IncreaseProductStockOfOrder(context.Context, *DecreaseProductStockRequest) (*DecreaseProductStockResponse, error)
 	DecreaseProductStockOfOrder(context.Context, *DecreaseProductStockRequest) (*DecreaseProductStockResponse, error)
+	CheckoutProduct(context.Context, *CheckoutProductRequest) (*CheckoutProductResponse, error)
+	CheckoutProductRollback(context.Context, *CheckoutProductRequest) (*CheckoutProductResponse, error)
 	mustEmbedUnimplementedProductServer()
 }
 
@@ -256,6 +282,12 @@ func (UnimplementedProductServer) IncreaseProductStockOfOrder(context.Context, *
 }
 func (UnimplementedProductServer) DecreaseProductStockOfOrder(context.Context, *DecreaseProductStockRequest) (*DecreaseProductStockResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DecreaseProductStockOfOrder not implemented")
+}
+func (UnimplementedProductServer) CheckoutProduct(context.Context, *CheckoutProductRequest) (*CheckoutProductResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckoutProduct not implemented")
+}
+func (UnimplementedProductServer) CheckoutProductRollback(context.Context, *CheckoutProductRequest) (*CheckoutProductResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckoutProductRollback not implemented")
 }
 func (UnimplementedProductServer) mustEmbedUnimplementedProductServer() {}
 func (UnimplementedProductServer) testEmbeddedByValue()                 {}
@@ -512,6 +544,42 @@ func _Product_DecreaseProductStockOfOrder_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Product_CheckoutProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckoutProductRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServer).CheckoutProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Product_CheckoutProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServer).CheckoutProduct(ctx, req.(*CheckoutProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Product_CheckoutProductRollback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckoutProductRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServer).CheckoutProductRollback(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Product_CheckoutProductRollback_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServer).CheckoutProductRollback(ctx, req.(*CheckoutProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Product_ServiceDesc is the grpc.ServiceDesc for Product service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -570,6 +638,14 @@ var Product_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DecreaseProductStockOfOrder",
 			Handler:    _Product_DecreaseProductStockOfOrder_Handler,
+		},
+		{
+			MethodName: "CheckoutProduct",
+			Handler:    _Product_CheckoutProduct_Handler,
+		},
+		{
+			MethodName: "CheckoutProductRollback",
+			Handler:    _Product_CheckoutProductRollback_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

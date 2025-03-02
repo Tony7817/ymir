@@ -69,6 +69,9 @@ func (l *DecreaseProductAmountInCartLogic) DecreaseProductAmountInCart(in *produ
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &product.AddProductAmountInCartResponse{
 		ProductCartId: pcNew.Id,

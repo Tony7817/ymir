@@ -52,6 +52,7 @@ func (l *CreatePaypalOrderLogic) CreatePaypalOrder(req *types.CreatePaypalOrderR
 	respb, err := l.svcCtx.OrderRPC.CreatePaypalOrder(l.ctx, &order.CreatePaypalOrderRequest{
 		RequestId: req.RequestId,
 		OrderId:   oId,
+		UserId:    uId,
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "[CreatePaypalOrder] create paypal order failed, orderId: %d", oId)

@@ -28,7 +28,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			{
 				Method:  http.MethodPost,
 				Path:    "/order/:orderId",
-				Handler: order.OrderItemsHandler(serverCtx),
+				Handler: order.OrderDetailHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/order/address/:orderId",
+				Handler: order.OrderAddressHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,

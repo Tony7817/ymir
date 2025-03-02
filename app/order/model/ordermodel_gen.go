@@ -45,10 +45,10 @@ type (
 		UserId       int64          `db:"user_id"`
 		CreatedAt    time.Time      `db:"created_at"`
 		UpdatedAt    time.Time      `db:"updated_at"`
+		RequestId    string         `db:"request_id"`
 		Status       string         `db:"status"`
 		TotalPrice   int64          `db:"total_price"`
 		Unit         string         `db:"unit"`
-		IsDelete     int64          `db:"is_delete"`
 		CancelReason sql.NullString `db:"cancel_reason"`
 	}
 )
@@ -90,7 +90,7 @@ func (m *defaultOrderModel) Insert(ctx context.Context, data *Order) (sql.Result
 	ymirOrderIdKey := fmt.Sprintf("%s%v", cacheYmirOrderIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, orderRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Id, data.UserId, data.Status, data.TotalPrice, data.Unit, data.IsDelete, data.CancelReason)
+		return conn.ExecCtx(ctx, query, data.Id, data.UserId, data.RequestId, data.Status, data.TotalPrice, data.Unit, data.CancelReason)
 	}, ymirOrderIdKey)
 	return ret, err
 }
@@ -99,7 +99,7 @@ func (m *defaultOrderModel) Update(ctx context.Context, data *Order) error {
 	ymirOrderIdKey := fmt.Sprintf("%s%v", cacheYmirOrderIdPrefix, data.Id)
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, orderRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.UserId, data.Status, data.TotalPrice, data.Unit, data.IsDelete, data.CancelReason, data.Id)
+		return conn.ExecCtx(ctx, query, data.UserId, data.RequestId, data.Status, data.TotalPrice, data.Unit, data.CancelReason, data.Id)
 	}, ymirOrderIdKey)
 	return err
 }

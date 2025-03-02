@@ -39,6 +39,11 @@
 - [ ] 哪些接口可以设计为ETag, 是否需要？
 - [ ] decompose product list from star detail.
 - [ ] repaire dtm interface， unify them.
+- [ ] 对使用color_id的部分进行重构，目前使用的是product_id+color_id+size的唯一索引，是否只使用color_id和size即可？
+- [ ] 对使用过多的联合索引进行重构，比如product cart表，使用的是user_id+product_id+color+id+size，能否直接使用product_cart_id主键和user_id作为联合索引？
+- [ ] 前端部分路由需要携带query参数，而不能都使用json
+- [ ] Get Order的数组增加缓存
+- [ ] Order的partial update
 
 # 架构
 ## 商品图片

@@ -17,8 +17,7 @@ type (
 	OrderModel interface {
 		orderModel
 		SFInsertTx(ctx context.Context, tx *sql.Tx, o *Order) (int64, error)
-		SoftDeleteTx(ctx context.Context, tx *sql.Tx, id, userId int64) error
-		SoftDeleteRollbackTx(ctx context.Context, tx *sql.Tx, id, userId int64) error
+		DeleteTx(ctx context.Context, tx *sql.Tx, oId int64) error
 		FindOrderList(ctx context.Context, userId int64, offset, limit int64) ([]*Order, error)
 		CountOrderList(ctx context.Context, userId int64) (int64, error)
 	}
@@ -36,40 +35,12 @@ func NewOrderModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) O
 }
 
 func (m *customOrderModel) SFInsertTx(ctx context.Context, tx *sql.Tx, o *Order) (int64, error) {
-	_, err := tx.ExecContext(ctx, "insert into `order` (id, user_id, status, total_price) values (?,?,?,?)", o.Id, o.UserId, o.Status, o.TotalPrice)
+	_, err := tx.ExecContext(ctx, "insert into `order` (id, user_id, request_id, status, total_price) values (?,?,?,?,?)", o.Id, o.UserId, o.RequestId, o.Status, o.TotalPrice)
 	if err != nil {
 		return 0, errors.Wrap(err, "[SFInsert] insert order failed")
 	}
 
 	return o.Id, nil
-}
-
-func (m *customOrderModel) SoftDeleteTx(ctx context.Context, tx *sql.Tx, id int64, userId int64) error {
-	_, err := tx.ExecContext(ctx, "update `order` set is_delete = 1 where id = ? and user_id = ?", id)
-	if err != nil {
-		return errors.Wrap(err, "[SoftDeleteTx] soft delete order failed")
-	}
-
-	_, err = tx.ExecContext(ctx, "update order_item set is_delete = 1 where order_id = ?", id)
-	if err != nil {
-		return errors.Wrap(err, "[SoftDeleteTx] soft delete order item failed")
-	}
-
-	return nil
-}
-
-func (m *customOrderModel) SoftDeleteRollbackTx(ctx context.Context, tx *sql.Tx, id int64, userId int64) error {
-	_, err := tx.ExecContext(ctx, "update `order` set is_delete = 0 where id = ? and user_id = ?", id)
-	if err != nil {
-		return errors.Wrap(err, "[SoftDeleteRollbackTx] soft delete rollback order failed")
-	}
-
-	_, err = tx.ExecContext(ctx, "update order_item set is_delete = 0 where order_id = ?", id)
-	if err != nil {
-		return errors.Wrap(err, "[SoftDeleteRollbackTx] soft delete rollback order item failed")
-	}
-
-	return nil
 }
 
 func (m *customOrderModel) FindOrderList(ctx context.Context, userId int64, offset, limit int64) ([]*Order, error) {
@@ -92,4 +63,13 @@ func (m *customOrderModel) CountOrderList(ctx context.Context, userId int64) (in
 	}
 
 	return count, nil
+}
+
+func (m *customOrderModel) DeleteTx(ctx context.Context, tx *sql.Tx, oId int64) error {
+	_, err := tx.ExecContext(ctx, "delete from `order` where id = ?", oId)
+	if err != nil {
+		return errors.Wrap(err, "[DeleteTx] delete order failed")
+	}
+
+	return nil
 }

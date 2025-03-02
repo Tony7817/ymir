@@ -33,14 +33,14 @@ func (s *OrderServer) CreateOrderRollback(ctx context.Context, in *order.CreateO
 	return l.CreateOrderRollback(in)
 }
 
-func (s *OrderServer) SoftDeleteOrder(ctx context.Context, in *order.SoftDeleteOrderRequest) (*order.SoftDeleteOrderResponse, error) {
-	l := logic.NewSoftDeleteOrderLogic(ctx, s.svcCtx)
-	return l.SoftDeleteOrder(in)
+func (s *OrderServer) DeleteOrder(ctx context.Context, in *order.DeleteOrderRequest) (*order.DeleteOrderResponse, error) {
+	l := logic.NewDeleteOrderLogic(ctx, s.svcCtx)
+	return l.DeleteOrder(in)
 }
 
-func (s *OrderServer) SoftDeleteOrderRollback(ctx context.Context, in *order.SoftDeleteOrderRequest) (*order.SoftDeleteOrderResponse, error) {
-	l := logic.NewSoftDeleteOrderRollbackLogic(ctx, s.svcCtx)
-	return l.SoftDeleteOrderRollback(in)
+func (s *OrderServer) DeleteOrderRollback(ctx context.Context, in *order.DeleteOrderRequest) (*order.DeleteOrderResponse, error) {
+	l := logic.NewDeleteOrderRollbackLogic(ctx, s.svcCtx)
+	return l.DeleteOrderRollback(in)
 }
 
 func (s *OrderServer) GetOrder(ctx context.Context, in *order.GetOrderRequest) (*order.GetOrderResponse, error) {
@@ -71,4 +71,14 @@ func (s *OrderServer) PaypalOrder(ctx context.Context, in *order.PaypalOrderReuq
 func (s *OrderServer) CreatePaypalOrder(ctx context.Context, in *order.CreatePaypalOrderRequest) (*order.CreatePaypalOrderResponse, error) {
 	l := logic.NewCreatePaypalOrderLogic(ctx, s.svcCtx)
 	return l.CreatePaypalOrder(in)
+}
+
+func (s *OrderServer) CaptureOrder(ctx context.Context, in *order.CapturePaypalOrderRequest) (*order.CapturePaypalOrderResposne, error) {
+	l := logic.NewCaptureOrderLogic(ctx, s.svcCtx)
+	return l.CaptureOrder(in)
+}
+
+func (s *OrderServer) OrderAddress(ctx context.Context, in *order.GetOrderAddressRequest) (*order.GetOrderAddressResponse, error) {
+	l := logic.NewOrderAddressLogic(ctx, s.svcCtx)
+	return l.OrderAddress(in)
 }

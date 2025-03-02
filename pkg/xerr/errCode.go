@@ -30,6 +30,8 @@ const DataNoExistError uint32 = 100007
 const UnauthorizedError uint32 = 100008
 const ErrorResourceForbiden uint32 = 100009
 
+const ErrorFetchResource uint32 = 100010
+
 // user service 200000-200999
 const UserAlreadyExistError uint32 = 201001
 const CaptchaExpireError uint32 = 201002
@@ -49,6 +51,8 @@ const ErrorPayOrder uint32 = 300004
 const ErrorInvalidOrderStatus uint32 = 300005
 const ErrorDeleteOrder uint32 = 300006
 const ErrorIdempotence uint32 = 300007
+const ErrorOrderCreated uint32 = 300008
+const ErrorOrderPaied uint32 = 300009
 
 // 商品服务
 const ErrorOutOfStockError uint32 = 400001

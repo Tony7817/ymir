@@ -19,16 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Order_CreateOrder_FullMethodName             = "/order.order/CreateOrder"
-	Order_CreateOrderRollback_FullMethodName     = "/order.order/CreateOrderRollback"
-	Order_SoftDeleteOrder_FullMethodName         = "/order.order/SoftDeleteOrder"
-	Order_SoftDeleteOrderRollback_FullMethodName = "/order.order/SoftDeleteOrderRollback"
-	Order_GetOrder_FullMethodName                = "/order.order/GetOrder"
-	Order_UpdateOrder_FullMethodName             = "/order.order/UpdateOrder"
-	Order_PayOrder_FullMethodName                = "/order.order/PayOrder"
-	Order_OrderList_FullMethodName               = "/order.order/OrderList"
-	Order_PaypalOrder_FullMethodName             = "/order.order/PaypalOrder"
-	Order_CreatePaypalOrder_FullMethodName       = "/order.order/CreatePaypalOrder"
+	Order_CreateOrder_FullMethodName         = "/order.order/CreateOrder"
+	Order_CreateOrderRollback_FullMethodName = "/order.order/CreateOrderRollback"
+	Order_DeleteOrder_FullMethodName         = "/order.order/DeleteOrder"
+	Order_DeleteOrderRollback_FullMethodName = "/order.order/DeleteOrderRollback"
+	Order_GetOrder_FullMethodName            = "/order.order/GetOrder"
+	Order_UpdateOrder_FullMethodName         = "/order.order/UpdateOrder"
+	Order_PayOrder_FullMethodName            = "/order.order/PayOrder"
+	Order_OrderList_FullMethodName           = "/order.order/OrderList"
+	Order_PaypalOrder_FullMethodName         = "/order.order/PaypalOrder"
+	Order_CreatePaypalOrder_FullMethodName   = "/order.order/CreatePaypalOrder"
+	Order_CaptureOrder_FullMethodName        = "/order.order/CaptureOrder"
+	Order_OrderAddress_FullMethodName        = "/order.order/OrderAddress"
 )
 
 // OrderClient is the client API for Order service.
@@ -37,14 +39,16 @@ const (
 type OrderClient interface {
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
 	CreateOrderRollback(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
-	SoftDeleteOrder(ctx context.Context, in *SoftDeleteOrderRequest, opts ...grpc.CallOption) (*SoftDeleteOrderResponse, error)
-	SoftDeleteOrderRollback(ctx context.Context, in *SoftDeleteOrderRequest, opts ...grpc.CallOption) (*SoftDeleteOrderResponse, error)
+	DeleteOrder(ctx context.Context, in *DeleteOrderRequest, opts ...grpc.CallOption) (*DeleteOrderResponse, error)
+	DeleteOrderRollback(ctx context.Context, in *DeleteOrderRequest, opts ...grpc.CallOption) (*DeleteOrderResponse, error)
 	GetOrder(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
 	UpdateOrder(ctx context.Context, in *UpdateOrderRequest, opts ...grpc.CallOption) (*UpdateOrderResponse, error)
 	PayOrder(ctx context.Context, in *PayOrderRequest, opts ...grpc.CallOption) (*PayOrderResponse, error)
 	OrderList(ctx context.Context, in *GetOrderListRequest, opts ...grpc.CallOption) (*GetOrderListResponse, error)
 	PaypalOrder(ctx context.Context, in *PaypalOrderReuqest, opts ...grpc.CallOption) (*PaypalOrderResponse, error)
 	CreatePaypalOrder(ctx context.Context, in *CreatePaypalOrderRequest, opts ...grpc.CallOption) (*CreatePaypalOrderResponse, error)
+	CaptureOrder(ctx context.Context, in *CapturePaypalOrderRequest, opts ...grpc.CallOption) (*CapturePaypalOrderResposne, error)
+	OrderAddress(ctx context.Context, in *GetOrderAddressRequest, opts ...grpc.CallOption) (*GetOrderAddressResponse, error)
 }
 
 type orderClient struct {
@@ -75,20 +79,20 @@ func (c *orderClient) CreateOrderRollback(ctx context.Context, in *CreateOrderRe
 	return out, nil
 }
 
-func (c *orderClient) SoftDeleteOrder(ctx context.Context, in *SoftDeleteOrderRequest, opts ...grpc.CallOption) (*SoftDeleteOrderResponse, error) {
+func (c *orderClient) DeleteOrder(ctx context.Context, in *DeleteOrderRequest, opts ...grpc.CallOption) (*DeleteOrderResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SoftDeleteOrderResponse)
-	err := c.cc.Invoke(ctx, Order_SoftDeleteOrder_FullMethodName, in, out, cOpts...)
+	out := new(DeleteOrderResponse)
+	err := c.cc.Invoke(ctx, Order_DeleteOrder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderClient) SoftDeleteOrderRollback(ctx context.Context, in *SoftDeleteOrderRequest, opts ...grpc.CallOption) (*SoftDeleteOrderResponse, error) {
+func (c *orderClient) DeleteOrderRollback(ctx context.Context, in *DeleteOrderRequest, opts ...grpc.CallOption) (*DeleteOrderResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SoftDeleteOrderResponse)
-	err := c.cc.Invoke(ctx, Order_SoftDeleteOrderRollback_FullMethodName, in, out, cOpts...)
+	out := new(DeleteOrderResponse)
+	err := c.cc.Invoke(ctx, Order_DeleteOrderRollback_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -155,20 +159,42 @@ func (c *orderClient) CreatePaypalOrder(ctx context.Context, in *CreatePaypalOrd
 	return out, nil
 }
 
+func (c *orderClient) CaptureOrder(ctx context.Context, in *CapturePaypalOrderRequest, opts ...grpc.CallOption) (*CapturePaypalOrderResposne, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CapturePaypalOrderResposne)
+	err := c.cc.Invoke(ctx, Order_CaptureOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) OrderAddress(ctx context.Context, in *GetOrderAddressRequest, opts ...grpc.CallOption) (*GetOrderAddressResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetOrderAddressResponse)
+	err := c.cc.Invoke(ctx, Order_OrderAddress_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServer is the server API for Order service.
 // All implementations must embed UnimplementedOrderServer
 // for forward compatibility.
 type OrderServer interface {
 	CreateOrder(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error)
 	CreateOrderRollback(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error)
-	SoftDeleteOrder(context.Context, *SoftDeleteOrderRequest) (*SoftDeleteOrderResponse, error)
-	SoftDeleteOrderRollback(context.Context, *SoftDeleteOrderRequest) (*SoftDeleteOrderResponse, error)
+	DeleteOrder(context.Context, *DeleteOrderRequest) (*DeleteOrderResponse, error)
+	DeleteOrderRollback(context.Context, *DeleteOrderRequest) (*DeleteOrderResponse, error)
 	GetOrder(context.Context, *GetOrderRequest) (*GetOrderResponse, error)
 	UpdateOrder(context.Context, *UpdateOrderRequest) (*UpdateOrderResponse, error)
 	PayOrder(context.Context, *PayOrderRequest) (*PayOrderResponse, error)
 	OrderList(context.Context, *GetOrderListRequest) (*GetOrderListResponse, error)
 	PaypalOrder(context.Context, *PaypalOrderReuqest) (*PaypalOrderResponse, error)
 	CreatePaypalOrder(context.Context, *CreatePaypalOrderRequest) (*CreatePaypalOrderResponse, error)
+	CaptureOrder(context.Context, *CapturePaypalOrderRequest) (*CapturePaypalOrderResposne, error)
+	OrderAddress(context.Context, *GetOrderAddressRequest) (*GetOrderAddressResponse, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -185,11 +211,11 @@ func (UnimplementedOrderServer) CreateOrder(context.Context, *CreateOrderRequest
 func (UnimplementedOrderServer) CreateOrderRollback(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrderRollback not implemented")
 }
-func (UnimplementedOrderServer) SoftDeleteOrder(context.Context, *SoftDeleteOrderRequest) (*SoftDeleteOrderResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SoftDeleteOrder not implemented")
+func (UnimplementedOrderServer) DeleteOrder(context.Context, *DeleteOrderRequest) (*DeleteOrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteOrder not implemented")
 }
-func (UnimplementedOrderServer) SoftDeleteOrderRollback(context.Context, *SoftDeleteOrderRequest) (*SoftDeleteOrderResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SoftDeleteOrderRollback not implemented")
+func (UnimplementedOrderServer) DeleteOrderRollback(context.Context, *DeleteOrderRequest) (*DeleteOrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteOrderRollback not implemented")
 }
 func (UnimplementedOrderServer) GetOrder(context.Context, *GetOrderRequest) (*GetOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrder not implemented")
@@ -208,6 +234,12 @@ func (UnimplementedOrderServer) PaypalOrder(context.Context, *PaypalOrderReuqest
 }
 func (UnimplementedOrderServer) CreatePaypalOrder(context.Context, *CreatePaypalOrderRequest) (*CreatePaypalOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePaypalOrder not implemented")
+}
+func (UnimplementedOrderServer) CaptureOrder(context.Context, *CapturePaypalOrderRequest) (*CapturePaypalOrderResposne, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CaptureOrder not implemented")
+}
+func (UnimplementedOrderServer) OrderAddress(context.Context, *GetOrderAddressRequest) (*GetOrderAddressResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OrderAddress not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
 func (UnimplementedOrderServer) testEmbeddedByValue()               {}
@@ -266,38 +298,38 @@ func _Order_CreateOrderRollback_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Order_SoftDeleteOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SoftDeleteOrderRequest)
+func _Order_DeleteOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteOrderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServer).SoftDeleteOrder(ctx, in)
+		return srv.(OrderServer).DeleteOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Order_SoftDeleteOrder_FullMethodName,
+		FullMethod: Order_DeleteOrder_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).SoftDeleteOrder(ctx, req.(*SoftDeleteOrderRequest))
+		return srv.(OrderServer).DeleteOrder(ctx, req.(*DeleteOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Order_SoftDeleteOrderRollback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SoftDeleteOrderRequest)
+func _Order_DeleteOrderRollback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteOrderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServer).SoftDeleteOrderRollback(ctx, in)
+		return srv.(OrderServer).DeleteOrderRollback(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Order_SoftDeleteOrderRollback_FullMethodName,
+		FullMethod: Order_DeleteOrderRollback_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).SoftDeleteOrderRollback(ctx, req.(*SoftDeleteOrderRequest))
+		return srv.(OrderServer).DeleteOrderRollback(ctx, req.(*DeleteOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -410,6 +442,42 @@ func _Order_CreatePaypalOrder_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_CaptureOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CapturePaypalOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).CaptureOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_CaptureOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).CaptureOrder(ctx, req.(*CapturePaypalOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_OrderAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrderAddressRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).OrderAddress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_OrderAddress_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).OrderAddress(ctx, req.(*GetOrderAddressRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Order_ServiceDesc is the grpc.ServiceDesc for Order service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -426,12 +494,12 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Order_CreateOrderRollback_Handler,
 		},
 		{
-			MethodName: "SoftDeleteOrder",
-			Handler:    _Order_SoftDeleteOrder_Handler,
+			MethodName: "DeleteOrder",
+			Handler:    _Order_DeleteOrder_Handler,
 		},
 		{
-			MethodName: "SoftDeleteOrderRollback",
-			Handler:    _Order_SoftDeleteOrderRollback_Handler,
+			MethodName: "DeleteOrderRollback",
+			Handler:    _Order_DeleteOrderRollback_Handler,
 		},
 		{
 			MethodName: "GetOrder",
@@ -456,6 +524,14 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreatePaypalOrder",
 			Handler:    _Order_CreatePaypalOrder_Handler,
+		},
+		{
+			MethodName: "CaptureOrder",
+			Handler:    _Order_CaptureOrder_Handler,
+		},
+		{
+			MethodName: "OrderAddress",
+			Handler:    _Order_OrderAddress_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

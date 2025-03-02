@@ -2,6 +2,8 @@ package order
 
 import (
 	"context"
+	"strconv"
+	"time"
 
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
@@ -16,6 +18,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/mr"
+	"github.com/zeromicro/go-zero/core/threading"
 )
 
 type CreateOrderLogic struct {
@@ -56,8 +59,10 @@ func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderRequest) (*types.Cr
 		return nil, xerr.NewErrCode(xerr.ErrorIdempotence)
 	}
 
-	var oitems []*order.OrderItem
-	var psitems []*product.ProductStockItem
+	// prepare rpc request data
+	var oitems = make([]*order.OrderItem, len(req.Orders))
+	var psitems = make([]*product.ProductStockItem, len(req.Orders))
+	var pcitems = make([]*product.ProductCartItem, len(req.Orders))
 	for i := 0; i < len(req.Orders); i++ {
 		pId, err := id.DecodeId(req.Orders[i].ProductId)
 		if err != nil {
@@ -68,19 +73,24 @@ func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderRequest) (*types.Cr
 			return nil, errors.Wrap(err, "[CreateOrder] decode cid failed")
 		}
 		oiId := id.SF.GenerateID()
-		oitems = append(oitems, &order.OrderItem{
+		oitems[i] = &order.OrderItem{
 			ProductId:   pId,
 			ColorId:     cId,
 			Size:        req.Orders[i].Size,
 			Qunantity:   req.Orders[i].Quantity,
 			OrderItemId: oiId,
-		})
-		psitems = append(psitems, &product.ProductStockItem{
+		}
+		psitems[i] = &product.ProductStockItem{
 			ProductId: pId,
 			ColorId:   cId,
 			Size:      req.Orders[i].Size,
 			Quantity:  req.Orders[i].Quantity,
-		})
+		}
+		pcitems[i] = &product.ProductCartItem{
+			ProductId: pId,
+			ColorId:   cId,
+			Size:      req.Orders[i].Size,
+		}
 	}
 
 	// get the price
@@ -100,12 +110,21 @@ func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderRequest) (*types.Cr
 		}).
 		Add(productRpcServer+product.Product_DecreaseProductStockOfOrder_FullMethodName, productRpcServer+product.Product_IncreaseProductStockOfOrder_FullMethodName, &product.DecreaseProductStockRequest{
 			ProductStockItem: psitems,
+		}).
+		Add(productRpcServer+product.Product_CheckoutProduct_FullMethodName, productRpcServer+product.Product_CheckoutProductRollback_FullMethodName, &product.CheckoutProductRequest{
+			Orderid: oId,
+			UserId:  uId,
+			Items:   pcitems,
 		}).EnableConcurrent()
 	saga.WaitResult = true
 	err = saga.Submit()
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ErrorCreateOrder), "[CreateOrder] dtm trans failed, err: %+v", err)
 	}
+
+	threading.GoSafe(func() {
+		_ = l.svcCtx.Redis.Setex(vars.CacheCreateOrderRequestIdKey(req.RequestId), strconv.FormatInt(oId, 10), int(time.Hour)*24)
+	})
 
 	return &types.CreateOrderResponse{
 		OrderId: id.EncodeId(oId),
@@ -143,16 +162,14 @@ func (l *CreateOrderLogic) checkOrderPrice(orders []*order.OrderItem) ([]*order.
 }
 
 func (l *CreateOrderLogic) checkOrderIdempotent(requestId string) (bool, error) {
-	respb, err := l.svcCtx.OrderRPC.PaypalOrder(l.ctx, &order.PaypalOrderReuqest{
-		RequestId: requestId,
-	})
+	oIdStr, err := l.svcCtx.Redis.GetCtx(l.ctx, vars.CacheCreateOrderRequestIdKey(requestId))
 	if err != nil {
-		return false, err
+		return false, errors.Wrap(err, "[CreateOrder] get order id failed")
 	}
 
-	if respb.Paypal == nil {
-		return false, nil
+	if oIdStr != "" {
+		return true, nil
 	}
 
-	return true, nil
+	return false, nil
 }

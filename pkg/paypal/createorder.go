@@ -1,4 +1,6 @@
-package vars
+package paypal
+
+const PaypalCrateOrderUrl = "https://api-m.sandbox.paypal.com/v2/checkout/orders"
 
 type PaypalCreateOrderRequest struct {
 	Intent        string               `json:"intent"`
@@ -16,9 +18,4 @@ type PaypalAmount struct {
 
 type PaypalCreateOrderResponse struct {
 	OrderId string `json:"id"`
-}
-
-type PaypalTokenResponse struct {
-	AccessToken string `json:"access_token"`
-	ExpiresIn   int    `json:"expires_in"`
 }

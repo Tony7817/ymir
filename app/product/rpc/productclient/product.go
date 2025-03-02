@@ -18,6 +18,8 @@ type (
 	AddProductAmountInCartResponse      = product.AddProductAmountInCartResponse
 	AddProductToCartRequest             = product.AddProductToCartRequest
 	AddProductToCartResponse            = product.AddProductToCartResponse
+	CheckoutProductRequest              = product.CheckoutProductRequest
+	CheckoutProductResponse             = product.CheckoutProductResponse
 	DecreaseProductAmountInCartRequest  = product.DecreaseProductAmountInCartRequest
 	DecreaseProductAmountInCartResponse = product.DecreaseProductAmountInCartResponse
 	DecreaseProductStockRequest         = product.DecreaseProductStockRequest
@@ -25,6 +27,7 @@ type (
 	IncreaseProductStockRequest         = product.IncreaseProductStockRequest
 	IncreaseProductStockResposne        = product.IncreaseProductStockResposne
 	ProducrtsInCartListResponse         = product.ProducrtsInCartListResponse
+	ProductCartItem                     = product.ProductCartItem
 	ProductColor                        = product.ProductColor
 	ProductColorListRequest             = product.ProductColorListRequest
 	ProductColorListResponse            = product.ProductColorListResponse
@@ -63,6 +66,8 @@ type (
 		ProductCommentList(ctx context.Context, in *ProductCommentListRequest, opts ...grpc.CallOption) (*ProductCommentListResponse, error)
 		IncreaseProductStockOfOrder(ctx context.Context, in *DecreaseProductStockRequest, opts ...grpc.CallOption) (*DecreaseProductStockResponse, error)
 		DecreaseProductStockOfOrder(ctx context.Context, in *DecreaseProductStockRequest, opts ...grpc.CallOption) (*DecreaseProductStockResponse, error)
+		CheckoutProduct(ctx context.Context, in *CheckoutProductRequest, opts ...grpc.CallOption) (*CheckoutProductResponse, error)
+		CheckoutProductRollback(ctx context.Context, in *CheckoutProductRequest, opts ...grpc.CallOption) (*CheckoutProductResponse, error)
 	}
 
 	defaultProduct struct {
@@ -139,4 +144,14 @@ func (m *defaultProduct) IncreaseProductStockOfOrder(ctx context.Context, in *De
 func (m *defaultProduct) DecreaseProductStockOfOrder(ctx context.Context, in *DecreaseProductStockRequest, opts ...grpc.CallOption) (*DecreaseProductStockResponse, error) {
 	client := product.NewProductClient(m.cli.Conn())
 	return client.DecreaseProductStockOfOrder(ctx, in, opts...)
+}
+
+func (m *defaultProduct) CheckoutProduct(ctx context.Context, in *CheckoutProductRequest, opts ...grpc.CallOption) (*CheckoutProductResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.CheckoutProduct(ctx, in, opts...)
+}
+
+func (m *defaultProduct) CheckoutProductRollback(ctx context.Context, in *CheckoutProductRequest, opts ...grpc.CallOption) (*CheckoutProductResponse, error) {
+	client := product.NewProductClient(m.cli.Conn())
+	return client.CheckoutProductRollback(ctx, in, opts...)
 }

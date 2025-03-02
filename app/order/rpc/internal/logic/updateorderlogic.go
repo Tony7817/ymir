@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 
-	"ymir.com/app/order/model"
 	"ymir.com/app/order/rpc/internal/svc"
 	"ymir.com/app/order/rpc/order"
 
@@ -25,12 +24,13 @@ func NewUpdateOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Updat
 }
 
 func (l *UpdateOrderLogic) UpdateOrder(in *order.UpdateOrderRequest) (*order.UpdateOrderResponse, error) {
-	var o model.Order
-	if in.Status != nil {
-		o.Status = *in.Status
+	o, err := l.svcCtx.OrderModel.FindOne(l.ctx, in.OrderId)
+	if err != nil {
+		return nil, err
 	}
+	o.Status = *in.Status
 
-	if err := l.svcCtx.OrderModel.Update(l.ctx, &o); err != nil {
+	if err := l.svcCtx.OrderModel.Update(l.ctx, o); err != nil {
 		return nil, err
 	}
 

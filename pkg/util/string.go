@@ -2,6 +2,7 @@ package util
 
 import (
 	"crypto/rand"
+	"database/sql"
 	"fmt"
 	"math/big"
 	"regexp"
@@ -73,4 +74,14 @@ func MaskPhonenumber(phonenumber string) (string, error) {
 	}
 
 	return "****" + phonenumber[len(phonenumber)-4:], nil
+}
+
+func IsNullString(s string) sql.NullString {
+	if s == "" {
+		return sql.NullString{}
+	}
+	return sql.NullString{
+		String: s,
+		Valid:  true,
+	}
 }

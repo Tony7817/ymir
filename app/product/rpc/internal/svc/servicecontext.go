@@ -16,6 +16,7 @@ type ServiceContext struct {
 	Config                   config.Config
 	ProductModel             model.ProductModel
 	ProductCartModel         model.ProductCartModel
+	ProductCartCheckoutModel model.ProductCartCheckoutModel
 	ProductColorModel        model.ProductColorDetailModel
 	ProductStockModel        model.ProductStockModel
 	ProductCommentModel      model.ProductCommentModel
@@ -34,6 +35,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		ProductModel:             model.NewProductModel(conn, c.CacheRedis),
 		ProductCartModel:         model.NewProductCartModel(conn, c.CacheRedis),
+		ProductCartCheckoutModel: model.NewProductCartCheckoutModel(conn, c.CacheRedis),
 		ProductStockModel:        model.NewProductStockModel(conn, c.CacheRedis),
 		ProductColorModel:        model.NewProductColorDetailModel(conn, c.CacheRedis),
 		ProductCommentModel:      model.NewProductCommentModel(conn, c.CacheRedis),

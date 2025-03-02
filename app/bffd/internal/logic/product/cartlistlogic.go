@@ -49,17 +49,18 @@ func (l *CartListLogic) CartList(req *types.ProductCartListRequest) (resp *types
 	)
 	for i := 0; i < len(respb.Products); i++ {
 		products = append(products, types.ProductCartListItem{
-			ProductId:   id.EncodeId(respb.Products[i].ProductId),
-			StarId:      id.EncodeId(respb.Products[i].StarId),
-			ColorId:     id.EncodeId(respb.Products[i].ColorId),
-			Description: respb.Products[i].Description,
-			Price:       respb.Products[i].Price,
-			Unit:        respb.Products[i].Unit,
-			CoverUrl:    respb.Products[i].CoverUrl,
-			Amount:      respb.Products[i].Amount,
-			Size:        respb.Products[i].Sizes,
-			TotalPrice:  respb.Products[i].Amount * respb.Products[i].Price,
-			Stock:       respb.Products[i].Stock,
+			ProductCartId: id.EncodeId(respb.Products[i].ProductCartId),
+			ProductId:     id.EncodeId(respb.Products[i].ProductId),
+			StarId:        id.EncodeId(respb.Products[i].StarId),
+			ColorId:       id.EncodeId(respb.Products[i].ColorId),
+			Description:   respb.Products[i].Description,
+			Price:         respb.Products[i].Price,
+			Unit:          respb.Products[i].Unit,
+			CoverUrl:      respb.Products[i].CoverUrl,
+			Amount:        respb.Products[i].Amount,
+			Size:          respb.Products[i].Sizes,
+			TotalPrice:    respb.Products[i].Amount * respb.Products[i].Price,
+			Stock:         respb.Products[i].Stock,
 		})
 	}
 

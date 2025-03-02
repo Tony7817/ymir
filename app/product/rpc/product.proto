@@ -128,17 +128,18 @@ message ProductsInCartListRequest {
 }
 
 message ProductsInCartListItem {
-  int64 ProductId = 1;
-  int64 StarId = 2;
-  int64 ColorId = 3;
-  int64 Amount = 4;
-  string Sizes = 5;
-  string Description = 6;
-  int64 Price = 7;
-  int64 TotalPrice = 8;
-  string Unit = 9;
-  string CoverUrl = 10;
-  int64 Stock = 11;
+  int64 ProductCartId = 1;
+  int64 ProductId = 2;
+  int64 StarId = 3;
+  int64 ColorId = 4;
+  int64 Amount = 5;
+  string Sizes = 6;
+  string Description = 7;
+  int64 Price = 8;
+  int64 TotalPrice = 9;
+  string Unit = 10;
+  string CoverUrl = 11;
+  int64 Stock = 12;
 }
 
 message ProducrtsInCartListResponse {
@@ -216,6 +217,22 @@ message DecreaseProductStockResponse {
   Status Status = 1;
 }
 
+message ProductCartItem {
+  int64 ProductId = 1;
+  int64 ColorId = 2;
+  string Size = 3;
+}
+
+message CheckoutProductRequest {
+  int64 Orderid = 1;
+  int64 UserId = 2;
+  repeated ProductCartItem Items = 3;
+}
+
+message CheckoutProductResponse {
+    Status Status = 1;
+}
+
 service Product {
   rpc ProductList(ProductListRequest) returns (ProductListResponse);
   rpc ProductDetail(ProductDetailReqeust) returns (ProductDetailResponse);
@@ -230,4 +247,6 @@ service Product {
   rpc ProductCommentList(ProductCommentListRequest) returns (ProductCommentListResponse);
   rpc IncreaseProductStockOfOrder(DecreaseProductStockRequest) returns (DecreaseProductStockResponse);
   rpc DecreaseProductStockOfOrder(DecreaseProductStockRequest) returns (DecreaseProductStockResponse);
+  rpc CheckoutProduct(CheckoutProductRequest) returns (CheckoutProductResponse);
+  rpc CheckoutProductRollback(CheckoutProductRequest) returns (CheckoutProductResponse);
 }

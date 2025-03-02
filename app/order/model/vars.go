@@ -22,3 +22,7 @@ func CacheOrderItemNotSoftDelete(id int64) string {
 func CacheOrderListTotalCount(userId int64) string {
 	return fmt.Sprintf("cache:ymir:order:list:total:count:uid:%d", userId)
 }
+
+func CacheOrderItems(orderId int64) string {
+	return fmt.Sprintf("cache:ymir:order:items:oid:%d", orderId)
+}

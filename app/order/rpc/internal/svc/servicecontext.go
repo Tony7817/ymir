@@ -14,6 +14,7 @@ type ServiceContext struct {
 	OrderModel          model.OrderModel
 	OrderItemModel      model.OrderItemModel
 	OrderStatusLogModel model.OrderStatusLogModel
+	OrderAddressModel   model.OrderAddressModel
 	PaypalModel         model.PaypalModel
 	DB                  *sql.DB
 	Redis               *redis.Redis
@@ -29,6 +30,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		OrderModel:          model.NewOrderModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
 		OrderItemModel:      model.NewOrderItemModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
 		OrderStatusLogModel: model.NewOrderStatusLogModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
+		OrderAddressModel:   model.NewOrderAddressModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
 		PaypalModel:         model.NewPaypalModel(sqlx.NewMysql(c.DataSource), c.CacheRedis),
 		DB:                  db,
 		Redis:               redis.New(c.BizRedis.Host, redis.WithPass(c.BizRedis.Pass)),

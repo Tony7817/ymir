@@ -43,7 +43,12 @@ func (l *DecreaseProductStockOfOrderLogic) DecreaseProductStockOfOrder(in *produ
 	}
 
 	err = barrier.CallWithDB(l.svcCtx.DB, func(tx *sql.Tx) error {
-		return l.decreaseStocks(tx, in.ProductStockItem)
+		err := l.decreaseStocks(tx, in.ProductStockItem)
+		if err != nil {
+			l.Logger.Errorf("[DecreaseProductStockOfOrder] decreaseStocks error: %v", err)
+			return status.Error(codes.Aborted, dtmcli.ResultFailure)
+		}
+		return nil
 	})
 	if err != nil {
 		l.Logger.Errorf("[DecreaseProductStockOfOrder] decreaseStocks error: %v", err)

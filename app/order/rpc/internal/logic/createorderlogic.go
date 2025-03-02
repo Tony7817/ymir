@@ -46,34 +46,36 @@ func (l *CreateOrderLogic) CreateOrder(in *order.CreateOrderRequest) (*order.Cre
 	err = barrier.CallWithDB(l.svcCtx.DB, func(tx *sql.Tx) error {
 		err := mr.Finish(func() error {
 			var totalPrice int64
-			for i := 0; i < len(in.Items); i++ {
+			for i := range in.Items {
 				totalPrice += in.Items[i].Price * in.Items[i].Qunantity
 			}
 			_, err := l.svcCtx.OrderModel.SFInsertTx(l.ctx, tx, &model.Order{
 				Id:         in.OrderId,
+				RequestId:  in.RequestId,
 				UserId:     in.UserId,
 				Status:     model.OrderStatusPending,
 				TotalPrice: totalPrice,
 			})
 			if err != nil {
 				l.Logger.Errorf("[CreateOrder] OrderModel.SFInsertTx error: %+v", err)
-				return status.Error(codes.Aborted, dtmcli.ResultFailure)
+				return err
 			}
 			return nil
 		}, func() error {
 			err := l.createOrderItems(tx, in.OrderId, in.Items)
 			if err != nil {
-				return status.Error(codes.Aborted, dtmcli.ResultFailure)
+				l.Logger.Errorf("[CreateOrder] createOrderItems error: %+v", err)
+				return err
 			}
 			return nil
 		})
 		if err != nil {
-			return err
+			return status.Error(codes.Internal, err.Error())
 		}
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &order.CreateOrderResponse{

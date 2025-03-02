@@ -9,7 +9,6 @@ import (
 var ErrNotFound = sqlx.ErrNotFound
 
 // Product Cache
-
 func CacheKeyProductColorList(pId int64) string {
 	return fmt.Sprintf("cache:productColorDetail:productId:%d", pId)
 }
@@ -30,13 +29,18 @@ func CacheKeyProductBelongToStar(pId int64) string {
 }
 
 func CacheKeyProduct(pId int64) string {
-	return fmt.Sprintf("%s:%d",cacheYmirProductIdPrefix, pId)
+	return fmt.Sprintf("%s:%d", cacheYmirProductIdPrefix, pId)
 }
 
 func CacheKeyProductColor(pId int64) string {
-	return fmt.Sprintf("%s:%d", cacheYmirProductColorDetailIdPrefix,pId)
+	return fmt.Sprintf("%s:%d", cacheYmirProductColorDetailIdPrefix, pId)
 }
 
 func CacheKeyProductStock(pId int64) string {
 	return fmt.Sprintf("%s:%d", cacheYmirProductStockIdPrefix, pId)
+}
+
+// Product Cart
+func CacheYmirProductCartTotalUserId(uId int64) string {
+	return fmt.Sprintf("cache:ymir:productCart:total%d", uId)
 }

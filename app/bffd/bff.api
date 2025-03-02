@@ -113,17 +113,18 @@ type (
 		PageSize int64 `json:"page_size"`
 	}
 	ProductCartListItem {
-		ProductId   string `json:"product_id"`
-		StarId      string `json:"star_id"`
-		ColorId     string `json:"color_id"`
-		Description string `json:"description"`
-		Price       int64  `json:"price"`
-		Unit        string `json:"unit"`
-		CoverUrl    string `json:"cover_url"`
-		Amount      int64  `json:"amount"`
-		Size        string `json:"size"`
-		TotalPrice  int64  `json:"total_price"`
-		Stock       int64  `json:"stock"`
+		ProductCartId string `json:"product_cart_id"`
+		ProductId     string `json:"product_id"`
+		StarId        string `json:"star_id"`
+		ColorId       string `json:"color_id"`
+		Description   string `json:"description"`
+		Price         int64  `json:"price"`
+		Unit          string `json:"unit"`
+		CoverUrl      string `json:"cover_url"`
+		Amount        int64  `json:"amount"`
+		Size          string `json:"size"`
+		TotalPrice    int64  `json:"total_price"`
+		Stock         int64  `json:"stock"`
 	}
 	ProductCartListResponse {
 		Products []ProductCartListItem `json:"products"`
@@ -257,17 +258,20 @@ type (
 	}
 	// order api
 	Order {
-		OrderId string `json:"order_id"`
-		Status  string `json:"status"`
-		Price   int64  `json:"price"`
-		Unit    string `json:"unit"`
+		RequestId string `json:"request_id"`
+		OrderId   string `json:"order_id"`
+		Status    string `json:"status"`
+		Price     int64  `json:"price"`
+		Unit      string `json:"unit"`
 	}
 	OrderItem {
-		ProductId string `json:"product_id"`
-		ColorId   string `json:"color_id"`
-		Size      string `json:"size"`
-		Quantity  int64  `json:"quantity"`
-		Price     int64  `json:"price,optional"`
+		ProductId          string `json:"product_id"`
+		ProductDescription string `json:"product_description,optional"`
+		ProductCoverImg    string `json:"product_cover_img,optional"`
+		ColorId            string `json:"color_id"`
+		Size               string `json:"size"`
+		Quantity           int64  `json:"quantity"`
+		Price              int64  `json:"price,optional"`
 	}
 	CreateOrderRequest {
 		RequestId string      `json:"request_id"`
@@ -298,6 +302,29 @@ type (
 		Orders []Order `json:"orders"`
 		Total  int64   `json:"total"`
 	}
+	GetOrderDetailRequest {
+		OrderId string `path:"orderId"`
+	}
+	GetOrderDetailResponse {
+		Order      Order       `json:"order"`
+		OrderItems []OrderItem `json:"order_items"`
+	}
+	GetOrderAddressRequest {
+		OrderId string `path:"orderId"`
+	}
+	OrderAddress {
+		AddressLine1 string `json:"address_line_1"`
+		AddressLine2 string `json:"address_line_2"`
+		AdminArea1   string `json:"admin_area_1"`
+		AdminArea2   string `json:"admin_area_2"`
+		PostalCode   string `json:"postal_code"`
+		CountryCode  string `json:"country_code"`
+		Email        string `json:"email"`
+		FullName     string `json:"full_name"`
+	}
+	GetOrderAddressResponse {
+		Address OrderAddress `json:"address"`
+	}
 	GetOrderItemRequest {
 		OrderId string `path:"orderId"`
 	}
@@ -317,14 +344,15 @@ type (
 		OrderId       string `json:"order_id"`
 		PaypalOrderId string `json:"paypal_order_id"`
 	}
-	PayerInfo {
-		PayerId   string `json:"payer_id"`
-		AccountId string `json:"account_id"`
-		Email     string `json:"email"`
-		FirstName string `json:"first_name"`
-		LastName  string `json:"last_name"`
+	PayerName {
+		GivenName string `json:"given_name"`
+		Surname   string `json:"surname"`
 	}
-	Address {
+	PayerPhone {
+		PhoneNumber string `json:"phone_number"`
+		PhoneType   string `json:"phone_type"`
+	}
+	PayerAddress {
 		AddressLine1 string `json:"address_line_1"`
 		AddressLine2 string `json:"address_line_2"`
 		AdminArea1   string `json:"admin_area_1"`
@@ -332,11 +360,15 @@ type (
 		PostalCode   string `json:"postal_code"`
 		CountryCode  string `json:"country_code"`
 	}
+	PayerInfo {
+		Email         string       `json:"email"`
+		PayerFullName string       `json:"payer_full_name"`
+		PayerAddress  PayerAddress `json:"payer_address"`
+	}
 	CapturePaypalOrderResponse {
 		OrderId   string    `json:"order_id"`
 		Status    string    `json:"status"`
 		PayerInfo PayerInfo `json:"payer_info"`
-		Address   Address   `json:"address"`
 	}
 	// Stock api
 	IncreaseStockRequest {
@@ -504,8 +536,11 @@ service bff {
 	@handler OrderList
 	post /order/list (GetOrderRequest) returns (GetOrderResponse)
 
-	@handler OrderItems
-	post /order/:orderId (GetOrderItemRequest) returns (GetOrderItemResponse)
+	@handler OrderDetail
+	post /order/:orderId (GetOrderDetailRequest) returns (GetOrderDetailResponse)
+
+	@handler OrderAddress
+	post /order/address/:orderId (GetOrderAddressRequest) returns (GetOrderAddressResponse)
 
 	@handler CreatePaypalOrder
 	post /order/paypal/create (CreatePaypalOrderRequest) returns (CreatePaypalOrderResponse)

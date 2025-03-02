@@ -116,16 +116,17 @@ func (l *ProductsInCartListLogic) productsInCarts(pcarts []*model.ProductCart) (
 		writer.Write(&indexedProductCartItem{
 			index: pcart.index,
 			item: &product.ProductsInCartListItem{
-				ProductId:   p.Id,
-				StarId:      p.StarId,
-				ColorId:     c.Id,
-				Amount:      pcart.item.Amount,
-				Sizes:       pcart.item.Size,
-				Description: p.Description,
-				Price:       c.Price,
-				Unit:        c.Unit,
-				CoverUrl:    c.CoverUrl,
-				Stock:       s.InStock,
+				ProductCartId: pcart.item.Id,
+				ProductId:     p.Id,
+				StarId:        p.StarId,
+				ColorId:       c.Id,
+				Amount:        pcart.item.Amount,
+				Sizes:         pcart.item.Size,
+				Description:   p.Description,
+				Price:         c.Price,
+				Unit:          c.Unit,
+				CoverUrl:      c.CoverUrl,
+				Stock:         s.InStock,
 			},
 		})
 	}, func(pipe <-chan *indexedProductCartItem, writer mr.Writer[[]*product.ProductsInCartListItem], cancel func(error)) {

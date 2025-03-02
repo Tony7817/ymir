@@ -35,6 +35,9 @@ func init() {
 	message[ErrorDeleteOrder] = "delete order failed, please try again"
 	message[ErrorIdempotence] = "please don't submit the order repeatedly"
 	message[ErrorStockNotEnough] = "stock is not enough"
+	message[ErrorFetchResource] = "fetch resource failed"
+	message[ErrorOrderCreated] = "order has been created"
+	message[ErrorOrderPaied] = "order has been paid"
 }
 
 func MapErrMsg(errcode uint32) string {

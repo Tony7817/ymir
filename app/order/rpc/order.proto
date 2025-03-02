@@ -9,6 +9,7 @@ message OrderContent {
     int64 TotalPrice = 3;
     string Status = 4;
     string Unit  = 5;
+    string RequestId = 6;
 }
 
 message OrderItem {
@@ -20,6 +21,26 @@ message OrderItem {
     int64 OrderItemId = 6;
 }
 
+message OrderAddress {
+    string AddressLine1 = 1;
+    string AddressLine2 = 2;
+    string AdminArea1 = 3;
+    string AdminArea2 = 4;
+    string PostalCode = 5;
+    string CountryCode = 6;
+    string Email = 7;
+    string FullName = 8;
+}
+
+message GetOrderAddressRequest {
+    int64 UserId = 1;
+    int64 OrderId = 2;
+}
+
+message GetOrderAddressResponse {
+    OrderAddress Address = 1;
+}
+
 message CreateOrderRequest {
     string RequestId = 1;
     int64 UserId = 2;
@@ -29,15 +50,6 @@ message CreateOrderRequest {
 
 message CreateOrderResponse {
     int64 OrderId = 1; 
-}
-
-message SoftDeleteOrderRequest {
-    int64 UserId = 1;
-    int64 OrderId = 3;
-}
-
-message SoftDeleteOrderResponse {
-    int64 OrderId = 1;
 }
 
 message GetOrderRequest {
@@ -98,6 +110,7 @@ message PaypalOrderResponse {
 message CreatePaypalOrderRequest {
     string RequestId = 1;
     int64 OrderId = 2;
+    int64 UserId = 3;
 }
 
 message CreatePaypalOrderResponse {
@@ -105,15 +118,73 @@ message CreatePaypalOrderResponse {
     string PaypalOrderId = 2;
 }
 
+message CapturePaypalOrderRequest {
+    string RequestId = 1;
+    int64 OrderId = 2;
+    int64 UserId = 3;
+}
+
+message PayerName {
+    string GivenName = 1;
+    string Surname = 2;
+}
+
+message PayerPhone {
+    string PhoneType = 1;
+    string PhoneNumber = 2;
+}
+
+message PayerTaxInfo {
+    string TaxId = 1;
+    string TaxIdType = 2;
+}
+
+message PayerAddress {
+    string AddressLine1 = 1;
+    string AddressLine2 = 2;
+    string AdminArea1 = 3;
+    string AdminArea2 = 4;
+    string PostalCode = 5;
+    string CountryCode = 6;
+}
+
+message PaypalPayer {
+    string Email = 1;
+    string PayerFullName = 4;
+    PayerTaxInfo PayerTaxInfo = 6;
+    PayerAddress PayerAddress = 7;
+}
+
+message CapturePaypalOrderResposne {
+    int64 OrderId = 1;
+    string PaypalOrderId = 2;
+    string Status = 3;
+    string Intent = 4;
+    string CreateTime = 5;
+    string RequestId = 6;
+    PaypalPayer PayerInfo = 7;
+}
+
+message DeleteOrderRequest {
+    int64 OrderId = 1;
+    int64 UserId = 2;
+}
+
+message DeleteOrderResponse {
+    int64 OrderId = 1;
+}
+
 service order {
     rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
     rpc CreateOrderRollback(CreateOrderRequest) returns (CreateOrderResponse);
-    rpc SoftDeleteOrder(SoftDeleteOrderRequest) returns (SoftDeleteOrderResponse);
-    rpc SoftDeleteOrderRollback(SoftDeleteOrderRequest) returns (SoftDeleteOrderResponse);
+    rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse);
+    rpc DeleteOrderRollback(DeleteOrderRequest) returns (DeleteOrderResponse);
     rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
     rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse);
     rpc PayOrder(PayOrderRequest) returns (PayOrderResponse);
     rpc OrderList(GetOrderListRequest) returns (GetOrderListResponse);
     rpc PaypalOrder(PaypalOrderReuqest) returns (PaypalOrderResponse);
     rpc CreatePaypalOrder(CreatePaypalOrderRequest) returns (CreatePaypalOrderResponse);
+    rpc CaptureOrder(CapturePaypalOrderRequest) returns (CapturePaypalOrderResposne);
+    rpc OrderAddress(GetOrderAddressRequest) returns (GetOrderAddressResponse);
 }

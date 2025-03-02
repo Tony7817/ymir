@@ -154,6 +154,8 @@ func CacheProductInCartKey(userId int64) string {
 }
 
 // PAYPAL
-const PaypalCrateOrderUrl = "https://api-m.sandbox.paypal.com/v2/checkout/orders"
-const PaypalGetTokenUrl = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
-const PaypalAccessTokenKey = "cache:paypal:access_token"
+
+// Order
+func CacheCreateOrderRequestIdKey(requestId string) string {
+	return "cache:order:request:id:" + requestId
+}

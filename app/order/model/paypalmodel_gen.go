@@ -24,14 +24,16 @@ var (
 	paypalRowsExpectAutoSet   = strings.Join(stringx.Remove(paypalFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	paypalRowsWithPlaceHolder = strings.Join(stringx.Remove(paypalFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
-	cacheYmirPaypalIdPrefix        = "cache:ymir:paypal:id:"
-	cacheYmirPaypalRequestIdPrefix = "cache:ymir:paypal:requestId:"
+	cacheYmirPaypalIdPrefix            = "cache:ymir:paypal:id:"
+	cacheYmirPaypalOrderIdUserIdPrefix = "cache:ymir:paypal:orderId:userId:"
+	cacheYmirPaypalRequestIdPrefix     = "cache:ymir:paypal:requestId:"
 )
 
 type (
 	paypalModel interface {
 		Insert(ctx context.Context, data *Paypal) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*Paypal, error)
+		FindOneByOrderIdUserId(ctx context.Context, orderId int64, userId int64) (*Paypal, error)
 		FindOneByRequestId(ctx context.Context, requestId string) (*Paypal, error)
 		Update(ctx context.Context, data *Paypal) error
 		Delete(ctx context.Context, id int64) error
@@ -50,6 +52,8 @@ type (
 		RequestId     string         `db:"request_id"`
 		ReqBody       sql.NullString `db:"req_body"`
 		PaypalOrderId string         `db:"paypal_order_id"`
+		UserId        int64          `db:"user_id"`
+		ErrMsg        sql.NullString `db:"err_msg"`
 	}
 )
 
@@ -67,11 +71,12 @@ func (m *defaultPaypalModel) Delete(ctx context.Context, id int64) error {
 	}
 
 	ymirPaypalIdKey := fmt.Sprintf("%s%v", cacheYmirPaypalIdPrefix, id)
+	ymirPaypalOrderIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheYmirPaypalOrderIdUserIdPrefix, data.OrderId, data.UserId)
 	ymirPaypalRequestIdKey := fmt.Sprintf("%s%v", cacheYmirPaypalRequestIdPrefix, data.RequestId)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		return conn.ExecCtx(ctx, query, id)
-	}, ymirPaypalIdKey, ymirPaypalRequestIdKey)
+	}, ymirPaypalIdKey, ymirPaypalOrderIdUserIdKey, ymirPaypalRequestIdKey)
 	return err
 }
 
@@ -82,6 +87,26 @@ func (m *defaultPaypalModel) FindOne(ctx context.Context, id int64) (*Paypal, er
 		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", paypalRows, m.table)
 		return conn.QueryRowCtx(ctx, v, query, id)
 	})
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
+func (m *defaultPaypalModel) FindOneByOrderIdUserId(ctx context.Context, orderId int64, userId int64) (*Paypal, error) {
+	ymirPaypalOrderIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheYmirPaypalOrderIdUserIdPrefix, orderId, userId)
+	var resp Paypal
+	err := m.QueryRowIndexCtx(ctx, &resp, ymirPaypalOrderIdUserIdKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
+		query := fmt.Sprintf("select %s from %s where `order_id` = ? and `user_id` = ? limit 1", paypalRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, orderId, userId); err != nil {
+			return nil, err
+		}
+		return resp.Id, nil
+	}, m.queryPrimary)
 	switch err {
 	case nil:
 		return &resp, nil
@@ -114,11 +139,12 @@ func (m *defaultPaypalModel) FindOneByRequestId(ctx context.Context, requestId s
 
 func (m *defaultPaypalModel) Insert(ctx context.Context, data *Paypal) (sql.Result, error) {
 	ymirPaypalIdKey := fmt.Sprintf("%s%v", cacheYmirPaypalIdPrefix, data.Id)
+	ymirPaypalOrderIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheYmirPaypalOrderIdUserIdPrefix, data.OrderId, data.UserId)
 	ymirPaypalRequestIdKey := fmt.Sprintf("%s%v", cacheYmirPaypalRequestIdPrefix, data.RequestId)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, paypalRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Id, data.OrderId, data.RequestId, data.ReqBody, data.PaypalOrderId)
-	}, ymirPaypalIdKey, ymirPaypalRequestIdKey)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, paypalRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.OrderId, data.RequestId, data.ReqBody, data.PaypalOrderId, data.UserId, data.ErrMsg)
+	}, ymirPaypalIdKey, ymirPaypalOrderIdUserIdKey, ymirPaypalRequestIdKey)
 	return ret, err
 }
 
@@ -129,11 +155,12 @@ func (m *defaultPaypalModel) Update(ctx context.Context, newData *Paypal) error 
 	}
 
 	ymirPaypalIdKey := fmt.Sprintf("%s%v", cacheYmirPaypalIdPrefix, data.Id)
+	ymirPaypalOrderIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheYmirPaypalOrderIdUserIdPrefix, data.OrderId, data.UserId)
 	ymirPaypalRequestIdKey := fmt.Sprintf("%s%v", cacheYmirPaypalRequestIdPrefix, data.RequestId)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, paypalRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.OrderId, newData.RequestId, newData.ReqBody, newData.PaypalOrderId, newData.Id)
-	}, ymirPaypalIdKey, ymirPaypalRequestIdKey)
+		return conn.ExecCtx(ctx, query, newData.OrderId, newData.RequestId, newData.ReqBody, newData.PaypalOrderId, newData.UserId, newData.ErrMsg, newData.Id)
+	}, ymirPaypalIdKey, ymirPaypalOrderIdUserIdKey, ymirPaypalRequestIdKey)
 	return err
 }
 

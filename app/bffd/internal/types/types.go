@@ -26,15 +26,6 @@ type AddProductToCartResponse struct {
 	ProductCartId string `json:"product_cart_id"`
 }
 
-type Address struct {
-	AddressLine1 string `json:"address_line_1"`
-	AddressLine2 string `json:"address_line_2"`
-	AdminArea1   string `json:"admin_area_1"`
-	AdminArea2   string `json:"admin_area_2"`
-	PostalCode   string `json:"postal_code"`
-	CountryCode  string `json:"country_code"`
-}
-
 type CapturePaypalOrderRequest struct {
 	OrderId       string `json:"order_id"`
 	PaypalOrderId string `json:"paypal_order_id"`
@@ -44,7 +35,6 @@ type CapturePaypalOrderResponse struct {
 	OrderId   string    `json:"order_id"`
 	Status    string    `json:"status"`
 	PayerInfo PayerInfo `json:"payer_info"`
-	Address   Address   `json:"address"`
 }
 
 type CheckIfUserSignedUpRequest struct {
@@ -123,6 +113,23 @@ type GetIpAddressResponse struct {
 	Ip string `json:"ip"`
 }
 
+type GetOrderAddressRequest struct {
+	OrderId string `path:"orderId"`
+}
+
+type GetOrderAddressResponse struct {
+	Address OrderAddress `json:"address"`
+}
+
+type GetOrderDetailRequest struct {
+	OrderId string `path:"orderId"`
+}
+
+type GetOrderDetailResponse struct {
+	Order      Order       `json:"order"`
+	OrderItems []OrderItem `json:"order_items"`
+}
+
 type GetOrderItemRequest struct {
 	OrderId string `path:"orderId"`
 }
@@ -157,18 +164,32 @@ type LikeCommmentRequest struct {
 }
 
 type Order struct {
-	OrderId string `json:"order_id"`
-	Status  string `json:"status"`
-	Price   int64  `json:"price"`
-	Unit    string `json:"unit"`
+	RequestId string `json:"request_id"`
+	OrderId   string `json:"order_id"`
+	Status    string `json:"status"`
+	Price     int64  `json:"price"`
+	Unit      string `json:"unit"`
+}
+
+type OrderAddress struct {
+	AddressLine1 string `json:"address_line_1"`
+	AddressLine2 string `json:"address_line_2"`
+	AdminArea1   string `json:"admin_area_1"`
+	AdminArea2   string `json:"admin_area_2"`
+	PostalCode   string `json:"postal_code"`
+	CountryCode  string `json:"country_code"`
+	Email        string `json:"email"`
+	FullName     string `json:"full_name"`
 }
 
 type OrderItem struct {
-	ProductId string `json:"product_id"`
-	ColorId   string `json:"color_id"`
-	Size      string `json:"size"`
-	Quantity  int64  `json:"quantity"`
-	Price     int64  `json:"price,optional"`
+	ProductId          string `json:"product_id"`
+	ProductDescription string `json:"product_description,optional"`
+	ProductCoverImg    string `json:"product_cover_img,optional"`
+	ColorId            string `json:"color_id"`
+	Size               string `json:"size"`
+	Quantity           int64  `json:"quantity"`
+	Price              int64  `json:"price,optional"`
 }
 
 type OssTokenRequest struct {
@@ -190,26 +211,44 @@ type PayOrderResponse struct {
 	Status string `json:"status"`
 }
 
+type PayerAddress struct {
+	AddressLine1 string `json:"address_line_1"`
+	AddressLine2 string `json:"address_line_2"`
+	AdminArea1   string `json:"admin_area_1"`
+	AdminArea2   string `json:"admin_area_2"`
+	PostalCode   string `json:"postal_code"`
+	CountryCode  string `json:"country_code"`
+}
+
 type PayerInfo struct {
-	PayerId   string `json:"payer_id"`
-	AccountId string `json:"account_id"`
-	Email     string `json:"email"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+	Email         string       `json:"email"`
+	PayerFullName string       `json:"payer_full_name"`
+	PayerAddress  PayerAddress `json:"payer_address"`
+}
+
+type PayerName struct {
+	GivenName string `json:"given_name"`
+	Surname   string `json:"surname"`
+}
+
+type PayerPhone struct {
+	PhoneNumber string `json:"phone_number"`
+	PhoneType   string `json:"phone_type"`
 }
 
 type ProductCartListItem struct {
-	ProductId   string `json:"product_id"`
-	StarId      string `json:"star_id"`
-	ColorId     string `json:"color_id"`
-	Description string `json:"description"`
-	Price       int64  `json:"price"`
-	Unit        string `json:"unit"`
-	CoverUrl    string `json:"cover_url"`
-	Amount      int64  `json:"amount"`
-	Size        string `json:"size"`
-	TotalPrice  int64  `json:"total_price"`
-	Stock       int64  `json:"stock"`
+	ProductCartId string `json:"product_cart_id"`
+	ProductId     string `json:"product_id"`
+	StarId        string `json:"star_id"`
+	ColorId       string `json:"color_id"`
+	Description   string `json:"description"`
+	Price         int64  `json:"price"`
+	Unit          string `json:"unit"`
+	CoverUrl      string `json:"cover_url"`
+	Amount        int64  `json:"amount"`
+	Size          string `json:"size"`
+	TotalPrice    int64  `json:"total_price"`
+	Stock         int64  `json:"stock"`
 }
 
 type ProductCartListRequest struct {

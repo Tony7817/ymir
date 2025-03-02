@@ -4,20 +4,18 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
-	"encoding/base64"
 	"encoding/json"
 	"net/http"
-	"net/url"
-	"os"
 	"strconv"
-	"strings"
 
 	"ymir.com/app/order/model"
 	"ymir.com/app/order/rpc/internal/svc"
 	"ymir.com/app/order/rpc/order"
 	"ymir.com/pkg/id"
-	"ymir.com/pkg/vars"
+	"ymir.com/pkg/paypal"
+	"ymir.com/pkg/xerr"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/threading"
@@ -38,7 +36,7 @@ func NewCreatePaypalOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *CreatePaypalOrderLogic) CreatePaypalOrder(in *order.CreatePaypalOrderRequest) (*order.CreatePaypalOrderResponse, error) {
-	oItems, err := l.svcCtx.OrderItemModel.FindOneByOrderIdNotSoftDelete(l.ctx, in.OrderId)
+	oItems, err := l.svcCtx.OrderItemModel.FindOneByOrderId(l.ctx, in.OrderId)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +51,7 @@ func (l *CreatePaypalOrderLogic) CreatePaypalOrder(in *order.CreatePaypalOrderRe
 			OrderItemId: oItems[i].Id,
 		}
 	}
-	paypalOrderId, err := l.createPaypalOrder(orderItems, in.OrderId, in.RequestId)
+	paypalOrderId, err := l.createPaypalOrder(orderItems, in.OrderId, in.UserId, in.RequestId)
 	if err != nil {
 		return nil, errors.Wrapf(err, "create paypal order failed")
 	}
@@ -64,29 +62,14 @@ func (l *CreatePaypalOrderLogic) CreatePaypalOrder(in *order.CreatePaypalOrderRe
 	}, nil
 }
 
-func (l *CreatePaypalOrderLogic) createPaypalOrder(orderItems []*order.OrderItem, orderId int64, requestId string) (string, error) {
-	tokenStr, err := l.svcCtx.Redis.GetCtx(l.ctx, vars.PaypalAccessTokenKey)
-	var token = &vars.PaypalTokenResponse{}
+func (l *CreatePaypalOrderLogic) createPaypalOrder(orderItems []*order.OrderItem, orderId, userId int64, requestId string) (string, error) {
+	token, err := paypal.GetToken(l.ctx, l.svcCtx.Redis)
 	if err != nil {
 		return "", err
 	}
-	if tokenStr == "" {
-		token, err = getPaypalToken()
-		if err != nil {
-			return "", err
-		}
-		_, err = l.svcCtx.Redis.SetnxExCtx(l.ctx, vars.PaypalAccessTokenKey, token.AccessToken, token.ExpiresIn-60)
-		if err != nil {
-			l.Logger.Errorf("[CreateOrder] set paypal token to redis error: %+v", err)
-			return "", err
-		}
-	} else {
-		token.AccessToken = tokenStr
-	}
-
-	var req = vars.PaypalCreateOrderRequest{
+	var req = paypal.PaypalCreateOrderRequest{
 		Intent:        "CAPTURE",
-		PurchaseUnits: make([]vars.PaypalPurchaseUnit, 1),
+		PurchaseUnits: make([]paypal.PaypalPurchaseUnit, 1),
 	}
 
 	var totalPrice float64
@@ -95,8 +78,8 @@ func (l *CreatePaypalOrderLogic) createPaypalOrder(orderItems []*order.OrderItem
 		price := float64(orderItems[i].Price) / 100
 		totalPrice += price
 	}
-	req.PurchaseUnits[0] = vars.PaypalPurchaseUnit{
-		Amount: vars.PaypalAmount{
+	req.PurchaseUnits[0] = paypal.PaypalPurchaseUnit{
+		Amount: paypal.PaypalAmount{
 			CurrencyCode: "USD",
 			Value:        strconv.FormatFloat(totalPrice, 'f', 2, 64),
 		},
@@ -110,14 +93,13 @@ func (l *CreatePaypalOrderLogic) createPaypalOrder(orderItems []*order.OrderItem
 
 	request, err := http.NewRequest("POST", "https://api.sandbox.paypal.com/v2/checkout/orders", bytes.NewBuffer(body))
 	if err != nil {
-		l.Logger.Errorf("[CreateOrder] create paypal order request error: %+v", err)
 		return "", err
 	}
 	defer request.Body.Close()
 
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("PayPal-Request-Id", requestId)
-	request.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	request.Header.Set("Authorization", "Bearer "+token)
 
 	var client = &http.Client{}
 	resp, err := client.Do(request)
@@ -126,69 +108,50 @@ func (l *CreatePaypalOrderLogic) createPaypalOrder(orderItems []*order.OrderItem
 	}
 	defer resp.Body.Close()
 
-	var createOrderResp vars.PaypalCreateOrderResponse
+	var createOrderResp paypal.PaypalCreateOrderResponse
+	var errMsg *paypal.ErrorResponse
 	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated {
 		err = json.NewDecoder(resp.Body).Decode(&createOrderResp)
 		if err != nil {
 			l.Logger.Errorf("[CreateOrder] decode paypal create order response error: %+v", err)
 			return "", err
 		}
-		_, err = l.svcCtx.PaypalModel.Insert(l.ctx, &model.Paypal{
-			Id:            id.NewSnowFlake().GenerateID(),
-			OrderId:       orderId,
-			RequestId:     requestId,
-			PaypalOrderId: createOrderResp.OrderId,
-			ReqBody:       sql.NullString{String: string(body), Valid: true},
-		})
+
+	} else {
+		err = json.NewDecoder(resp.Body).Decode(&errMsg)
 		if err != nil {
+			l.Logger.Errorf("[CreateOrder] decode paypal create order error response error: %+v", err)
 			return "", err
 		}
-
-		// set the order in redis
-		threading.GoSafe(func() {
-			_, _ = l.svcCtx.PaypalModel.FindOneByRequestId(l.ctx, requestId)
-		})
-	} else {
 		l.Logger.Errorf("[CreateOrder] request paypal create order failed, resp:%+v", resp)
-		return "", errors.New("create paypal order failed")
+	}
+
+	_, err = l.svcCtx.PaypalModel.Insert(l.ctx, &model.Paypal{
+		Id:            id.NewSnowFlake().GenerateID(),
+		OrderId:       orderId,
+		UserId:        userId,
+		RequestId:     requestId,
+		PaypalOrderId: createOrderResp.OrderId,
+		ReqBody:       sql.NullString{String: string(body), Valid: true},
+		ErrMsg:        paypal.SetErrorInNullString(errMsg),
+	})
+	if err != nil {
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 {
+				return "", xerr.NewErrCode(xerr.ErrorOrderCreated)
+			}
+		}
+		return "", err
+	}
+
+	// set the order in redis
+	threading.GoSafe(func() {
+		_, _ = l.svcCtx.PaypalModel.FindOneByRequestId(l.ctx, requestId)
+	})
+
+	if errMsg != nil {
+		return "", xerr.NewErrCode(xerr.ErrorCreateOrder)
 	}
 
 	return createOrderResp.OrderId, nil
-}
-
-func getPaypalToken() (*vars.PaypalTokenResponse, error) {
-	var clientId = os.Getenv("PAYPAL_CLIENT_ID")
-	var clientSecret = os.Getenv("PAYPAL_SECRET")
-	if clientId == "" || clientSecret == "" {
-		return nil, errors.New("paypal client id or secret is empty")
-	}
-
-	var auth = base64.StdEncoding.EncodeToString([]byte(clientId + ":" + clientSecret))
-	var data = url.Values{}
-	data.Set("grant_type", "client_credentials")
-	var body = strings.NewReader(data.Encode())
-
-	req, err := http.NewRequest("POST", vars.PaypalGetTokenUrl, body)
-	if err != nil {
-		return nil, err
-	}
-	defer req.Body.Close()
-
-	req.Header.Set("Authorization", "Basic "+auth)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	var client = &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	var tokenResp vars.PaypalTokenResponse
-	err = json.NewDecoder(resp.Body).Decode(&tokenResp)
-	if err != nil {
-		return nil, err
-	}
-
-	return &tokenResp, nil
 }
