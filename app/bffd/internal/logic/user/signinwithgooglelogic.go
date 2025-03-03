@@ -36,28 +36,29 @@ func (l *SigninWithGoogleLogic) SigninWithGoogle(req *types.SigninWithGoogleRequ
 		return nil, err
 	}
 
-	respb, err := l.svcCtx.UserRPC.GetUserGoogle(l.ctx, &user.GetUserGoogleRequest{
-		GoogleUserId: userGoogle.GoogleUserId,
+	respbUser, err := l.svcCtx.UserRPC.GetUserInfo(l.ctx, &user.GetUserInfoRequest{
+		Email: &userGoogle.Email,
 	})
 	if err != nil {
 		return nil, err
 	}
-	if respb.User != nil {
-		return l.Signin(respb.User)
+
+	if respbUser.User != nil {
+		return l.Signin(respbUser.User.Email)
 	}
 
 	return l.SignupAndSignin(userGoogle)
 }
 
-func (l *SigninWithGoogleLogic) Signin(ugoogle *user.UserGoogleInfo) (resp *types.SigninResponse, err error) {
+func (l *SigninWithGoogleLogic) Signin(email string) (resp *types.SigninResponse, err error) {
 	respb, err := l.svcCtx.UserRPC.GetUserInfo(l.ctx, &user.GetUserInfoRequest{
-		UserId: &ugoogle.UserId,
+		Email: &email,
 	})
 	if err != nil {
 		return nil, err
 	}
 	if respb.User == nil {
-		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ServerCommonError), "cannot find user info by userId: %d", ugoogle.UserId)
+		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ServerCommonError), "cannot find user info by email: %s", email)
 	}
 
 	var nowDate = time.Now().Unix()
@@ -67,7 +68,7 @@ func (l *SigninWithGoogleLogic) Signin(ugoogle *user.UserGoogleInfo) (resp *type
 	}
 
 	return &types.SigninResponse{
-		UserId:      id.EncodeId(ugoogle.Id),
+		UserId:      id.EncodeId(respb.User.Id),
 		Username:    respb.User.Username,
 		AccessToken: token,
 		AvatarUrl:   respb.User.AvatarUrl,
