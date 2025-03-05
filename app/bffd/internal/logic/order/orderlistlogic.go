@@ -46,7 +46,7 @@ func (l *OrderListLogic) OrderList(req *types.GetOrderRequest) (*types.GetOrderR
 
 	var res types.GetOrderResponse
 
-	for i := 0; i < len(orders.Order); i++ {
+	for i := range orders.Order {
 		res.Orders = append(res.Orders, types.Order{
 			OrderId: id.EncodeId(orders.Order[i].OrderId),
 			Status:  orders.Order[i].Status,
@@ -54,6 +54,7 @@ func (l *OrderListLogic) OrderList(req *types.GetOrderRequest) (*types.GetOrderR
 			Unit:    orders.Order[i].Unit,
 		})
 	}
+	res.Total = orders.Total
 
 	return &res, nil
 }

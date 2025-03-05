@@ -122,7 +122,7 @@ func (l *ProductDetailLogic) ProductDetail(req *types.ProductDetailRequest) (*ty
 
 func (l *ProductDetailLogic) findProductColorStock(cs []*product.ProductColor) ([]types.ProductColor, error) {
 	resColor, err := mr.MapReduce(func(source chan<- *product.ProductColor) {
-		for i := 0; i < len(cs); i++ {
+		for i := range cs {
 			source <- cs[i]
 		}
 	}, func(c *product.ProductColor, writer mr.Writer[*types.ProductColor], cancel func(error)) {
@@ -135,7 +135,7 @@ func (l *ProductDetailLogic) findProductColorStock(cs []*product.ProductColor) (
 			Id:            id.EncodeId(c.Id),
 			ColorName:     c.Name,
 			Images:        c.Images,
-			Detail_Images: c.DetailImages,
+			DetailImages: c.DetailImages,
 			Price:         c.Price,
 			CoverUrl:      c.CoverUrl,
 			Unit:          c.Unit,
@@ -158,7 +158,7 @@ func (l *ProductDetailLogic) findProductColorStock(cs []*product.ProductColor) (
 
 func (l *ProductDetailLogic) findProductColorStockByColor(sizes []string, pId int64, cId int64) ([]types.ProductSize, error) {
 	res, err := mr.MapReduce(func(source chan<- string) {
-		for i := 0; i < len(sizes); i++ {
+		for i := range sizes {
 			source <- sizes[i]
 		}
 	}, func(size string, writer mr.Writer[*types.ProductSize], cancel func(error)) {

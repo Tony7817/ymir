@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/zeromicro/go-zero/core/threading"
 )
 
 var _ OrderModel = (*customOrderModel)(nil)
@@ -39,6 +40,10 @@ func (m *customOrderModel) SFInsertTx(ctx context.Context, tx *sql.Tx, o *Order)
 	if err != nil {
 		return 0, errors.Wrap(err, "[SFInsert] insert order failed")
 	}
+
+	threading.GoSafe(func() {
+		_ = m.DelCache(CacheOrderListTotalCount(o.UserId))
+	})
 
 	return o.Id, nil
 }

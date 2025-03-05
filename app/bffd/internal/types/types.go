@@ -140,8 +140,8 @@ type GetOrderItemResponse struct {
 }
 
 type GetOrderRequest struct {
-	Page     int64 `json:"page"`
-	PageSize int64 `json:"page_size"`
+	Page     int64 `form:"page"`
+	PageSize int64 `form:"page_size"`
 }
 
 type GetOrderResponse struct {
@@ -262,15 +262,15 @@ type ProductCartListResponse struct {
 }
 
 type ProductColor struct {
-	Id            string        `json:"id"`
-	ColorName     string        `json:"color_name"`
-	Images        []string      `json:"images"`
-	Detail_Images []string      `json:"detail_images"`
-	Price         int64         `json:"price"`
-	CoverUrl      string        `json:"cover_url"`
-	Unit          string        `json:"unit"`
-	Size          []ProductSize `json:"size"`
-	IsDefault     bool          `json:"is_default"`
+	Id           string        `json:"id"`
+	ColorName    string        `json:"color_name"`
+	Images       []string      `json:"images"`
+	DetailImages []string      `json:"detail_images"`
+	Price        int64         `json:"price"`
+	CoverUrl     string        `json:"cover_url"`
+	Unit         string        `json:"unit"`
+	Size         []ProductSize `json:"size"`
+	IsDefault    bool          `json:"is_default"`
 }
 
 type ProductColorListItem struct {

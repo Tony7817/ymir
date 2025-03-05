@@ -85,7 +85,7 @@ func (l *CreateOrderLogic) CreateOrder(in *order.CreateOrderRequest) (*order.Cre
 
 func (l *CreateOrderLogic) createOrderItems(tx *sql.Tx, oId int64, os []*order.OrderItem) error {
 	return mr.MapReduceVoid(func(source chan<- *order.OrderItem) {
-		for i := 0; i < len(os); i++ {
+		for i := range os {
 			source <- os[i]
 		}
 	},

@@ -46,7 +46,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: order.DeleteOrderHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodPost,
+				Method:  http.MethodGet,
 				Path:    "/order/list",
 				Handler: order.OrderListHandler(serverCtx),
 			},

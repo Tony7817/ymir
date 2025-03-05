@@ -31,13 +31,13 @@ func (l *ProductColorListLogic) ProductColorList(in *product.ProductColorListReq
 	}
 
 	var res = &product.ProductColorListResponse{}
-	for i := 0; i < len(cs); i++ {
+	for i := range cs {
 		res.Colors = append(res.Colors, &product.ProductColor{
 			Id:             cs[i].Id,
 			ProductId:      cs[i].ProductId,
 			Name:           cs[i].Color,
 			Images:         strings.Split(cs[i].Images, ","),
-			DetailImages:   strings.Split(cs[i].Images, ","),
+			DetailImages:   strings.Split(cs[i].DetailImages, ","),
 			Price:          cs[i].Price,
 			CoverUrl:       cs[i].CoverUrl,
 			Unit:           cs[i].Unit,

@@ -39,7 +39,7 @@ func (l *OrderListLogic) OrderList(in *order.GetOrderListRequest) (*order.GetOrd
 			return err
 		}
 
-		for i := 0; i < len(orders); i++ {
+		for i := range orders {
 			res.Order = append(res.Order, &order.OrderContent{
 				OrderId:    orders[i].Id,
 				UserId:     orders[i].UserId,
