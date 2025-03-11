@@ -43,18 +43,21 @@ func (l *GetOrderLogic) GetOrder(in *order.GetOrderRequest) (*order.GetOrderResp
 		return nil
 	}, func() error {
 		var err error
-		res, err := l.svcCtx.OrderItemModel.FindOneByOrderId(l.ctx, in.OrderId)
+		res, err := l.svcCtx.OrderItemModel.FindOrderItemsByOrderIdUserId(l.ctx, in.OrderId, in.UserId)
 		if err != nil {
 			return errors.Wrapf(err, "find order items by orderId: %d failed", in.OrderId)
 		}
 		for i := range res {
 			oiRes = append(oiRes, &order.OrderItem{
-				ProductId:   res[i].ProductId,
-				ColorId:     res[i].ProductColorId,
-				Size:        res[i].Size,
-				Qunantity:   res[i].Quantity,
-				Price:       res[i].Price,
-				OrderItemId: res[i].Id,
+				ProductId:            res[i].ProductId,
+				ColorId:              res[i].ProductColorId,
+				Size:                 res[i].Size,
+				Qunantity:            res[i].Quantity,
+				Price:                res[i].Price,
+				OrderItemId:          res[i].Id,
+				ProductDescription:   res[i].ProductDescription,
+				Color:                res[i].ProductColor,
+				ProductColorCoverUrl: res[i].ProductColorCoverUrl,
 			})
 		}
 		return nil

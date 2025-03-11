@@ -72,10 +72,10 @@ func (l *OrderItemsLogic) OrderItems(req *types.GetOrderItemRequest) (*types.Get
 			cancel(err)
 		}
 		writer.Write(&types.OrderItem{
-			ProductId: id.EncodeId(p.Id),
-			ColorId:   id.EncodeId(pc.Color.Id),
-			Size:      item.Size,
-			Quantity:  item.Qunantity,
+			ProductId:      id.EncodeId(p.Id),
+			ProductColorId: id.EncodeId(pc.Color.Id),
+			Size:           item.Size,
+			Quantity:       item.Qunantity,
 		})
 	}, func(pipe <-chan *types.OrderItem, writer mr.Writer[[]types.OrderItem], cancel func(error)) {
 		var items []types.OrderItem

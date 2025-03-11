@@ -41,6 +41,7 @@ func (l *OrderListLogic) OrderList(in *order.GetOrderListRequest) (*order.GetOrd
 
 		for i := range orders {
 			res.Order = append(res.Order, &order.OrderContent{
+				CreatedAt:  orders[i].CreatedAt.Unix(),
 				OrderId:    orders[i].Id,
 				UserId:     orders[i].UserId,
 				TotalPrice: orders[i].TotalPrice,

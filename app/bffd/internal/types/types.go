@@ -139,14 +139,14 @@ type GetOrderItemResponse struct {
 	Total      int64       `json:"total"`
 }
 
-type GetOrderRequest struct {
+type GetOrderListRequest struct {
 	Page     int64 `form:"page"`
 	PageSize int64 `form:"page_size"`
 }
 
-type GetOrderResponse struct {
-	Orders []Order `json:"orders"`
-	Total  int64   `json:"total"`
+type GetOrderListResponse struct {
+	Orders []OrderListItem `json:"orders"`
+	Total  int64           `json:"total"`
 }
 
 type IncreaseStockRequest struct {
@@ -184,12 +184,23 @@ type OrderAddress struct {
 
 type OrderItem struct {
 	ProductId          string `json:"product_id"`
-	ProductDescription string `json:"product_description,optional"`
-	ProductCoverImg    string `json:"product_cover_img,optional"`
-	ColorId            string `json:"color_id"`
+	ProductDescription string `json:"product_description"`
+	ProductCoverUrl    string `json:"product_cover_url"`
+	ProductColorId     string `json:"product_color_id"`
+	Color              string `json:"color"`
 	Size               string `json:"size"`
 	Quantity           int64  `json:"quantity"`
 	Price              int64  `json:"price,optional"`
+}
+
+type OrderListItem struct {
+	OrderId        string   `json:"order_id"`
+	CreatedAt      int64    `json:"created_at"`
+	CoverUrls      []string `json:"cover_urls"`
+	Status         string   `json:"status"`
+	Price          int64    `json:"price"`
+	Unit           string   `json:"unit"`
+	OrderItemTotal int64    `json:"order_item_total"`
 }
 
 type OssTokenRequest struct {
@@ -241,6 +252,7 @@ type ProductCartListItem struct {
 	ProductId     string `json:"product_id"`
 	StarId        string `json:"star_id"`
 	ColorId       string `json:"color_id"`
+	Color         string `json:"color"`
 	Description   string `json:"description"`
 	Price         int64  `json:"price"`
 	Unit          string `json:"unit"`
@@ -335,10 +347,10 @@ type ProductListItem struct {
 }
 
 type ProductListRequest struct {
-	StarId   *string `json:"star_id,optional"`
-	Keyword  *string `json:"keyword,optional"`
-	Page     int64   `json:"page"`
-	PageSize int64   `json:"page_size"`
+	StarId   *string `form:"star_id,optional"`
+	Keyword  *string `form:"keyword,optional"`
+	Page     int64   `form:"page"`
+	PageSize int64   `form:"page_size"`
 }
 
 type ProductListResponse struct {

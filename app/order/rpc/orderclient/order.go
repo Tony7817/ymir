@@ -14,35 +14,39 @@ import (
 )
 
 type (
-	CapturePaypalOrderRequest  = order.CapturePaypalOrderRequest
-	CapturePaypalOrderResposne = order.CapturePaypalOrderResposne
-	CreateOrderRequest         = order.CreateOrderRequest
-	CreateOrderResponse        = order.CreateOrderResponse
-	CreatePaypalOrderRequest   = order.CreatePaypalOrderRequest
-	CreatePaypalOrderResponse  = order.CreatePaypalOrderResponse
-	DeleteOrderRequest         = order.DeleteOrderRequest
-	DeleteOrderResponse        = order.DeleteOrderResponse
-	GetOrderAddressRequest     = order.GetOrderAddressRequest
-	GetOrderAddressResponse    = order.GetOrderAddressResponse
-	GetOrderListRequest        = order.GetOrderListRequest
-	GetOrderListResponse       = order.GetOrderListResponse
-	GetOrderRequest            = order.GetOrderRequest
-	GetOrderResponse           = order.GetOrderResponse
-	OrderAddress               = order.OrderAddress
-	OrderContent               = order.OrderContent
-	OrderItem                  = order.OrderItem
-	PayOrderRequest            = order.PayOrderRequest
-	PayOrderResponse           = order.PayOrderResponse
-	PayerAddress               = order.PayerAddress
-	PayerName                  = order.PayerName
-	PayerPhone                 = order.PayerPhone
-	PayerTaxInfo               = order.PayerTaxInfo
-	Paypal                     = order.Paypal
-	PaypalOrderResponse        = order.PaypalOrderResponse
-	PaypalOrderReuqest         = order.PaypalOrderReuqest
-	PaypalPayer                = order.PaypalPayer
-	UpdateOrderRequest         = order.UpdateOrderRequest
-	UpdateOrderResponse        = order.UpdateOrderResponse
+	CapturePaypalOrderRequest    = order.CapturePaypalOrderRequest
+	CapturePaypalOrderResposne   = order.CapturePaypalOrderResposne
+	CheckOrderIdempotentRequest  = order.CheckOrderIdempotentRequest
+	CheckOrderIdempotentResponse = order.CheckOrderIdempotentResponse
+	CreateOrderRequest           = order.CreateOrderRequest
+	CreateOrderResponse          = order.CreateOrderResponse
+	CreatePaypalOrderRequest     = order.CreatePaypalOrderRequest
+	CreatePaypalOrderResponse    = order.CreatePaypalOrderResponse
+	DeleteOrderRequest           = order.DeleteOrderRequest
+	DeleteOrderResponse          = order.DeleteOrderResponse
+	GetOrderAddressRequest       = order.GetOrderAddressRequest
+	GetOrderAddressResponse      = order.GetOrderAddressResponse
+	GetOrderItemRequest          = order.GetOrderItemRequest
+	GetOrderItemResponse         = order.GetOrderItemResponse
+	GetOrderListRequest          = order.GetOrderListRequest
+	GetOrderListResponse         = order.GetOrderListResponse
+	GetOrderRequest              = order.GetOrderRequest
+	GetOrderResponse             = order.GetOrderResponse
+	OrderAddress                 = order.OrderAddress
+	OrderContent                 = order.OrderContent
+	OrderItem                    = order.OrderItem
+	PayOrderRequest              = order.PayOrderRequest
+	PayOrderResponse             = order.PayOrderResponse
+	PayerAddress                 = order.PayerAddress
+	PayerName                    = order.PayerName
+	PayerPhone                   = order.PayerPhone
+	PayerTaxInfo                 = order.PayerTaxInfo
+	Paypal                       = order.Paypal
+	PaypalOrderResponse          = order.PaypalOrderResponse
+	PaypalOrderReuqest           = order.PaypalOrderReuqest
+	PaypalPayer                  = order.PaypalPayer
+	UpdateOrderRequest           = order.UpdateOrderRequest
+	UpdateOrderResponse          = order.UpdateOrderResponse
 
 	Order interface {
 		CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
@@ -57,6 +61,8 @@ type (
 		CreatePaypalOrder(ctx context.Context, in *CreatePaypalOrderRequest, opts ...grpc.CallOption) (*CreatePaypalOrderResponse, error)
 		CaptureOrder(ctx context.Context, in *CapturePaypalOrderRequest, opts ...grpc.CallOption) (*CapturePaypalOrderResposne, error)
 		OrderAddress(ctx context.Context, in *GetOrderAddressRequest, opts ...grpc.CallOption) (*GetOrderAddressResponse, error)
+		GetOrderItem(ctx context.Context, in *GetOrderItemRequest, opts ...grpc.CallOption) (*GetOrderItemResponse, error)
+		CheckOrderIdempotent(ctx context.Context, in *CheckOrderIdempotentRequest, opts ...grpc.CallOption) (*CheckOrderIdempotentResponse, error)
 	}
 
 	defaultOrder struct {
@@ -128,4 +134,14 @@ func (m *defaultOrder) CaptureOrder(ctx context.Context, in *CapturePaypalOrderR
 func (m *defaultOrder) OrderAddress(ctx context.Context, in *GetOrderAddressRequest, opts ...grpc.CallOption) (*GetOrderAddressResponse, error) {
 	client := order.NewOrderClient(m.cli.Conn())
 	return client.OrderAddress(ctx, in, opts...)
+}
+
+func (m *defaultOrder) GetOrderItem(ctx context.Context, in *GetOrderItemRequest, opts ...grpc.CallOption) (*GetOrderItemResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.GetOrderItem(ctx, in, opts...)
+}
+
+func (m *defaultOrder) CheckOrderIdempotent(ctx context.Context, in *CheckOrderIdempotentRequest, opts ...grpc.CallOption) (*CheckOrderIdempotentResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.CheckOrderIdempotent(ctx, in, opts...)
 }

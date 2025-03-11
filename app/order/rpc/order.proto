@@ -10,15 +10,19 @@ message OrderContent {
     string Status = 4;
     string Unit  = 5;
     string RequestId = 6;
+    int64 CreatedAt = 7;
 }
 
 message OrderItem {
     int64 ProductId = 1;
-    int64 ColorId = 2;
-    string Size = 3;
-    int64 Qunantity = 4;   
-    int64 Price = 5;
-    int64 OrderItemId = 6;
+    string ProductDescription = 2;
+    int64 ColorId = 3;
+    string Color = 4;
+    string ProductColorCoverUrl = 5;
+    string Size = 6;
+    int64 Qunantity = 7;   
+    int64 Price = 8;
+    int64 OrderItemId = 9;
 }
 
 message OrderAddress {
@@ -174,6 +178,24 @@ message DeleteOrderResponse {
     int64 OrderId = 1;
 }
 
+message GetOrderItemRequest {
+    int64 OrderId = 1;
+    int64 UserId = 2;
+}
+
+message CheckOrderIdempotentRequest {
+    string RequestId = 1;
+}
+
+message CheckOrderIdempotentResponse {
+    bool IsIdempotent = 1;
+}
+
+message GetOrderItemResponse {
+    repeated OrderItem OrderItems = 1;
+    int64 TotalItems = 2;
+}
+
 service order {
     rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
     rpc CreateOrderRollback(CreateOrderRequest) returns (CreateOrderResponse);
@@ -187,4 +209,6 @@ service order {
     rpc CreatePaypalOrder(CreatePaypalOrderRequest) returns (CreatePaypalOrderResponse);
     rpc CaptureOrder(CapturePaypalOrderRequest) returns (CapturePaypalOrderResposne);
     rpc OrderAddress(GetOrderAddressRequest) returns (GetOrderAddressResponse);
+    rpc GetOrderItem(GetOrderItemRequest) returns (GetOrderItemResponse);
+    rpc CheckOrderIdempotent(CheckOrderIdempotentRequest) returns (CheckOrderIdempotentResponse);
 }

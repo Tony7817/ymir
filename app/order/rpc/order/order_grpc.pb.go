@@ -19,18 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Order_CreateOrder_FullMethodName         = "/order.order/CreateOrder"
-	Order_CreateOrderRollback_FullMethodName = "/order.order/CreateOrderRollback"
-	Order_DeleteOrder_FullMethodName         = "/order.order/DeleteOrder"
-	Order_DeleteOrderRollback_FullMethodName = "/order.order/DeleteOrderRollback"
-	Order_GetOrder_FullMethodName            = "/order.order/GetOrder"
-	Order_UpdateOrder_FullMethodName         = "/order.order/UpdateOrder"
-	Order_PayOrder_FullMethodName            = "/order.order/PayOrder"
-	Order_OrderList_FullMethodName           = "/order.order/OrderList"
-	Order_PaypalOrder_FullMethodName         = "/order.order/PaypalOrder"
-	Order_CreatePaypalOrder_FullMethodName   = "/order.order/CreatePaypalOrder"
-	Order_CaptureOrder_FullMethodName        = "/order.order/CaptureOrder"
-	Order_OrderAddress_FullMethodName        = "/order.order/OrderAddress"
+	Order_CreateOrder_FullMethodName          = "/order.order/CreateOrder"
+	Order_CreateOrderRollback_FullMethodName  = "/order.order/CreateOrderRollback"
+	Order_DeleteOrder_FullMethodName          = "/order.order/DeleteOrder"
+	Order_DeleteOrderRollback_FullMethodName  = "/order.order/DeleteOrderRollback"
+	Order_GetOrder_FullMethodName             = "/order.order/GetOrder"
+	Order_UpdateOrder_FullMethodName          = "/order.order/UpdateOrder"
+	Order_PayOrder_FullMethodName             = "/order.order/PayOrder"
+	Order_OrderList_FullMethodName            = "/order.order/OrderList"
+	Order_PaypalOrder_FullMethodName          = "/order.order/PaypalOrder"
+	Order_CreatePaypalOrder_FullMethodName    = "/order.order/CreatePaypalOrder"
+	Order_CaptureOrder_FullMethodName         = "/order.order/CaptureOrder"
+	Order_OrderAddress_FullMethodName         = "/order.order/OrderAddress"
+	Order_GetOrderItem_FullMethodName         = "/order.order/GetOrderItem"
+	Order_CheckOrderIdempotent_FullMethodName = "/order.order/CheckOrderIdempotent"
 )
 
 // OrderClient is the client API for Order service.
@@ -49,6 +51,8 @@ type OrderClient interface {
 	CreatePaypalOrder(ctx context.Context, in *CreatePaypalOrderRequest, opts ...grpc.CallOption) (*CreatePaypalOrderResponse, error)
 	CaptureOrder(ctx context.Context, in *CapturePaypalOrderRequest, opts ...grpc.CallOption) (*CapturePaypalOrderResposne, error)
 	OrderAddress(ctx context.Context, in *GetOrderAddressRequest, opts ...grpc.CallOption) (*GetOrderAddressResponse, error)
+	GetOrderItem(ctx context.Context, in *GetOrderItemRequest, opts ...grpc.CallOption) (*GetOrderItemResponse, error)
+	CheckOrderIdempotent(ctx context.Context, in *CheckOrderIdempotentRequest, opts ...grpc.CallOption) (*CheckOrderIdempotentResponse, error)
 }
 
 type orderClient struct {
@@ -179,6 +183,26 @@ func (c *orderClient) OrderAddress(ctx context.Context, in *GetOrderAddressReque
 	return out, nil
 }
 
+func (c *orderClient) GetOrderItem(ctx context.Context, in *GetOrderItemRequest, opts ...grpc.CallOption) (*GetOrderItemResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetOrderItemResponse)
+	err := c.cc.Invoke(ctx, Order_GetOrderItem_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) CheckOrderIdempotent(ctx context.Context, in *CheckOrderIdempotentRequest, opts ...grpc.CallOption) (*CheckOrderIdempotentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckOrderIdempotentResponse)
+	err := c.cc.Invoke(ctx, Order_CheckOrderIdempotent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServer is the server API for Order service.
 // All implementations must embed UnimplementedOrderServer
 // for forward compatibility.
@@ -195,6 +219,8 @@ type OrderServer interface {
 	CreatePaypalOrder(context.Context, *CreatePaypalOrderRequest) (*CreatePaypalOrderResponse, error)
 	CaptureOrder(context.Context, *CapturePaypalOrderRequest) (*CapturePaypalOrderResposne, error)
 	OrderAddress(context.Context, *GetOrderAddressRequest) (*GetOrderAddressResponse, error)
+	GetOrderItem(context.Context, *GetOrderItemRequest) (*GetOrderItemResponse, error)
+	CheckOrderIdempotent(context.Context, *CheckOrderIdempotentRequest) (*CheckOrderIdempotentResponse, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -240,6 +266,12 @@ func (UnimplementedOrderServer) CaptureOrder(context.Context, *CapturePaypalOrde
 }
 func (UnimplementedOrderServer) OrderAddress(context.Context, *GetOrderAddressRequest) (*GetOrderAddressResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OrderAddress not implemented")
+}
+func (UnimplementedOrderServer) GetOrderItem(context.Context, *GetOrderItemRequest) (*GetOrderItemResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrderItem not implemented")
+}
+func (UnimplementedOrderServer) CheckOrderIdempotent(context.Context, *CheckOrderIdempotentRequest) (*CheckOrderIdempotentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckOrderIdempotent not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
 func (UnimplementedOrderServer) testEmbeddedByValue()               {}
@@ -478,6 +510,42 @@ func _Order_OrderAddress_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_GetOrderItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrderItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).GetOrderItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_GetOrderItem_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).GetOrderItem(ctx, req.(*GetOrderItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_CheckOrderIdempotent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckOrderIdempotentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).CheckOrderIdempotent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_CheckOrderIdempotent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).CheckOrderIdempotent(ctx, req.(*CheckOrderIdempotentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Order_ServiceDesc is the grpc.ServiceDesc for Order service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -532,6 +600,14 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OrderAddress",
 			Handler:    _Order_OrderAddress_Handler,
+		},
+		{
+			MethodName: "GetOrderItem",
+			Handler:    _Order_GetOrderItem_Handler,
+		},
+		{
+			MethodName: "CheckOrderIdempotent",
+			Handler:    _Order_CheckOrderIdempotent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

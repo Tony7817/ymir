@@ -50,7 +50,7 @@ func (m *customOrderModel) SFInsertTx(ctx context.Context, tx *sql.Tx, o *Order)
 
 func (m *customOrderModel) FindOrderList(ctx context.Context, userId int64, offset, limit int64) ([]*Order, error) {
 	var list []*Order
-	err := m.QueryRowsNoCacheCtx(ctx, &list, "select * from `order` where user_id = ? limit ?,?", userId, offset, limit)
+	err := m.QueryRowsNoCacheCtx(ctx, &list, "select * from `order` where user_id = ? order by created_at desc limit ?,?", userId, offset, limit)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}

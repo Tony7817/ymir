@@ -36,7 +36,7 @@ func (l *ProductListLogic) ProductList(req *types.ProductListRequest) (*types.Pr
 	}
 
 	var ps []types.ProductListItem
-	for i := 0; i < len(respb.Products); i++ {
+	for i := range respb.Products {
 		ps = append(ps, types.ProductListItem{
 			Id:          id.EncodeId(respb.Products[i].Id),
 			Description: respb.Products[i].Description,

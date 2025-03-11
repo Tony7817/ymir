@@ -2,8 +2,6 @@ package order
 
 import (
 	"context"
-	"strconv"
-	"time"
 
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
@@ -51,11 +49,11 @@ func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderRequest) (*types.Cr
 		return nil, errors.Wrap(err, "[CreateOrder] get product target path failed")
 	}
 
-	isOrderCreated, err := l.checkOrderIdempotent(req.RequestId)
+	isOrderIdempotent, err := l.checkOrderIdempotent(req.RequestId)
 	if err != nil {
 		return nil, err
 	}
-	if isOrderCreated {
+	if !isOrderIdempotent {
 		return nil, xerr.NewErrCode(xerr.ErrorIdempotence)
 	}
 
@@ -63,22 +61,26 @@ func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderRequest) (*types.Cr
 	var oitems = make([]*order.OrderItem, len(req.Orders))
 	var psitems = make([]*product.ProductStockItem, len(req.Orders))
 	var pcitems = make([]*product.ProductCartItem, len(req.Orders))
-	for i := 0; i < len(req.Orders); i++ {
+	for i := range req.Orders {
 		pId, err := id.DecodeId(req.Orders[i].ProductId)
 		if err != nil {
 			return nil, errors.Wrap(err, "[CreateOrder] deocde pid failed")
 		}
-		cId, err := id.DecodeId(req.Orders[i].ColorId)
+		cId, err := id.DecodeId(req.Orders[i].ProductColorId)
 		if err != nil {
 			return nil, errors.Wrap(err, "[CreateOrder] decode cid failed")
 		}
 		oiId := id.SF.GenerateID()
 		oitems[i] = &order.OrderItem{
-			ProductId:   pId,
-			ColorId:     cId,
-			Size:        req.Orders[i].Size,
-			Qunantity:   req.Orders[i].Quantity,
-			OrderItemId: oiId,
+			ProductId:            pId,
+			ColorId:              cId,
+			Size:                 req.Orders[i].Size,
+			Qunantity:            req.Orders[i].Quantity,
+			OrderItemId:          oiId,
+			ProductDescription:   req.Orders[i].ProductDescription,
+			Color:                req.Orders[i].Color,
+			ProductColorCoverUrl: req.Orders[i].ProductCoverUrl,
+			Price:                0,
 		}
 		psitems[i] = &product.ProductStockItem{
 			ProductId: pId,
@@ -122,8 +124,11 @@ func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderRequest) (*types.Cr
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.ErrorCreateOrder), "[CreateOrder] dtm trans failed, err: %+v", err)
 	}
 
+	// cache request id
 	threading.GoSafe(func() {
-		_ = l.svcCtx.Redis.Setex(vars.CacheCreateOrderRequestIdKey(req.RequestId), strconv.FormatInt(oId, 10), int(time.Hour)*24)
+		_, _ = l.svcCtx.OrderRPC.CheckOrderIdempotent(l.ctx, &order.CheckOrderIdempotentRequest{
+			RequestId: req.RequestId,
+		})
 	})
 
 	return &types.CreateOrderResponse{
@@ -162,14 +167,12 @@ func (l *CreateOrderLogic) checkOrderPrice(orders []*order.OrderItem) ([]*order.
 }
 
 func (l *CreateOrderLogic) checkOrderIdempotent(requestId string) (bool, error) {
-	oIdStr, err := l.svcCtx.Redis.GetCtx(l.ctx, vars.CacheCreateOrderRequestIdKey(requestId))
+	o, err := l.svcCtx.OrderRPC.CheckOrderIdempotent(l.ctx, &order.CheckOrderIdempotentRequest{
+		RequestId: requestId,
+	})
 	if err != nil {
-		return false, errors.Wrap(err, "[CreateOrder] get order id failed")
+		return false, err
 	}
 
-	if oIdStr != "" {
-		return true, nil
-	}
-
-	return false, nil
+	return o.IsIdempotent, nil
 }

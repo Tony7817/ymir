@@ -80,7 +80,7 @@ func (l *ProductsInCartListLogic) productsInCarts(pcarts []*model.ProductCart) (
 		item  *product.ProductsInCartListItem
 	}
 	var productCartsWithIndex = make([]*indexedProductCart, len(pcarts))
-	for i := 0; i < len(pcarts); i++ {
+	for i := range pcarts {
 		productCartsWithIndex[i] = &indexedProductCart{
 			index: i,
 			item:  pcarts[i],
@@ -127,6 +127,8 @@ func (l *ProductsInCartListLogic) productsInCarts(pcarts []*model.ProductCart) (
 				Unit:          c.Unit,
 				CoverUrl:      c.CoverUrl,
 				Stock:         s.InStock,
+				Color:         c.Color,
+				TotalPrice:    c.Price * pcart.item.Amount,
 			},
 		})
 	}, func(pipe <-chan *indexedProductCartItem, writer mr.Writer[[]*product.ProductsInCartListItem], cancel func(error)) {
@@ -139,7 +141,7 @@ func (l *ProductsInCartListLogic) productsInCarts(pcarts []*model.ProductCart) (
 		})
 
 		res := make([]*product.ProductsInCartListItem, len(productsItemWithIndex))
-		for i := 0; i < len(productsItemWithIndex); i++ {
+		for i := range productsItemWithIndex {
 			res[i] = productsItemWithIndex[i].item
 		}
 		writer.Write(res)

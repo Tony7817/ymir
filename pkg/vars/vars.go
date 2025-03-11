@@ -156,6 +156,3 @@ func CacheProductInCartKey(userId int64) string {
 // PAYPAL
 
 // Order
-func CacheCreateOrderRequestIdKey(requestId string) string {
-	return "cache:order:request:id:" + requestId
-}

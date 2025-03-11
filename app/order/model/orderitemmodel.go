@@ -18,6 +18,8 @@ type (
 	OrderItemModel interface {
 		orderItemModel
 		FindOneByOrderId(ctx context.Context, id int64) ([]OrderItem, error)
+		FindOrderItemsByOrderIdUserId(ctx context.Context, orderId int64, userId int64) ([]OrderItem, error)
+		CountOrderItemsByOrderIdUserId(ctx context.Context, orderId int64, userId int64) (int64, error)
 		SFInsertTx(ctx context.Context, tx *sql.Tx, oitem *OrderItem) (int64, error)
 		DeleteTx(ctx context.Context, tx *sql.Tx, oId int64) error
 	}
@@ -35,8 +37,8 @@ func NewOrderItemModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Optio
 }
 
 func (m *customOrderItemModel) SFInsertTx(ctx context.Context, tx *sql.Tx, oitem *OrderItem) (int64, error) {
-	_, err := tx.ExecContext(ctx, "insert into order_item (id, order_id, product_id, product_color_id, size, quantity, price, subtotal) values (?,?,?,?,?,?,?,?)",
-		oitem.Id, oitem.OrderId, oitem.ProductId, oitem.ProductColorId, oitem.Size, oitem.Quantity, oitem.Price, oitem.Subtotal)
+	_, err := tx.ExecContext(ctx, "insert into order_item (id, user_id, order_id, product_id, product_description, product_color_id, product_color, product_color_cover_url, size, quantity, price, subtotal) values (?,?,?,?,?,?,?,?,?,?,?,?)",
+		oitem.Id, oitem.UserId, oitem.OrderId, oitem.ProductId, oitem.ProductDescription, oitem.ProductColorId, oitem.ProductColor, oitem.ProductColorCoverUrl, oitem.Size, oitem.Quantity, oitem.Price, oitem.Subtotal)
 	if err != nil {
 		return 0, errors.Wrap(err, "[SFInsert] insert order item fail")
 	}
@@ -45,7 +47,7 @@ func (m *customOrderItemModel) SFInsertTx(ctx context.Context, tx *sql.Tx, oitem
 
 func (m *customOrderItemModel) FindOneByOrderId(ctx context.Context, orderId int64) ([]OrderItem, error) {
 	var o []OrderItem
-	_ = m.CachedConn.GetCacheCtx(ctx, CacheOrderItems(orderId), &o)
+	_ = m.CachedConn.GetCacheCtx(ctx, CacheOrderItemsByOrderId(orderId), &o)
 	if len(o) > 0 {
 		return o, nil
 	}
@@ -56,7 +58,7 @@ func (m *customOrderItemModel) FindOneByOrderId(ctx context.Context, orderId int
 	}
 
 	threading.GoSafe(func() {
-		_ = m.CachedConn.SetCache(CacheOrderItems(orderId), o)
+		_ = m.CachedConn.SetCache(CacheOrderItemsByOrderId(orderId), o)
 	})
 
 	return o, nil
@@ -69,4 +71,36 @@ func (m *customOrderItemModel) DeleteTx(ctx context.Context, tx *sql.Tx, oId int
 	}
 
 	return nil
+}
+
+func (m *customOrderItemModel) FindOrderItemsByOrderIdUserId(ctx context.Context, orderId int64, userId int64) ([]OrderItem, error) {
+	var o []OrderItem
+
+	_ = m.CachedConn.GetCacheCtx(ctx, CacheOrderItemByOrderIdUserId(orderId, userId), &o)
+	if len(o) > 0 {
+		return o, nil
+	}
+
+	err := m.QueryRowsNoCacheCtx(ctx, &o, "select * from order_item where order_id = ? and user_id = ?", orderId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	threading.GoSafe(func() {
+		_ = m.CachedConn.SetCache(CacheOrderItemByOrderIdUserId(orderId, userId), o)
+	})
+
+	return o, nil
+}
+
+func (m *customOrderItemModel) CountOrderItemsByOrderIdUserId(ctx context.Context, orderId int64, userId int64) (int64, error) {
+	var count int64
+	err := m.QueryRowCtx(ctx, &count, CacheCountOrderItemByOrderIdUserId(orderId, userId), func(ctx context.Context, conn sqlx.SqlConn, v any) error {
+		return conn.QueryRowCtx(ctx, &count, "select count(*) from order_item where order_id = ? and user_id = ?", orderId, userId)
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }

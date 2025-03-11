@@ -62,7 +62,7 @@ func (l *CreateOrderLogic) CreateOrder(in *order.CreateOrderRequest) (*order.Cre
 			}
 			return nil
 		}, func() error {
-			err := l.createOrderItems(tx, in.OrderId, in.Items)
+			err := l.createOrderItems(tx, in.OrderId, in.UserId, in.Items)
 			if err != nil {
 				l.Logger.Errorf("[CreateOrder] createOrderItems error: %+v", err)
 				return err
@@ -83,7 +83,7 @@ func (l *CreateOrderLogic) CreateOrder(in *order.CreateOrderRequest) (*order.Cre
 	}, nil
 }
 
-func (l *CreateOrderLogic) createOrderItems(tx *sql.Tx, oId int64, os []*order.OrderItem) error {
+func (l *CreateOrderLogic) createOrderItems(tx *sql.Tx, oId int64, userId int64, os []*order.OrderItem) error {
 	return mr.MapReduceVoid(func(source chan<- *order.OrderItem) {
 		for i := range os {
 			source <- os[i]
@@ -91,14 +91,18 @@ func (l *CreateOrderLogic) createOrderItems(tx *sql.Tx, oId int64, os []*order.O
 	},
 		func(o *order.OrderItem, writer mr.Writer[any], cancel func(error)) {
 			_, err := l.svcCtx.OrderItemModel.SFInsertTx(l.ctx, tx, &model.OrderItem{
-				Id:             o.OrderItemId,
-				OrderId:        oId,
-				ProductId:      o.ProductId,
-				ProductColorId: o.ColorId,
-				Size:           o.Size,
-				Quantity:       o.Qunantity,
-				Price:          o.Price,
-				Subtotal:       o.Qunantity * o.Price,
+				Id:                   o.OrderItemId,
+				OrderId:              oId,
+				ProductId:            o.ProductId,
+				ProductColorId:       o.ColorId,
+				Size:                 o.Size,
+				Quantity:             o.Qunantity,
+				Price:                o.Price,
+				Subtotal:             o.Qunantity * o.Price,
+				UserId:               userId,
+				ProductDescription:   o.ProductDescription,
+				ProductColor:         o.Color,
+				ProductColorCoverUrl: o.ProductColorCoverUrl,
 			})
 			if err != nil {
 				l.Logger.Errorf("[CreateOrder] OrderItemModel.SFInsertTx error: %+v", err)

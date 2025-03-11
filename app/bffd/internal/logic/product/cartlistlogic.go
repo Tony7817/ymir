@@ -47,7 +47,7 @@ func (l *CartListLogic) CartList(req *types.ProductCartListRequest) (resp *types
 	var (
 		products = make([]types.ProductCartListItem, 0)
 	)
-	for i := 0; i < len(respb.Products); i++ {
+	for i := range respb.Products {
 		products = append(products, types.ProductCartListItem{
 			ProductCartId: id.EncodeId(respb.Products[i].ProductCartId),
 			ProductId:     id.EncodeId(respb.Products[i].ProductId),
@@ -61,6 +61,7 @@ func (l *CartListLogic) CartList(req *types.ProductCartListRequest) (resp *types
 			Size:          respb.Products[i].Sizes,
 			TotalPrice:    respb.Products[i].Amount * respb.Products[i].Price,
 			Stock:         respb.Products[i].Stock,
+			Color:         respb.Products[i].Color,
 		})
 	}
 

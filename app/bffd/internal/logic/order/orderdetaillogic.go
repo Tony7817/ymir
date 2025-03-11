@@ -6,12 +6,10 @@ import (
 	"ymir.com/app/bffd/internal/svc"
 	"ymir.com/app/bffd/internal/types"
 	"ymir.com/app/order/rpc/order"
-	"ymir.com/app/product/rpc/product"
 	"ymir.com/pkg/id"
 	"ymir.com/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/mr"
 )
 
 type OrderDetailLogic struct {
@@ -51,56 +49,18 @@ func (l *OrderDetailLogic) OrderDetail(req *types.GetOrderDetailRequest) (resp *
 		return nil, xerr.NewErrCode(xerr.DataNoExistError)
 	}
 
-	oItems, err := mr.MapReduce(func(source chan<- *order.OrderItem) {
-		for i := range o.OrderItems {
-			source <- o.OrderItems[i]
-		}
-	}, func(item *order.OrderItem, writer mr.Writer[*types.OrderItem], cancel func(error)) {
-		var p *product.ProductDetailResponse
-		var c *product.ProductColorResponse
-		err := mr.Finish(func() error {
-			var err error
-			p, err = l.svcCtx.ProductRPC.ProductDetail(l.ctx, &product.ProductDetailReqeust{
-				Id: item.ProductId,
-			})
-			if err != nil {
-				return err
-			}
-			return nil
-		}, func() error {
-			var err error
-			c, err = l.svcCtx.ProductRPC.ProductColor(l.ctx, &product.ProductColorRequest{
-				ColorId: item.ColorId,
-			})
-			if err != nil {
-				return err
-			}
-			return nil
+	var oItems []types.OrderItem
+	for i := range o.OrderItems {
+		oItems = append(oItems, types.OrderItem{
+			ProductId:          id.EncodeId(o.OrderItems[i].ProductId),
+			ProductDescription: o.OrderItems[i].ProductDescription,
+			ProductCoverUrl:    o.OrderItems[i].ProductColorCoverUrl,
+			ProductColorId:     id.EncodeId(o.OrderItems[i].ColorId),
+			Color:              o.OrderItems[i].Color,
+			Size:               o.OrderItems[i].Size,
+			Quantity:           o.OrderItems[i].Qunantity,
+			Price:              o.OrderItems[i].Price,
 		})
-		if err != nil {
-			cancel(err)
-			return
-		}
-
-		oItem := &types.OrderItem{
-			ProductId:          id.EncodeId(p.Id),
-			ProductDescription: p.Description,
-			ProductCoverImg:    c.Color.CoverUrl,
-			ColorId:            id.EncodeId(c.Color.Id),
-			Size:               item.Size,
-			Quantity:           item.Qunantity,
-			Price:              c.Color.Price,
-		}
-		writer.Write(oItem)
-	}, func(pipe <-chan *types.OrderItem, writer mr.Writer[[]types.OrderItem], cancel func(error)) {
-		var items []types.OrderItem
-		for item := range pipe {
-			items = append(items, *item)
-		}
-		writer.Write(items)
-	})
-	if err != nil {
-		return nil, err
 	}
 
 	var res = types.GetOrderDetailResponse{

@@ -33,7 +33,7 @@ func init() {
 	message[ErrorPayOrder] = "pay order failed, please try again"
 	message[ErrorInvalidOrderStatus] = "invalid order"
 	message[ErrorDeleteOrder] = "delete order failed, please try again"
-	message[ErrorIdempotence] = "please don't submit the order repeatedly"
+	message[ErrorIdempotence] = "order has been created"
 	message[ErrorStockNotEnough] = "stock is not enough"
 	message[ErrorFetchResource] = "fetch resource failed"
 	message[ErrorOrderCreated] = "order has been created"

@@ -44,7 +44,7 @@ func (l *ProductListLogic) ProductList(req *types.ProductListRequest) (*types.Pr
 	}
 
 	var pis = make([]types.ProductListItem, len(respb.Products))
-	for i := 0; i < len(respb.Products); i++ {
+	for i := range respb.Products {
 		pis[i] = types.ProductListItem{
 			Id: id.EncodeId(respb.Products[i].Id),
 			Description: respb.Products[i].Description,

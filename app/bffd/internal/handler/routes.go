@@ -83,7 +83,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: product.ProductCommentListHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodPost,
+				Method:  http.MethodGet,
 				Path:    "/product/list",
 				Handler: product.ProductListHandler(serverCtx),
 			},

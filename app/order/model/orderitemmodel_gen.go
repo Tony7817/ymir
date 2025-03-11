@@ -41,16 +41,20 @@ type (
 	}
 
 	OrderItem struct {
-		Id             int64     `db:"id"`
-		OrderId        int64     `db:"order_id"`
-		CreatedAt      time.Time `db:"created_at"`
-		UpdatedAt      time.Time `db:"updated_at"`
-		ProductId      int64     `db:"product_id"`
-		ProductColorId int64     `db:"product_color_id"`
-		Size           string    `db:"size"`
-		Quantity       int64     `db:"quantity"`
-		Price          int64     `db:"price"`
-		Subtotal       int64     `db:"subtotal"`
+		Id                   int64     `db:"id"`
+		UserId               int64     `db:"user_id"`
+		OrderId              int64     `db:"order_id"`
+		CreatedAt            time.Time `db:"created_at"`
+		UpdatedAt            time.Time `db:"updated_at"`
+		ProductId            int64     `db:"product_id"`
+		ProductDescription   string    `db:"product_description"`
+		ProductColorId       int64     `db:"product_color_id"`
+		ProductColor         string    `db:"product_color"`
+		ProductColorCoverUrl string    `db:"product_color_cover_url"`
+		Size                 string    `db:"size"`
+		Quantity             int64     `db:"quantity"`
+		Price                int64     `db:"price"`
+		Subtotal             int64     `db:"subtotal"`
 	}
 )
 
@@ -90,8 +94,8 @@ func (m *defaultOrderItemModel) FindOne(ctx context.Context, id int64) (*OrderIt
 func (m *defaultOrderItemModel) Insert(ctx context.Context, data *OrderItem) (sql.Result, error) {
 	ymirOrderItemIdKey := fmt.Sprintf("%s%v", cacheYmirOrderItemIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, orderItemRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Id, data.OrderId, data.ProductId, data.ProductColorId, data.Size, data.Quantity, data.Price, data.Subtotal)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, orderItemRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.UserId, data.OrderId, data.ProductId, data.ProductDescription, data.ProductColorId, data.ProductColor, data.ProductColorCoverUrl, data.Size, data.Quantity, data.Price, data.Subtotal)
 	}, ymirOrderItemIdKey)
 	return ret, err
 }
@@ -100,7 +104,7 @@ func (m *defaultOrderItemModel) Update(ctx context.Context, data *OrderItem) err
 	ymirOrderItemIdKey := fmt.Sprintf("%s%v", cacheYmirOrderItemIdPrefix, data.Id)
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, orderItemRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.OrderId, data.ProductId, data.ProductColorId, data.Size, data.Quantity, data.Price, data.Subtotal, data.Id)
+		return conn.ExecCtx(ctx, query, data.UserId, data.OrderId, data.ProductId, data.ProductDescription, data.ProductColorId, data.ProductColor, data.ProductColorCoverUrl, data.Size, data.Quantity, data.Price, data.Subtotal, data.Id)
 	}, ymirOrderItemIdKey)
 	return err
 }

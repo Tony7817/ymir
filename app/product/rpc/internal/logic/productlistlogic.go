@@ -82,7 +82,7 @@ func (l *ProductListLogic) colorOfProducts(ps []*model.Product) ([]*product.Prod
 	}
 	var productsWithIndex = make([]*indexedProduct, len(ps))
 
-	for i := 0; i < len(ps); i++ {
+	for i := range ps {
 		productsWithIndex[i] = &indexedProduct{
 			index:   i,
 			product: ps[i],

@@ -82,3 +82,13 @@ func (s *OrderServer) OrderAddress(ctx context.Context, in *order.GetOrderAddres
 	l := logic.NewOrderAddressLogic(ctx, s.svcCtx)
 	return l.OrderAddress(in)
 }
+
+func (s *OrderServer) GetOrderItem(ctx context.Context, in *order.GetOrderItemRequest) (*order.GetOrderItemResponse, error) {
+	l := logic.NewGetOrderItemLogic(ctx, s.svcCtx)
+	return l.GetOrderItem(in)
+}
+
+func (s *OrderServer) CheckOrderIdempotent(ctx context.Context, in *order.CheckOrderIdempotentRequest) (*order.CheckOrderIdempotentResponse, error) {
+	l := logic.NewCheckOrderIdempotentLogic(ctx, s.svcCtx)
+	return l.CheckOrderIdempotent(in)
+}

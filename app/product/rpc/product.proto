@@ -132,14 +132,15 @@ message ProductsInCartListItem {
   int64 ProductId = 2;
   int64 StarId = 3;
   int64 ColorId = 4;
-  int64 Amount = 5;
-  string Sizes = 6;
-  string Description = 7;
-  int64 Price = 8;
-  int64 TotalPrice = 9;
-  string Unit = 10;
-  string CoverUrl = 11;
-  int64 Stock = 12;
+  string Color = 5;
+  int64 Amount = 6;
+  string Sizes = 7;
+  string Description = 8;
+  int64 Price = 9;
+  int64 TotalPrice = 10;
+  string Unit = 11;
+  string CoverUrl = 12;
+  int64 Stock = 13;
 }
 
 message ProducrtsInCartListResponse {
