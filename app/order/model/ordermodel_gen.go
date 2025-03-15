@@ -25,6 +25,7 @@ var (
 	orderRowsWithPlaceHolder = strings.Join(stringx.Remove(orderFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
 	cacheYmirOrderIdPrefix        = "cache:ymir:order:id:"
+	cacheYmirOrderIdUserIdPrefix  = "cache:ymir:order:id:userId:"
 	cacheYmirOrderRequestIdPrefix = "cache:ymir:order:requestId:"
 )
 
@@ -32,6 +33,7 @@ type (
 	orderModel interface {
 		Insert(ctx context.Context, data *Order) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*Order, error)
+		FindOneByIdUserId(ctx context.Context, id int64, userId int64) (*Order, error)
 		FindOneByRequestId(ctx context.Context, requestId string) (*Order, error)
 		Update(ctx context.Context, data *Order) error
 		Delete(ctx context.Context, id int64) error
@@ -43,15 +45,16 @@ type (
 	}
 
 	Order struct {
-		Id           int64          `db:"id"`
-		UserId       int64          `db:"user_id"`
-		CreatedAt    time.Time      `db:"created_at"`
-		UpdatedAt    time.Time      `db:"updated_at"`
-		RequestId    string         `db:"request_id"`
-		Status       string         `db:"status"`
-		TotalPrice   int64          `db:"total_price"`
-		Unit         string         `db:"unit"`
-		CancelReason sql.NullString `db:"cancel_reason"`
+		Id            int64          `db:"id"`
+		UserId        int64          `db:"user_id"`
+		CreatedAt     time.Time      `db:"created_at"`
+		UpdatedAt     time.Time      `db:"updated_at"`
+		RequestId     string         `db:"request_id"`
+		Status        string         `db:"status"`
+		TotalPrice    int64          `db:"total_price"`
+		Unit          string         `db:"unit"`
+		PaypalOrderId sql.NullString `db:"paypal_order_id"`
+		CancelReason  sql.NullString `db:"cancel_reason"`
 	}
 )
 
@@ -69,11 +72,12 @@ func (m *defaultOrderModel) Delete(ctx context.Context, id int64) error {
 	}
 
 	ymirOrderIdKey := fmt.Sprintf("%s%v", cacheYmirOrderIdPrefix, id)
+	ymirOrderIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheYmirOrderIdUserIdPrefix, data.Id, data.UserId)
 	ymirOrderRequestIdKey := fmt.Sprintf("%s%v", cacheYmirOrderRequestIdPrefix, data.RequestId)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		return conn.ExecCtx(ctx, query, id)
-	}, ymirOrderIdKey, ymirOrderRequestIdKey)
+	}, ymirOrderIdKey, ymirOrderIdUserIdKey, ymirOrderRequestIdKey)
 	return err
 }
 
@@ -84,6 +88,26 @@ func (m *defaultOrderModel) FindOne(ctx context.Context, id int64) (*Order, erro
 		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", orderRows, m.table)
 		return conn.QueryRowCtx(ctx, v, query, id)
 	})
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
+func (m *defaultOrderModel) FindOneByIdUserId(ctx context.Context, id int64, userId int64) (*Order, error) {
+	ymirOrderIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheYmirOrderIdUserIdPrefix, id, userId)
+	var resp Order
+	err := m.QueryRowIndexCtx(ctx, &resp, ymirOrderIdUserIdKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
+		query := fmt.Sprintf("select %s from %s where `id` = ? and `user_id` = ? limit 1", orderRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, id, userId); err != nil {
+			return nil, err
+		}
+		return resp.Id, nil
+	}, m.queryPrimary)
 	switch err {
 	case nil:
 		return &resp, nil
@@ -116,11 +140,12 @@ func (m *defaultOrderModel) FindOneByRequestId(ctx context.Context, requestId st
 
 func (m *defaultOrderModel) Insert(ctx context.Context, data *Order) (sql.Result, error) {
 	ymirOrderIdKey := fmt.Sprintf("%s%v", cacheYmirOrderIdPrefix, data.Id)
+	ymirOrderIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheYmirOrderIdUserIdPrefix, data.Id, data.UserId)
 	ymirOrderRequestIdKey := fmt.Sprintf("%s%v", cacheYmirOrderRequestIdPrefix, data.RequestId)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, orderRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Id, data.UserId, data.RequestId, data.Status, data.TotalPrice, data.Unit, data.CancelReason)
-	}, ymirOrderIdKey, ymirOrderRequestIdKey)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, orderRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.UserId, data.RequestId, data.Status, data.TotalPrice, data.Unit, data.PaypalOrderId, data.CancelReason)
+	}, ymirOrderIdKey, ymirOrderIdUserIdKey, ymirOrderRequestIdKey)
 	return ret, err
 }
 
@@ -131,11 +156,12 @@ func (m *defaultOrderModel) Update(ctx context.Context, newData *Order) error {
 	}
 
 	ymirOrderIdKey := fmt.Sprintf("%s%v", cacheYmirOrderIdPrefix, data.Id)
+	ymirOrderIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheYmirOrderIdUserIdPrefix, data.Id, data.UserId)
 	ymirOrderRequestIdKey := fmt.Sprintf("%s%v", cacheYmirOrderRequestIdPrefix, data.RequestId)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, orderRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.UserId, newData.RequestId, newData.Status, newData.TotalPrice, newData.Unit, newData.CancelReason, newData.Id)
-	}, ymirOrderIdKey, ymirOrderRequestIdKey)
+		return conn.ExecCtx(ctx, query, newData.UserId, newData.RequestId, newData.Status, newData.TotalPrice, newData.Unit, newData.PaypalOrderId, newData.CancelReason, newData.Id)
+	}, ymirOrderIdKey, ymirOrderIdUserIdKey, ymirOrderRequestIdKey)
 	return err
 }
 

@@ -213,15 +213,6 @@ type OssTokenResponse struct {
 	SecurityToken   string `json:"security_token"`
 }
 
-type PayOrderRequest struct {
-	OrderId string `json:"order_id"`
-	Status  string `json:"status"`
-}
-
-type PayOrderResponse struct {
-	Status string `json:"status"`
-}
-
 type PayerAddress struct {
 	AddressLine1 string `json:"address_line_1"`
 	AddressLine2 string `json:"address_line_2"`

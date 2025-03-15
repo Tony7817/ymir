@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/stores/cache"
@@ -21,12 +22,21 @@ type (
 		DeleteTx(ctx context.Context, tx *sql.Tx, oId int64) error
 		FindOrderList(ctx context.Context, userId int64, offset, limit int64) ([]*Order, error)
 		CountOrderList(ctx context.Context, userId int64) (int64, error)
+		UpdateOrderPartial(ctx context.Context, oId int64, uId int64, data *OrderPartial) error
 	}
 
 	customOrderModel struct {
 		*defaultOrderModel
 	}
 )
+
+type OrderPartial struct {
+	Staus         *string         `db:"status"`
+	TotalPrice    *int64          `db:"total_price"`
+	Unit          *string         `db:"unit"`
+	PaypalOrderId *sql.NullString `db:"paypal_order_id"`
+	CancelReason  *sql.NullString `db:"cancel_reason"`
+}
 
 // NewOrderModel returns a model for the database table.
 func NewOrderModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) OrderModel {
@@ -74,6 +84,45 @@ func (m *customOrderModel) DeleteTx(ctx context.Context, tx *sql.Tx, oId int64) 
 	_, err := tx.ExecContext(ctx, "delete from `order` where id = ?", oId)
 	if err != nil {
 		return errors.Wrap(err, "[DeleteTx] delete order failed")
+	}
+
+	return nil
+}
+
+func (m *customOrderModel) UpdateOrderPartial(ctx context.Context, oId int64, uId int64, data *OrderPartial) error {
+	var query = "update `order` set"
+	var args []any
+	if data.Staus != nil {
+		query += " status = ?,"
+		args = append(args, *data.Staus)
+	}
+	if data.TotalPrice != nil {
+		query += " total_price = ?,"
+		args = append(args, *data.TotalPrice)
+	}
+	if data.Unit != nil {
+		query += " unit = ?,"
+		args = append(args, *data.Unit)
+	}
+	if data.PaypalOrderId != nil {
+		query += " paypal_order_id = ?,"
+		args = append(args, *data.PaypalOrderId)
+	}
+	if data.CancelReason != nil {
+		query += " cancel_reason = ?,"
+		args = append(args, *data.CancelReason)
+	}
+	query = query[:len(query)-1]
+	query += " where id = ?"
+	args = append(args, oId)
+
+	var cacheYmirOrderId = fmt.Sprintf("%s%v", cacheYmirOrderIdPrefix, oId)
+	var cacheYmirOrderIdUserId = fmt.Sprintf("%s%v:%v", cacheYmirOrderIdUserIdPrefix, oId, uId)
+	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (sql.Result, error) {
+		return conn.ExecCtx(ctx, query, args...)
+	}, cacheYmirOrderId, cacheYmirOrderIdUserId)
+	if err != nil {
+		return errors.Wrap(err, "[UpdateOrderPartial] update order failed")
 	}
 
 	return nil

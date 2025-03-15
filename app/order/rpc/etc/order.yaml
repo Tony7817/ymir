@@ -18,4 +18,4 @@ Log:
   ServiceName: ymir.order.rpc
   Level: debug
 
-Timeout: 8000
+Timeout: 10000

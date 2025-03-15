@@ -3,7 +3,6 @@ package logic
 import (
 	"bytes"
 	"context"
-	"database/sql"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -40,16 +39,7 @@ func (l *CaptureOrderLogic) CaptureOrder(in *order.CapturePaypalOrderRequest) (*
 		return nil, err
 	}
 
-	p, err := l.svcCtx.PaypalModel.FindOneByOrderIdUserId(l.ctx, in.OrderId, in.UserId)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return nil, err
-	}
-
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, xerr.NewErrCode(xerr.DataNoExistError)
-	}
-
-	var url = paypal.PaypalCaptureOrderUrl(p.PaypalOrderId)
+	var url = paypal.PaypalCaptureOrderUrl(in.PaypalOrderId)
 	var body = []byte(`{}`)
 
 	request, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
@@ -60,7 +50,6 @@ func (l *CaptureOrderLogic) CaptureOrder(in *order.CapturePaypalOrderRequest) (*
 
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Authorization", "Bearer "+token)
-	request.Header.Set("PayPal-Request-Id", p.RequestId)
 
 	var client = &http.Client{}
 	respb, err := client.Do(request)
@@ -73,7 +62,6 @@ func (l *CaptureOrderLogic) CaptureOrder(in *order.CapturePaypalOrderRequest) (*
 	if err != nil {
 		return nil, errors.Wrap(err, "read response body error")
 	}
-	l.Logger.Debugf("[CaptureOrder] capture order status: %d, response body: %s", respb.StatusCode, string(bodyStr))
 
 	var res paypal.CaptureOrderCreatedResponse
 	var errMsg paypal.ErrorResponse
@@ -98,14 +86,12 @@ func (l *CaptureOrderLogic) CaptureOrder(in *order.CapturePaypalOrderRequest) (*
 			return nil, err
 		}
 	} else if respb.StatusCode == http.StatusOK {
-		l.Logger.Errorf("[CaptureOrd：er] request-id: %s, capture order idempotent", p.RequestId)
 		return nil, xerr.NewErrCode(xerr.ErrorOrderPaied)
 	} else {
 		err = json.NewDecoder(respb.Body).Decode(&errMsg)
 		if err != nil {
 			return nil, errors.Wrap(err, "decode error response body error")
 		}
-		l.Logger.Errorf("[CaptureOrder] request-id: %s, capture order failed, resp:%+v", p.RequestId, errMsg)
 	}
 
 	return &order.CapturePaypalOrderResposne{

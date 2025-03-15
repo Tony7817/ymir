@@ -92,3 +92,8 @@ func (s *OrderServer) CheckOrderIdempotent(ctx context.Context, in *order.CheckO
 	l := logic.NewCheckOrderIdempotentLogic(ctx, s.svcCtx)
 	return l.CheckOrderIdempotent(in)
 }
+
+func (s *OrderServer) CheckOrderBelongToUser(ctx context.Context, in *order.CheckOrderBelongTouserRequest) (*order.CheckOrderBelongTouserResponse, error) {
+	l := logic.NewCheckOrderBelongToUserLogic(ctx, s.svcCtx)
+	return l.CheckOrderBelongToUser(in)
+}

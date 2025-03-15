@@ -52,11 +52,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/order/pay",
-				Handler: order.PayOrderHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
 				Path:    "/order/paypal/capture",
 				Handler: order.CapturePaypalOrderHandler(serverCtx),
 			},

@@ -11,6 +11,7 @@ message OrderContent {
     string Unit  = 5;
     string RequestId = 6;
     int64 CreatedAt = 7;
+    string PaypalOrderId = 8;
 }
 
 message OrderItem {
@@ -104,7 +105,8 @@ message Paypal {
 }
 
 message PaypalOrderReuqest {
-    string RequestId = 1;
+    int64 OrderId = 1;
+    int64 UserId = 2;
 }
 
 message PaypalOrderResponse {
@@ -123,9 +125,9 @@ message CreatePaypalOrderResponse {
 }
 
 message CapturePaypalOrderRequest {
-    string RequestId = 1;
-    int64 OrderId = 2;
-    int64 UserId = 3;
+    string PaypalOrderId = 2;
+    int64 OrderId = 3;
+    int64 UserId = 4;
 }
 
 message PayerName {
@@ -196,6 +198,15 @@ message GetOrderItemResponse {
     int64 TotalItems = 2;
 }
 
+message CheckOrderBelongTouserRequest {
+    int64 OrderId = 1;
+    int64 UserId = 2;
+}
+
+message CheckOrderBelongTouserResponse {
+    bool IsBelong = 1;
+}
+
 service order {
     rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
     rpc CreateOrderRollback(CreateOrderRequest) returns (CreateOrderResponse);
@@ -211,4 +222,5 @@ service order {
     rpc OrderAddress(GetOrderAddressRequest) returns (GetOrderAddressResponse);
     rpc GetOrderItem(GetOrderItemRequest) returns (GetOrderItemResponse);
     rpc CheckOrderIdempotent(CheckOrderIdempotentRequest) returns (CheckOrderIdempotentResponse);
+    rpc CheckOrderBelongToUser(CheckOrderBelongTouserRequest) returns (CheckOrderBelongTouserResponse);
 }

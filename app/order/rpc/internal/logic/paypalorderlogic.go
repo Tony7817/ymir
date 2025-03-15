@@ -26,7 +26,7 @@ func NewPaypalOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Paypa
 }
 
 func (l *PaypalOrderLogic) PaypalOrder(in *order.PaypalOrderReuqest) (*order.PaypalOrderResponse, error) {
-	po, err := l.svcCtx.PaypalModel.FindOneByRequestId(l.ctx, in.RequestId)
+	po, err := l.svcCtx.PaypalModel.FindOneByOrderIdUserId(l.ctx, in.OrderId, in.UserId)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}

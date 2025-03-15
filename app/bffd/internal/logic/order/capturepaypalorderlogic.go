@@ -38,21 +38,24 @@ func (l *CapturePaypalOrderLogic) CapturePaypalOrder(req *types.CapturePaypalOrd
 		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 
-	o, err := l.svcCtx.OrderRPC.GetOrder(l.ctx, &order.GetOrderRequest{
+	respbOrder, err := l.svcCtx.OrderRPC.GetOrder(l.ctx, &order.GetOrderRequest{
 		UserId:  uId,
 		OrderId: oId,
 	})
 	if err != nil {
 		return nil, err
 	}
-	if o.Order == nil {
-		return nil, xerr.NewErrCode(xerr.ErrorResourceForbiden)
+	if respbOrder.Order == nil {
+		return nil, xerr.NewErrCode(xerr.ErrorOrderNotExist)
+	}
+	if respbOrder.Order.PaypalOrderId != req.PaypalOrderId {
+		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 
 	respb, err := l.svcCtx.OrderRPC.CaptureOrder(l.ctx, &order.CapturePaypalOrderRequest{
-		RequestId: req.OrderId,
-		UserId:    uId,
-		OrderId:   oId,
+		PaypalOrderId: req.PaypalOrderId,
+		OrderId:       oId,
+		UserId:        uId,
 	})
 	if err != nil {
 		return nil, err

@@ -15,10 +15,9 @@ import (
 	"ymir.com/pkg/paypal"
 	"ymir.com/pkg/xerr"
 
-	"github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/threading"
+	"github.com/zeromicro/go-zero/core/mr"
 )
 
 type CreatePaypalOrderLogic struct {
@@ -41,7 +40,7 @@ func (l *CreatePaypalOrderLogic) CreatePaypalOrder(in *order.CreatePaypalOrderRe
 		return nil, err
 	}
 	var orderItems = make([]*order.OrderItem, len(oItems))
-	for i := 0; i < len(oItems); i++ {
+	for i := range oItems {
 		orderItems[i] = &order.OrderItem{
 			ProductId:   oItems[i].ProductId,
 			ColorId:     oItems[i].ProductColorId,
@@ -74,7 +73,7 @@ func (l *CreatePaypalOrderLogic) createPaypalOrder(orderItems []*order.OrderItem
 
 	var totalPrice float64
 
-	for i := 0; i < len(orderItems); i++ {
+	for i := range orderItems {
 		price := float64(orderItems[i].Price) / 100
 		totalPrice += price
 	}
@@ -108,17 +107,18 @@ func (l *CreatePaypalOrderLogic) createPaypalOrder(orderItems []*order.OrderItem
 	}
 	defer resp.Body.Close()
 
-	var createOrderResp paypal.PaypalCreateOrderResponse
+	var createOrderResp *paypal.PaypalCreateOrderResponse
 	var errMsg *paypal.ErrorResponse
 	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated {
-		err = json.NewDecoder(resp.Body).Decode(&createOrderResp)
+		createOrderResp = &paypal.PaypalCreateOrderResponse{}
+		err = json.NewDecoder(resp.Body).Decode(createOrderResp)
 		if err != nil {
 			l.Logger.Errorf("[CreateOrder] decode paypal create order response error: %+v", err)
 			return "", err
 		}
-
 	} else {
-		err = json.NewDecoder(resp.Body).Decode(&errMsg)
+		errMsg = &paypal.ErrorResponse{}
+		err = json.NewDecoder(resp.Body).Decode(errMsg)
 		if err != nil {
 			l.Logger.Errorf("[CreateOrder] decode paypal create order error response error: %+v", err)
 			return "", err
@@ -126,32 +126,43 @@ func (l *CreatePaypalOrderLogic) createPaypalOrder(orderItems []*order.OrderItem
 		l.Logger.Errorf("[CreateOrder] request paypal create order failed, resp:%+v", resp)
 	}
 
-	_, err = l.svcCtx.PaypalModel.Insert(l.ctx, &model.Paypal{
-		Id:            id.NewSnowFlake().GenerateID(),
-		OrderId:       orderId,
-		UserId:        userId,
-		RequestId:     requestId,
-		PaypalOrderId: createOrderResp.OrderId,
-		ReqBody:       sql.NullString{String: string(body), Valid: true},
-		ErrMsg:        paypal.SetErrorInNullString(errMsg),
+	err = mr.Finish(func() error {
+		_, err = l.svcCtx.PaypalModel.InsertDuplicateUpdate(l.ctx, &model.Paypal{
+			Id:            id.NewSnowFlake().GenerateID(),
+			OrderId:       orderId,
+			UserId:        userId,
+			RequestId:     requestId,
+			PaypalOrderId: createOrderResp.PaypalOrderId,
+			ReqBody:       sql.NullString{String: string(body), Valid: true},
+			ErrMsg:        paypal.SetErrorInNullString(errMsg),
+			RespBody:      sql.NullString{String: string(body), Valid: true},
+		})
+		if err != nil {
+			return errors.Wrap(err, "insert paypal order failed")
+		}
+		return nil
+	}, func() error {
+		if createOrderResp == nil {
+			return nil
+		}
+		err := l.svcCtx.OrderModel.UpdateOrderPartial(l.ctx, orderId, userId, &model.OrderPartial{
+			PaypalOrderId: &sql.NullString{
+				String: createOrderResp.PaypalOrderId,
+				Valid:  true,
+			},
+		})
+		if err != nil {
+			return errors.Wrapf(err, "update order paypal order id failed, orderId:%d, paypalOrderId:%s", orderId, createOrderResp.PaypalOrderId)
+		}
+		return nil
 	})
 	if err != nil {
-		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
-			if mysqlErr.Number == 1062 {
-				return "", xerr.NewErrCode(xerr.ErrorOrderCreated)
-			}
-		}
 		return "", err
 	}
-
-	// set the order in redis
-	threading.GoSafe(func() {
-		_, _ = l.svcCtx.PaypalModel.FindOneByRequestId(l.ctx, requestId)
-	})
 
 	if errMsg != nil {
 		return "", xerr.NewErrCode(xerr.ErrorCreateOrder)
 	}
 
-	return createOrderResp.OrderId, nil
+	return createOrderResp.PaypalOrderId, nil
 }

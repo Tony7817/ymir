@@ -17,5 +17,5 @@ type PaypalAmount struct {
 }
 
 type PaypalCreateOrderResponse struct {
-	OrderId string `json:"id"`
+	PaypalOrderId string `json:"id"`
 }

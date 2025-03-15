@@ -1,12 +1,17 @@
 package logic
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
+	"encoding/json"
+	"net/http"
+	"strconv"
 
 	"ymir.com/app/order/model"
 	"ymir.com/app/order/rpc/internal/svc"
 	"ymir.com/app/order/rpc/order"
+	"ymir.com/pkg/paypal"
 	"ymir.com/pkg/xerr"
 
 	"github.com/pkg/errors"
@@ -72,15 +77,64 @@ func (l *GetOrderLogic) GetOrder(in *order.GetOrderRequest) (*order.GetOrderResp
 		}, nil
 	}
 
+	if orderRes.Status == model.OrderStatusPending {
+		orderDetail, err := l.getPaypalOrderDetail(in.OrderId)
+		if err != nil {
+			return nil, errors.Wrap(err, "get paypal order detail failed")
+		}
+		if orderDetail.Status == model.OrderStatusCompleted {
+			orderRes.Status = model.OrderStatusCompleted
+			if err := l.svcCtx.OrderModel.UpdateOrderPartial(l.ctx, orderRes.Id, orderRes.UserId, &model.OrderPartial{
+				Staus: &model.OrderStatusCompleted,
+			}); err != nil {
+				return nil, errors.Wrap(err, "update order status failed")
+			}
+		}
+	}
+
 	return &order.GetOrderResponse{
 		Order: &order.OrderContent{
-			RequestId:  orderRes.RequestId,
-			OrderId:    orderRes.Id,
-			UserId:     orderRes.UserId,
-			TotalPrice: orderRes.TotalPrice,
-			Status:     orderRes.Status,
-			Unit:       orderRes.Unit,
+			RequestId:     orderRes.RequestId,
+			OrderId:       orderRes.Id,
+			UserId:        orderRes.UserId,
+			TotalPrice:    orderRes.TotalPrice,
+			Status:        orderRes.Status,
+			Unit:          orderRes.Unit,
+			PaypalOrderId: orderRes.PaypalOrderId.String,
+			CreatedAt:     orderRes.CreatedAt.Unix(),
 		},
 		OrderItems: oiRes,
 	}, nil
+}
+
+func (l *GetOrderLogic) getPaypalOrderDetail(orderId int64) (*paypal.CaptureOrderCreatedResponse, error) {
+	token, err := paypal.GetToken(l.ctx, l.svcCtx.Redis)
+	if err != nil {
+		return nil, err
+	}
+
+	var url = paypal.PaypalShowOrderDetailUrl(strconv.Itoa(int(orderId)))
+	var body = []byte(`{}`)
+	request, err := http.NewRequest("GET", url, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+	defer request.Body.Close()
+
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Authorization", "Bearer "+token)
+
+	var client = &http.Client{}
+	respb, err := client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	defer respb.Body.Close()
+
+	var res paypal.CaptureOrderCreatedResponse
+	if err := json.NewDecoder(respb.Body).Decode(&res); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
 }

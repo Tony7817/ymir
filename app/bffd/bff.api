@@ -283,13 +283,6 @@ type (
 		OrderId string `json:"order_id"`
 		Status  string `json:"status"`
 	}
-	PayOrderRequest {
-		OrderId string `json:"order_id"`
-		Status  string `json:"status"`
-	}
-	PayOrderResponse {
-		Status string `json:"status"`
-	}
 	DeleteOrderRequest {
 		OrderId string `json:"order_id"`
 	}
@@ -540,9 +533,6 @@ service bff {
 
 	@handler DeleteOrder
 	post /order/delete (DeleteOrderRequest) returns (DeleteORderResponse)
-
-	@handler PayOrder
-	post /order/pay (PayOrderRequest) returns (PayOrderResponse)
 
 	@handler OrderList
 	get /order/list (GetOrderListRequest) returns (GetOrderListResponse)

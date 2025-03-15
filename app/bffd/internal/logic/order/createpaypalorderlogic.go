@@ -38,14 +38,14 @@ func (l *CreatePaypalOrderLogic) CreatePaypalOrder(req *types.CreatePaypalOrderR
 		return nil, xerr.NewErrCode(xerr.ErrorReuqestParam)
 	}
 
-	respbCheck, err := l.svcCtx.OrderRPC.GetOrder(l.ctx, &order.GetOrderRequest{
+	respbCheck, err := l.svcCtx.OrderRPC.CheckOrderBelongToUser(l.ctx, &order.CheckOrderBelongTouserRequest{
 		UserId:  uId,
 		OrderId: oId,
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "[CreatePaypalOrder] get order failed, orderId: %d", oId)
 	}
-	if respbCheck.Order == nil {
+	if !respbCheck.IsBelong {
 		return nil, xerr.NewErrCode(xerr.ErrorResourceForbiden)
 	}
 

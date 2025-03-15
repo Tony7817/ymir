@@ -8,11 +8,15 @@ import (
 )
 
 const PaypalGetTokenUrl = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
-
+const paypalShowOrderDetailUrl = "https://api-m.sandbox.paypal.com/v2/checkout/orders"
 const PaypalTokenCacheKey = "cache:paypal:access_token"
 
 func PaypalCaptureOrderUrl(porderId string) string {
 	return "https://api-m.sandbox.paypal.com/v2/checkout/orders/" + porderId + "/capture"
+}
+
+func PaypalShowOrderDetailUrl(orderId string) string {
+	return paypalShowOrderDetailUrl + "/" + orderId
 }
 
 type PaypalTokenResponse struct {

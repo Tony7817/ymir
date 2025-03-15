@@ -51,6 +51,7 @@ type (
 		OrderId       int64          `db:"order_id"`
 		RequestId     string         `db:"request_id"`
 		ReqBody       sql.NullString `db:"req_body"`
+		RespBody      sql.NullString `db:"resp_body"`
 		PaypalOrderId string         `db:"paypal_order_id"`
 		UserId        int64          `db:"user_id"`
 		ErrMsg        sql.NullString `db:"err_msg"`
@@ -142,8 +143,8 @@ func (m *defaultPaypalModel) Insert(ctx context.Context, data *Paypal) (sql.Resu
 	ymirPaypalOrderIdUserIdKey := fmt.Sprintf("%s%v:%v", cacheYmirPaypalOrderIdUserIdPrefix, data.OrderId, data.UserId)
 	ymirPaypalRequestIdKey := fmt.Sprintf("%s%v", cacheYmirPaypalRequestIdPrefix, data.RequestId)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, paypalRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Id, data.OrderId, data.RequestId, data.ReqBody, data.PaypalOrderId, data.UserId, data.ErrMsg)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, paypalRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Id, data.OrderId, data.RequestId, data.ReqBody, data.RespBody, data.PaypalOrderId, data.UserId, data.ErrMsg)
 	}, ymirPaypalIdKey, ymirPaypalOrderIdUserIdKey, ymirPaypalRequestIdKey)
 	return ret, err
 }
@@ -159,7 +160,7 @@ func (m *defaultPaypalModel) Update(ctx context.Context, newData *Paypal) error 
 	ymirPaypalRequestIdKey := fmt.Sprintf("%s%v", cacheYmirPaypalRequestIdPrefix, data.RequestId)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, paypalRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.OrderId, newData.RequestId, newData.ReqBody, newData.PaypalOrderId, newData.UserId, newData.ErrMsg, newData.Id)
+		return conn.ExecCtx(ctx, query, newData.OrderId, newData.RequestId, newData.ReqBody, newData.RespBody, newData.PaypalOrderId, newData.UserId, newData.ErrMsg, newData.Id)
 	}, ymirPaypalIdKey, ymirPaypalOrderIdUserIdKey, ymirPaypalRequestIdKey)
 	return err
 }

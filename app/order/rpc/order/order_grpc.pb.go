@@ -19,20 +19,21 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Order_CreateOrder_FullMethodName          = "/order.order/CreateOrder"
-	Order_CreateOrderRollback_FullMethodName  = "/order.order/CreateOrderRollback"
-	Order_DeleteOrder_FullMethodName          = "/order.order/DeleteOrder"
-	Order_DeleteOrderRollback_FullMethodName  = "/order.order/DeleteOrderRollback"
-	Order_GetOrder_FullMethodName             = "/order.order/GetOrder"
-	Order_UpdateOrder_FullMethodName          = "/order.order/UpdateOrder"
-	Order_PayOrder_FullMethodName             = "/order.order/PayOrder"
-	Order_OrderList_FullMethodName            = "/order.order/OrderList"
-	Order_PaypalOrder_FullMethodName          = "/order.order/PaypalOrder"
-	Order_CreatePaypalOrder_FullMethodName    = "/order.order/CreatePaypalOrder"
-	Order_CaptureOrder_FullMethodName         = "/order.order/CaptureOrder"
-	Order_OrderAddress_FullMethodName         = "/order.order/OrderAddress"
-	Order_GetOrderItem_FullMethodName         = "/order.order/GetOrderItem"
-	Order_CheckOrderIdempotent_FullMethodName = "/order.order/CheckOrderIdempotent"
+	Order_CreateOrder_FullMethodName            = "/order.order/CreateOrder"
+	Order_CreateOrderRollback_FullMethodName    = "/order.order/CreateOrderRollback"
+	Order_DeleteOrder_FullMethodName            = "/order.order/DeleteOrder"
+	Order_DeleteOrderRollback_FullMethodName    = "/order.order/DeleteOrderRollback"
+	Order_GetOrder_FullMethodName               = "/order.order/GetOrder"
+	Order_UpdateOrder_FullMethodName            = "/order.order/UpdateOrder"
+	Order_PayOrder_FullMethodName               = "/order.order/PayOrder"
+	Order_OrderList_FullMethodName              = "/order.order/OrderList"
+	Order_PaypalOrder_FullMethodName            = "/order.order/PaypalOrder"
+	Order_CreatePaypalOrder_FullMethodName      = "/order.order/CreatePaypalOrder"
+	Order_CaptureOrder_FullMethodName           = "/order.order/CaptureOrder"
+	Order_OrderAddress_FullMethodName           = "/order.order/OrderAddress"
+	Order_GetOrderItem_FullMethodName           = "/order.order/GetOrderItem"
+	Order_CheckOrderIdempotent_FullMethodName   = "/order.order/CheckOrderIdempotent"
+	Order_CheckOrderBelongToUser_FullMethodName = "/order.order/CheckOrderBelongToUser"
 )
 
 // OrderClient is the client API for Order service.
@@ -53,6 +54,7 @@ type OrderClient interface {
 	OrderAddress(ctx context.Context, in *GetOrderAddressRequest, opts ...grpc.CallOption) (*GetOrderAddressResponse, error)
 	GetOrderItem(ctx context.Context, in *GetOrderItemRequest, opts ...grpc.CallOption) (*GetOrderItemResponse, error)
 	CheckOrderIdempotent(ctx context.Context, in *CheckOrderIdempotentRequest, opts ...grpc.CallOption) (*CheckOrderIdempotentResponse, error)
+	CheckOrderBelongToUser(ctx context.Context, in *CheckOrderBelongTouserRequest, opts ...grpc.CallOption) (*CheckOrderBelongTouserResponse, error)
 }
 
 type orderClient struct {
@@ -203,6 +205,16 @@ func (c *orderClient) CheckOrderIdempotent(ctx context.Context, in *CheckOrderId
 	return out, nil
 }
 
+func (c *orderClient) CheckOrderBelongToUser(ctx context.Context, in *CheckOrderBelongTouserRequest, opts ...grpc.CallOption) (*CheckOrderBelongTouserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckOrderBelongTouserResponse)
+	err := c.cc.Invoke(ctx, Order_CheckOrderBelongToUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServer is the server API for Order service.
 // All implementations must embed UnimplementedOrderServer
 // for forward compatibility.
@@ -221,6 +233,7 @@ type OrderServer interface {
 	OrderAddress(context.Context, *GetOrderAddressRequest) (*GetOrderAddressResponse, error)
 	GetOrderItem(context.Context, *GetOrderItemRequest) (*GetOrderItemResponse, error)
 	CheckOrderIdempotent(context.Context, *CheckOrderIdempotentRequest) (*CheckOrderIdempotentResponse, error)
+	CheckOrderBelongToUser(context.Context, *CheckOrderBelongTouserRequest) (*CheckOrderBelongTouserResponse, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -272,6 +285,9 @@ func (UnimplementedOrderServer) GetOrderItem(context.Context, *GetOrderItemReque
 }
 func (UnimplementedOrderServer) CheckOrderIdempotent(context.Context, *CheckOrderIdempotentRequest) (*CheckOrderIdempotentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckOrderIdempotent not implemented")
+}
+func (UnimplementedOrderServer) CheckOrderBelongToUser(context.Context, *CheckOrderBelongTouserRequest) (*CheckOrderBelongTouserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckOrderBelongToUser not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
 func (UnimplementedOrderServer) testEmbeddedByValue()               {}
@@ -546,6 +562,24 @@ func _Order_CheckOrderIdempotent_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_CheckOrderBelongToUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckOrderBelongTouserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).CheckOrderBelongToUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_CheckOrderBelongToUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).CheckOrderBelongToUser(ctx, req.(*CheckOrderBelongTouserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Order_ServiceDesc is the grpc.ServiceDesc for Order service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -608,6 +642,10 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckOrderIdempotent",
 			Handler:    _Order_CheckOrderIdempotent_Handler,
+		},
+		{
+			MethodName: "CheckOrderBelongToUser",
+			Handler:    _Order_CheckOrderBelongToUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
