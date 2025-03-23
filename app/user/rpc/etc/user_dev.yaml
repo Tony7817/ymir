@@ -17,8 +17,4 @@ BizRedis:
 
 Log:
   ServiceName: ymir.user.rpc
-  Level: error
-  Mode: file
-  Path: /home/ecs-user/log/rpc/user
-  Stat: true
-  KeepDays: 7
+  Level: debug

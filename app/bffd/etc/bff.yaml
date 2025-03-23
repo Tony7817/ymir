@@ -47,4 +47,8 @@ Signature:
 
 Log:
   ServiceName: bff
-  Level: debug
+  Level: error
+  Mode: file
+  Path: /home/ecs-user/log/bff
+  Stat: true
+  KeepDays: 7

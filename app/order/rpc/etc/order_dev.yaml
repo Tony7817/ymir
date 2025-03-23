@@ -1,13 +1,12 @@
-Name: ymir.user.rpc
-ListenOn: 0.0.0.0:8003
+Name: ymir.order.rpc
+ListenOn: 0.0.0.0:8004
 mode: dev
 
 Etcd:
   Hosts:
   - 127.0.0.1:2379
-  Key: ymir.user.rpc
+  Key: ymir.order.rpc
 
-Timeout: 3000
 DataSource: root:test123@tcp(localhost:3306)/ymir?parseTime=true&loc=UTC
 CacheRedis:
   - Host: localhost:6379
@@ -16,9 +15,11 @@ BizRedis:
   Host: 127.0.0.1:6379
 
 Log:
-  ServiceName: ymir.user.rpc
+  ServiceName: ymir.order.rpc
   Level: error
   Mode: file
-  Path: /home/ecs-user/log/rpc/user
+  Path: /home/ecs-user/log/rpc/order
   Stat: true
   KeepDays: 7
+
+Timeout: 10000

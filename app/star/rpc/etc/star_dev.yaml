@@ -8,11 +8,6 @@ Etcd:
 DataSource: root:test123@tcp(localhost:3306)/ymir?parseTime=true&loc=UTC
 CacheRedis:
   - Host: localhost:6379
-
 Log:
   ServiceName: ymir.star.rpc
-  Level: error
-  Mode: file
-  Path: /home/ecs-user/log/rpc/star
-  Stat: true
-  KeepDays: 7
+  Level: debug
