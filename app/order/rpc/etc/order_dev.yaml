@@ -16,10 +16,6 @@ BizRedis:
 
 Log:
   ServiceName: ymir.order.rpc
-  Level: error
-  Mode: file
-  Path: /home/ecs-user/log/rpc/order
-  Stat: true
-  KeepDays: 7
+  Level: debug
 
 Timeout: 10000
