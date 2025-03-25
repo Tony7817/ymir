@@ -19,3 +19,4 @@ Log:
   Level: debug
 
 Timeout: 10000
+Mode: dev

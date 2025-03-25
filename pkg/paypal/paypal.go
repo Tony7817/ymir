@@ -48,7 +48,7 @@ func getPaypalToken() (*PaypalTokenResponse, error) {
 	data.Set("grant_type", "client_credentials")
 	var body = strings.NewReader(data.Encode())
 
-	req, err := http.NewRequest("POST", PaypalGetTokenUrl, body)
+	req, err := http.NewRequest("POST", PaypalGetTokenUrl(), body)
 	if err != nil {
 		return nil, err
 	}

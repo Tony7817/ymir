@@ -3,20 +3,46 @@ package paypal
 import (
 	"database/sql"
 	"encoding/json"
+	"os"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"ymir.com/pkg/vars"
 )
 
-const PaypalGetTokenUrl = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
-const paypalShowOrderDetailUrl = "https://api-m.sandbox.paypal.com/v2/checkout/orders"
+const PaypalAPIPrefix = "https://api-m.paypal.com"
+const PaypalAPISandboxPrefix = "https://api-m.sandbox.paypal.com"
 const PaypalTokenCacheKey = "cache:paypal:access_token"
 
+var APIPrefix = ""
+
+func Init() {
+	var mode = os.Getenv("YMIR_MODE")
+	if mode == vars.ModeDev {
+		APIPrefix = PaypalAPISandboxPrefix
+	} else if mode == vars.ModeProd {
+		APIPrefix = PaypalAPIPrefix
+	} else {
+		panic("invalid mode")
+	}
+}
+
+func PaypalCreateOrderUrl() string {
+	return APIPrefix + "/v2/checkout/orders"
+}
+func PaypalGetTokenUrl() string {
+	return APIPrefix + "/v1/oauth2/token"
+}
+
+func PaypalCheckoutUrl() string {
+	return APIPrefix + "/v2/checkout/orders"
+}
+
 func PaypalCaptureOrderUrl(porderId string) string {
-	return "https://api-m.sandbox.paypal.com/v2/checkout/orders/" + porderId + "/capture"
+	return APIPrefix + "/v2/checkout/orders/" + porderId + "/capture"
 }
 
 func PaypalShowOrderDetailUrl(orderId string) string {
-	return paypalShowOrderDetailUrl + "/" + orderId
+	return PaypalCheckoutUrl() + "/" + orderId
 }
 
 type PaypalTokenResponse struct {

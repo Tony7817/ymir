@@ -11,3 +11,5 @@ CacheRedis:
 Log:
   ServiceName: ymir.star.rpc
   Level: debug
+
+Mode: dev

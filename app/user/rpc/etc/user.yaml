@@ -22,3 +22,5 @@ Log:
   Path: /home/ecs-user/log/rpc/user
   Stat: true
   KeepDays: 7
+
+Mode: pro

@@ -16,3 +16,5 @@ Log:
   Path: /home/ecs-user/log/rpc/star
   Stat: true
   KeepDays: 7
+
+Mode: pro

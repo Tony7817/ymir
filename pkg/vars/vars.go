@@ -2,6 +2,10 @@ package vars
 
 import "fmt"
 
+const ModeDev = "dev"
+const ModeProd = "pro"
+const ModeVar = "YMIR_MODE"
+
 // captcha
 const CaptchaCodeAnyWay = "293049"
 const CaptchaMaxSendTimesPerDay int64 = 12
@@ -147,12 +151,3 @@ const RequestContextKey ContextKey = "Request"
 
 const UserIdKey = "UserId"
 const OrganizerKey = "Organizer"
-
-// product
-func CacheProductInCartKey(userId int64) string {
-	return fmt.Sprintf("cache:product:cart:%d", userId)
-}
-
-// PAYPAL
-
-// Order

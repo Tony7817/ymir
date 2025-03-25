@@ -1,7 +1,5 @@
 package paypal
 
-const PaypalCrateOrderUrl = "https://api-m.sandbox.paypal.com/v2/checkout/orders"
-
 type PaypalCreateOrderRequest struct {
 	Intent        string               `json:"intent"`
 	PurchaseUnits []PaypalPurchaseUnit `json:"purchase_units"`

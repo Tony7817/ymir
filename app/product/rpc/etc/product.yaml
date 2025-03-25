@@ -18,3 +18,5 @@ Log:
   Path: /home/ecs-user/log/rpc/product
   Stat: true
   KeepDays: 7
+
+Mode: pro

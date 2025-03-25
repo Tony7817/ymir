@@ -90,7 +90,7 @@ func (l *CreatePaypalOrderLogic) createPaypalOrder(orderItems []*order.OrderItem
 		return "", err
 	}
 
-	request, err := http.NewRequest("POST", "https://api.sandbox.paypal.com/v2/checkout/orders", bytes.NewBuffer(body))
+	request, err := http.NewRequest("POST", paypal.PaypalCheckoutUrl(), bytes.NewBuffer(body))
 	if err != nil {
 		return "", err
 	}
@@ -126,6 +126,10 @@ func (l *CreatePaypalOrderLogic) createPaypalOrder(orderItems []*order.OrderItem
 		l.Logger.Errorf("[CreateOrder] request paypal create order failed, resp:%+v", resp)
 	}
 
+	if errMsg != nil {
+		return "", xerr.NewErrCode(xerr.ErrorCreateOrder)
+	}
+
 	err = mr.Finish(func() error {
 		_, err = l.svcCtx.PaypalModel.InsertDuplicateUpdate(l.ctx, &model.Paypal{
 			Id:            id.NewSnowFlake().GenerateID(),
@@ -158,10 +162,6 @@ func (l *CreatePaypalOrderLogic) createPaypalOrder(orderItems []*order.OrderItem
 	})
 	if err != nil {
 		return "", err
-	}
-
-	if errMsg != nil {
-		return "", xerr.NewErrCode(xerr.ErrorCreateOrder)
 	}
 
 	return createOrderResp.PaypalOrderId, nil

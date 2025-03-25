@@ -14,3 +14,5 @@ BizRedis:
 Log:
   ServiceName: ymir.product.rpc
   Level: debug
+
+Mode: dev

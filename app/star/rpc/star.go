@@ -3,12 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"ymir.com/app/star/rpc/internal/config"
 	"ymir.com/app/star/rpc/internal/server"
 	"ymir.com/app/star/rpc/internal/svc"
 	"ymir.com/app/star/rpc/star"
 	"ymir.com/pkg/interceptor"
+	"ymir.com/pkg/vars"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -25,6 +27,11 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 	ctx := svc.NewServiceContext(c)
+	if c.Mode == vars.ModeProd {
+		os.Setenv(vars.ModeVar, vars.ModeProd)
+	} else if c.Mode == vars.ModeDev {
+		os.Setenv(vars.ModeVar, vars.ModeDev)
+	}
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
 		star.RegisterStarServer(grpcServer, server.NewStarServer(ctx))
