@@ -40,6 +40,8 @@ func (l *ProductListLogic) ProductList(req *types.ProductListRequest) (*types.Pr
 		ps = append(ps, types.ProductListItem{
 			Id:          id.EncodeId(respb.Products[i].Id),
 			Description: respb.Products[i].Description,
+			StarName:    respb.Products[i].StarName,
+			StarAvatar:  respb.Products[i].StarAvatar,
 			DefaultColor: types.ProductListColorItem{
 				CoverUrl: respb.Products[i].DefaultColor.CoverUrl,
 				Price:    respb.Products[i].DefaultColor.Price,

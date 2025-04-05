@@ -26,6 +26,8 @@ message ProductListItem {
   string Description = 2;
   string Unit = 3;
   ProductListColorItem DefaultColor = 4;
+  string StarName = 5;
+  string StarAvatar = 6;
 }
 
 message ProductCoverUrlRequest {

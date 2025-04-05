@@ -45,6 +45,9 @@ type (
 		Id           string               `json:"id"`
 		Description  string               `json:"description"`
 		DefaultColor ProductListColorItem `json:"default_color"`
+		StarId       string               `json:"star_id"`
+		StarName     string               `json:"star_name"`
+		StarAvatar   string               `json:"star_avatar"`
 	}
 	ProductListResponse {
 		Total    int64             `json:"total"`

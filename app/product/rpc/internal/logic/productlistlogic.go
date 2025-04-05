@@ -51,7 +51,7 @@ func (l *ProductListLogic) ProductList(in *product.ProductListRequest) (*product
 	if err != nil {
 		return nil, errors.Wrapf(err, "[ProductList] failed to get product list")
 	}
-	for i := 0; i < len(p); i++ {
+	for i := range p {
 		l.Logger.Debugf("product: %+v", p[i].Description)
 	}
 
@@ -59,7 +59,7 @@ func (l *ProductListLogic) ProductList(in *product.ProductListRequest) (*product
 	if err != nil {
 		return nil, err
 	}
-	for i := 0; i < len(productItems); i++ {
+	for i := range productItems {
 		l.Logger.Debugf("productItem: %+v", productItems[i].Description)
 	}
 
@@ -104,6 +104,8 @@ func (l *ProductListLogic) colorOfProducts(ps []*model.Product) ([]*product.Prod
 				Id:          p.product.Id,
 				Description: p.product.Description,
 				Unit:        color.Unit,
+				StarName:    p.product.StarName,
+				StarAvatar:  p.product.StarAvatar,
 				DefaultColor: &product.ProductListColorItem{
 					CoverUrl: color.CoverUrl,
 					Price:    color.Price,
@@ -120,7 +122,7 @@ func (l *ProductListLogic) colorOfProducts(ps []*model.Product) ([]*product.Prod
 			return items[i].index < items[j].index
 		})
 		var res = make([]*product.ProductListItem, len(items))
-		for i := 0; i < len(items); i++ {
+		for i := range items {
 			res[i] = items[i].item
 		}
 		writer.Write(res)
