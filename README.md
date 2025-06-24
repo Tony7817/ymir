@@ -8,3 +8,5 @@ Distributed transactions are handled using DTM(https://dtm.pub/guide/start.html)
 # Development Guidelines:
 - A microservice should only control table resources related to its business domain.
 - Make full use of goroutines to reduce service call chains. Refer to app/bffd/internal/logic/product/productdetaillogic.go for implementation.
+- ID Generation: Snowflake algorithm for all database IDs
+- Insertion Rule: Snowflake IDs must be explicitly generated prior to database insertion
