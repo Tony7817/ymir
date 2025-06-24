@@ -1,4 +1,4 @@
-# Generate api go file
+# About this project
 A high-concurrency service based on gozero, using Cache Aside as the caching strategy.
 The architecture follows a BFF (Backend for Frontend) + microservice (RPC) pattern.
 
