@@ -1,6 +1,7 @@
 # Generate api go file
-under app/api
-## star
-goctl api go -api bffs.api -dir .
-goctl rpc protoc productadmin.proto --go_out=. --go-grpc_out=. --zrpc_out=.
-goctl model mysql datasource --url "root:test123@tcp(localhost:3306)/ymir" --table "product_color_detail" -c .
+A high-concurrency service based on gozero, using Cache Aside as the caching strategy.
+The architecture follows a BFF (Backend for Frontend) + microservice (RPC) pattern.
+
+# Development Guidelines:
+- A microservice should only control table resources related to its business domain.
+- Make full use of goroutines to reduce service call chains. Refer to app/bffd/internal/logic/product/productdetaillogic.go for implementation.
