@@ -1,5 +1,7 @@
 # About this project
-A high-concurrency service based on gozero, using Cache Aside as the caching strategy. \
+A GoZero-based high-concurrency e-commerce platform featuring PayPal integration and Google Sign-In support. \
+Cloud & Storage: Alibaba Cloud (OSS, Email, CDN) \
+SMS: External third-party service \
 The architecture follows a BFF (Backend for Frontend) + microservice (RPC) pattern. \
 Distributed transactions are handled using DTM(https://dtm.pub/guide/start.html)
 
