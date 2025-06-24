@@ -1,6 +1,6 @@
 # About this project
-A high-concurrency service based on gozero, using Cache Aside as the caching strategy.
-The architecture follows a BFF (Backend for Frontend) + microservice (RPC) pattern.
+A high-concurrency service based on gozero, using Cache Aside as the caching strategy. \
+The architecture follows a BFF (Backend for Frontend) + microservice (RPC) pattern. \
 Distributed transactions are handled using DTM(https://dtm.pub/guide/start.html)
 
 # Development Guidelines:
