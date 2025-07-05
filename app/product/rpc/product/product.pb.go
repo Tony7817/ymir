@@ -23,7 +23,7 @@ const (
 type Status int32
 
 const (
-	Status_OK    Status = 0
+	/*  */Status_OK    Status = 0
 	Status_ERROR Status = 1
 )
 
